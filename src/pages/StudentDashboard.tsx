@@ -147,17 +147,18 @@ const StudentDashboard = () => {
                           </span>
                         </div>
 
-                        {/* Progress Bar */}
+                        {/* Progress Bar - Full Width */}
                         <div className="mb-4 md:mb-0">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="text-sm font-medium">Progress</span>
-                            <span className="text-sm text-muted-foreground">{course.progress}%</span>
-                          </div>
-                          <div className="progress-bg rounded-full h-2">
+                          <div className="relative progress-bg rounded-full h-6">
                             <div 
-                              className="progress-fill h-2 rounded-full transition-all duration-300"
+                              className="progress-fill h-6 rounded-full transition-all duration-300"
                               style={{ width: `${course.progress}%` }}
                             />
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-xs font-medium bg-white px-2 py-0.5 rounded shadow-sm border">
+                                {course.progress}%
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -178,8 +179,8 @@ const StudentDashboard = () => {
                 {/* Separator and Upcoming Items - Only for enrolled courses */}
                 {course.status === 'enrolled' && course.upcomingItems.length > 0 && (
                   <>
-                    {/* Separator */}
-                    <div className="border-t border-border mb-6"></div>
+                    {/* Separator with margin */}
+                    <div className="border-t border-border mt-6 mb-6"></div>
 
                     {/* Upcoming Items */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

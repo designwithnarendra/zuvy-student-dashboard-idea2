@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,13 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Video, BookOpen, FileText, Clock, Calendar, Users, Play, CheckCircle2, XCircle } from "lucide-react";
+import { Video, BookOpen, FileText, Clock, Calendar, Users, Play, CheckCircle2, XCircle, Check } from "lucide-react";
 import { mockCourses, RecentClass } from "@/lib/mockData";
 import Header from "@/components/Header";
 
 const CourseDashboard = () => {
   const { courseId } = useParams();
   const course = mockCourses.find(c => c.id === courseId);
+  const [showAllModules, setShowAllModules] = useState(false);
 
   if (!course) {
     return (
@@ -106,6 +108,29 @@ const CourseDashboard = () => {
     return "Starting soon";
   };
 
+  const getModuleCTA = (moduleId: string, progress: number) => {
+    if (moduleId === course.currentModule.id) {
+      return "Continue Learning";
+    } else if (progress === 0) {
+      return "Start Learning";
+    } else if (progress === 100) {
+      return "Review Module";
+    } else {
+      return "Continue Learning";
+    }
+  };
+
+  const getModuleProgress = (moduleId: string) => {
+    // Mock progress for different modules
+    const progressMap: { [key: string]: number } = {
+      '1': 100,
+      '2': 65,
+      '3': 0,
+      '4': 0,
+    };
+    return progressMap[moduleId] || 0;
+  };
+
   const AttendanceModal = ({ classes }: { classes: RecentClass[] }) => (
     <>
       {/* Desktop Dialog */}
@@ -190,6 +215,8 @@ const CourseDashboard = () => {
     </>
   );
 
+  const modulesToShow = showAllModules ? course.modules : course.modules.slice(0, 7);
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -259,15 +286,16 @@ const CourseDashboard = () => {
 
             {/* Progress Bar */}
             <div className="mb-6">
-              <div className="flex justify-between items-center mb-2">
-                <span className="font-medium">Overall Progress</span>
-                <span className="text-sm text-muted-foreground">{course.progress}%</span>
-              </div>
-              <div className="progress-bg rounded-full h-3">
+              <div className="relative progress-bg rounded-full h-6">
                 <div 
-                  className="progress-fill h-3 rounded-full transition-all duration-300"
+                  className="progress-fill h-6 rounded-full transition-all duration-300"
                   style={{ width: `${course.progress}%` }}
                 />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-xs font-medium bg-white px-2 py-0.5 rounded shadow-sm border">
+                    {course.progress}%
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -306,58 +334,84 @@ const CourseDashboard = () => {
 
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Current Module & What's Next */}
+            {/* Left Column - Course Modules */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Current Module Section */}
-              <Card className="shadow-4dp">
-                <CardContent className="p-6">
-                  <div className="mb-4">
-                    <h3 className="text-xl font-heading font-semibold mb-2">
-                      Current Module: {course.currentModule.name}
-                    </h3>
-                    <p className="text-muted-foreground mb-2">
-                      Topic: {course.currentModule.currentChapter}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {course.currentModule.isJustStarting 
-                        ? `Next: ${course.currentModule.nextItem.name}` 
-                        : `Continue with: ${course.currentModule.nextItem.name}`}
-                    </p>
-                  </div>
-                  {/* Current Module Progress */}
-                  <div className="mb-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium">Module Progress</span>
-                      <span className="text-sm text-muted-foreground">65%</span>
+              {/* Course Modules Section */}
+              <div>
+                <h2 className="text-2xl font-heading font-semibold mb-6">Course Modules</h2>
+                
+                <div className="space-y-4">
+                  {modulesToShow.map((module) => {
+                    const moduleProgress = getModuleProgress(module.id);
+                    const isCurrentModule = module.id === course.currentModule.id;
+                    const isCompleted = moduleProgress === 100;
+                    
+                    return (
+                      <Card key={module.id} className={`shadow-4dp ${isCurrentModule ? 'border-2 border-primary' : ''}`}>
+                        <CardContent className="p-6">
+                          <div className="flex justify-between items-start mb-3">
+                            <div className="flex-1">
+                              {isCurrentModule && (
+                                <Badge className="mb-2 bg-primary text-primary-foreground">Current Module</Badge>
+                              )}
+                              <h3 className="text-xl font-heading font-semibold mb-2">
+                                Module {module.id}: {module.name}
+                              </h3>
+                              <p className="text-muted-foreground mb-3">
+                                {module.description || "Learn the fundamentals and build a strong foundation."}
+                              </p>
+                              {isCurrentModule && (
+                                <p className="text-sm text-muted-foreground mb-3">
+                                  Continue with: {course.currentModule.nextItem.name}
+                                </p>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {isCompleted && <Check className="w-5 h-5 text-success" />}
+                              <Button className="px-6" asChild>
+                                <Link to={`/course/${courseId}/module/${module.id}`}>
+                                  {getModuleCTA(module.id, moduleProgress)}
+                                </Link>
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          {/* Module Progress */}
+                          <div className="mb-4">
+                            <div className="relative progress-bg rounded-full h-3">
+                              <div 
+                                className="progress-fill h-3 rounded-full transition-all duration-300"
+                                style={{ width: `${moduleProgress}%` }}
+                              />
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <span className="text-xs font-medium bg-white px-2 py-0.5 rounded shadow-sm border">
+                                  {moduleProgress}%
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                  
+                  {course.modules.length > 7 && !showAllModules && (
+                    <div className="flex justify-center">
+                      <Button 
+                        variant="link" 
+                        onClick={() => setShowAllModules(true)}
+                        className="text-primary"
+                      >
+                        Show More Modules
+                      </Button>
                     </div>
-                    <div className="progress-bg rounded-full h-2">
-                      <div 
-                        className="progress-fill h-2 rounded-full transition-all duration-300"
-                        style={{ width: '65%' }}
-                      />
-                    </div>
-                  </div>
-                  {/* Desktop CTA - Bottom right with padding */}
-                  <div className="hidden md:flex justify-end">
-                    <Button className="px-6" asChild>
-                      <Link to={`/course/${courseId}/curriculum`}>
-                        <Play className="w-4 h-4 mr-2" />
-                        {course.currentModule.isJustStarting ? 'Start Learning' : 'Continue Learning'}
-                      </Link>
-                    </Button>
-                  </div>
-                  {/* Mobile CTA - Full width */}
-                  <div className="md:hidden">
-                    <Button className="w-full" asChild>
-                      <Link to={`/course/${courseId}/curriculum`}>
-                        <Play className="w-4 h-4 mr-2" />
-                        {course.currentModule.isJustStarting ? 'Start Learning' : 'Continue Learning'}
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                  )}
+                </div>
+              </div>
+            </div>
 
+            {/* Right Column - What's Next & Attendance */}
+            <div className="space-y-8">
               {/* What's Next Section */}
               <Card className="shadow-4dp">
                 <CardHeader className="pb-4">
@@ -378,45 +432,21 @@ const CourseDashboard = () => {
                             <div className="flex-1">
                               <div className="flex items-start justify-between gap-4 mb-2">
                                 <h4 className="font-medium text-base">{item.title}</h4>
-                                <Badge 
-                                  variant="outline" 
-                                  className={`whitespace-nowrap ${
-                                    item.type === 'class' 
-                                      ? 'bg-secondary-light text-foreground border-secondary-light' 
-                                      : item.type === 'assessment'
-                                      ? 'bg-warning-light text-foreground border-warning-light'
-                                      : 'bg-info-light text-foreground border-info-light'
-                                  }`}
-                                >
-                                  {item.tag}
-                                </Badge>
                               </div>
-                              <p className="text-sm text-muted-foreground mb-3">
-                                {item.description}
-                              </p>
                               <div className="flex items-center justify-between mb-3">
                                 <p className="text-sm font-medium">
-                                  {formatDate(item.dateTime)}
+                                  {item.type === 'class' && `Scheduled on ${formatDate(item.dateTime)}`}
+                                  {item.type === 'assessment' && `Starts on ${formatDate(item.dateTime)}`}
+                                  {item.type === 'assignment' && `Due on ${formatDate(item.dateTime)}`}
                                 </p>
                               </div>
-                              {/* Desktop CTA - Bottom right */}
-                              <div className="hidden md:flex justify-end">
+                              {/* CTA - Bottom right */}
+                              <div className="flex justify-end">
                                 <Button 
                                   size="sm" 
-                                  variant={item.canStart ? "default" : "outline"}
+                                  variant="link"
                                   disabled={!item.canStart}
-                                  className="px-6"
-                                >
-                                  {item.canStart ? item.actionText : getTimeRemaining(item.dateTime)}
-                                </Button>
-                              </div>
-                              {/* Mobile CTA - Full width */}
-                              <div className="md:hidden">
-                                <Button 
-                                  size="sm" 
-                                  variant={item.canStart ? "default" : "outline"}
-                                  disabled={!item.canStart}
-                                  className="w-full"
+                                  className="text-primary p-0 h-auto"
                                 >
                                   {item.canStart ? item.actionText : getTimeRemaining(item.dateTime)}
                                 </Button>
@@ -437,10 +467,8 @@ const CourseDashboard = () => {
                   )}
                 </CardContent>
               </Card>
-            </div>
 
-            {/* Right Column - Attendance */}
-            <div>
+              {/* Attendance */}
               <Card className="shadow-4dp">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-xl">Attendance</CardTitle>
