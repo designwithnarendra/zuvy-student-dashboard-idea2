@@ -120,10 +120,10 @@ const CourseDashboard = () => {
   };
 
   const getModuleProgress = (moduleId: string) => {
-    // Mock progress for different modules
+    // Mock progress for different modules - updating to show first module as completed
     const progressMap: { [key: string]: number } = {
-      '1': 100,
-      '2': 65,
+      '1': 100, // First module completed
+      '2': 65,  // Second module in progress (current)
       '3': 0,
       '4': 0,
     };
@@ -295,17 +295,22 @@ const CourseDashboard = () => {
               </div>
             </div>
 
-            {/* Progress Bar */}
+            {/* Progress Bar - Updated with thin height and positioned percentage */}
             <div className="mb-6">
-              <div className="relative progress-bg rounded-full h-6">
+              <div className="relative bg-muted rounded-full h-2 w-full">
                 <div 
-                  className="progress-fill h-6 rounded-full transition-all duration-300"
+                  className="bg-primary h-2 rounded-full transition-all duration-300 relative"
                   style={{ width: `${course.progress}%` }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-xs font-medium bg-white px-2 py-0.5 rounded shadow-sm border">
+                >
+                  <div 
+                    className="absolute top-1/2 transform -translate-y-1/2 bg-white px-2 py-0.5 rounded shadow-sm border text-xs font-medium whitespace-nowrap"
+                    style={{ 
+                      right: course.progress === 100 ? '0' : course.progress === 0 ? 'auto' : '-12px',
+                      left: course.progress === 0 ? '0' : 'auto'
+                    }}
+                  >
                     {course.progress}%
-                  </span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -354,7 +359,8 @@ const CourseDashboard = () => {
                 <div className="space-y-4">
                   {modulesToShow.map((module) => {
                     const moduleProgress = getModuleProgress(module.id);
-                    const isCurrentModule = module.id === course.currentModule.id;
+                    // Updated logic: current module is the one in progress (module 2), not module 1
+                    const isCurrentModule = module.id === '2'; // Module 2 is current (65% progress)
                     const isCompleted = moduleProgress === 100;
                     
                     return (
@@ -363,7 +369,7 @@ const CourseDashboard = () => {
                           <div className="flex justify-between items-start mb-3">
                             <div className="flex-1">
                               {isCurrentModule && (
-                                <Badge className="mb-2 bg-primary text-primary-foreground">Current Module</Badge>
+                                <Badge className="mb-2 bg-primary/10 text-primary border-primary/20">Current Module</Badge>
                               )}
                               <h3 className="text-xl font-heading font-semibold mb-2">
                                 Module {module.id}: {module.name}
@@ -387,17 +393,22 @@ const CourseDashboard = () => {
                             </div>
                           </div>
                           
-                          {/* Module Progress */}
+                          {/* Module Progress - Updated with thin height and positioned percentage */}
                           <div className="mb-4">
-                            <div className="relative progress-bg rounded-full h-3">
+                            <div className="relative bg-muted rounded-full h-2 w-full">
                               <div 
-                                className="progress-fill h-3 rounded-full transition-all duration-300"
+                                className="bg-primary h-2 rounded-full transition-all duration-300 relative"
                                 style={{ width: `${moduleProgress}%` }}
-                              />
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="text-xs font-medium bg-white px-2 py-0.5 rounded shadow-sm border">
+                              >
+                                <div 
+                                  className="absolute top-1/2 transform -translate-y-1/2 bg-white px-2 py-0.5 rounded shadow-sm border text-xs font-medium whitespace-nowrap"
+                                  style={{ 
+                                    right: moduleProgress === 100 ? '0' : moduleProgress === 0 ? 'auto' : '-12px',
+                                    left: moduleProgress === 0 ? '0' : 'auto'
+                                  }}
+                                >
                                   {moduleProgress}%
-                                </span>
+                                </div>
                               </div>
                             </div>
                           </div>

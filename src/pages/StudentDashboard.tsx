@@ -147,17 +147,22 @@ const StudentDashboard = () => {
                           </span>
                         </div>
 
-                        {/* Progress Bar - Full Width */}
+                        {/* Progress Bar - Full Width with thin height */}
                         <div className="mb-4 md:mb-0">
-                          <div className="relative progress-bg rounded-full h-6">
+                          <div className="relative bg-muted rounded-full h-2 w-full">
                             <div 
-                              className="progress-fill h-6 rounded-full transition-all duration-300"
+                              className="bg-primary h-2 rounded-full transition-all duration-300 relative"
                               style={{ width: `${course.progress}%` }}
-                            />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="text-xs font-medium bg-white px-2 py-0.5 rounded shadow-sm border">
+                            >
+                              <div 
+                                className="absolute top-1/2 transform -translate-y-1/2 bg-white px-2 py-0.5 rounded shadow-sm border text-xs font-medium whitespace-nowrap"
+                                style={{ 
+                                  right: course.progress === 100 ? '0' : course.progress === 0 ? 'auto' : '-12px',
+                                  left: course.progress === 0 ? '0' : 'auto'
+                                }}
+                              >
                                 {course.progress}%
-                              </span>
+                              </div>
                             </div>
                           </div>
                         </div>
