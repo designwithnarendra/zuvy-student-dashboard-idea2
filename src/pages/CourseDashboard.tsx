@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -129,6 +128,18 @@ const CourseDashboard = () => {
       '4': 0,
     };
     return progressMap[moduleId] || 0;
+  };
+
+  const getModuleDescription = (moduleId: string) => {
+    // Fallback descriptions for modules since they don't exist in the interface
+    const descriptionMap: { [key: string]: string } = {
+      '1': 'Learn the fundamentals of JavaScript programming language and build a strong foundation.',
+      '2': 'Master DOM manipulation and event handling for interactive web applications.',
+      '3': 'Understand asynchronous programming, promises, and API integration.',
+      '4': 'Build server-side applications with Node.js and Express framework.',
+      '5': 'Connect frontend and backend to create full-stack applications.',
+    };
+    return descriptionMap[moduleId] || "Learn essential concepts and build practical skills.";
   };
 
   const AttendanceModal = ({ classes }: { classes: RecentClass[] }) => (
@@ -358,7 +369,7 @@ const CourseDashboard = () => {
                                 Module {module.id}: {module.name}
                               </h3>
                               <p className="text-muted-foreground mb-3">
-                                {module.description || "Learn the fundamentals and build a strong foundation."}
+                                {getModuleDescription(module.id)}
                               </p>
                               {isCurrentModule && (
                                 <p className="text-sm text-muted-foreground mb-3">
