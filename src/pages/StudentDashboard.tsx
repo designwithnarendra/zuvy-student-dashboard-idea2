@@ -19,20 +19,20 @@ const StudentDashboard = () => {
       return (
         <div className="flex items-center gap-3 w-full">
           <div className="hidden md:flex items-center gap-3 w-full">
-            <Button variant="outline" className="flex-1 border-success text-success hover:bg-success hover:text-success-foreground" asChild>
+            <Button variant="outline" className="flex-1 bg-transparent border-success text-success hover:bg-success hover:text-success-foreground" asChild>
               <Link to={`/course/${course.id}`}>
+                <CheckCircle className="w-4 h-4 mr-2" />
                 View Course
               </Link>
             </Button>
-            <CheckCircle className="w-5 h-5 text-success flex-shrink-0" />
           </div>
           <div className="md:hidden flex flex-col gap-3 w-full">
-            <Button variant="outline" className="w-full border-success text-success hover:bg-success hover:text-success-foreground" asChild>
+            <Button variant="outline" className="w-full bg-transparent border-success text-success hover:bg-success hover:text-success-foreground" asChild>
               <Link to={`/course/${course.id}`}>
+                <CheckCircle className="w-4 h-4 mr-2" />
                 View Course
               </Link>
             </Button>
-            <CheckCircle className="w-5 h-5 text-success mx-auto" />
           </div>
         </div>
       );
@@ -147,9 +147,9 @@ const StudentDashboard = () => {
                           </span>
                         </div>
 
-                        {/* Progress Bar - Full Width with thin height */}
+                        {/* Progress Bar - Updated to span full width with primary-light background */}
                         <div className="mb-4 md:mb-0">
-                          <div className="relative bg-muted rounded-full h-2 w-full">
+                          <div className="relative bg-primary-light rounded-full h-2 w-full">
                             <div 
                               className="bg-primary h-2 rounded-full transition-all duration-300 relative"
                               style={{ width: `${course.progress}%` }}

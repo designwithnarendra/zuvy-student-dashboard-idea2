@@ -37,9 +37,9 @@ const Header = () => {
     }
   };
 
-  const handleCurriculumClick = () => {
+  const handleSyllabusClick = () => {
     if (courseId) {
-      navigate(`/course/${courseId}/curriculum`);
+      navigate(`/course/${courseId}/syllabus`);
     }
   };
 
@@ -72,10 +72,10 @@ const Header = () => {
             <Button
               variant="link"
               size="sm"
-              onClick={handleCurriculumClick}
+              onClick={handleSyllabusClick}
               className="text-foreground hover:text-primary"
             >
-              Curriculum
+              Course Syllabus
             </Button>
           </div>
         )}

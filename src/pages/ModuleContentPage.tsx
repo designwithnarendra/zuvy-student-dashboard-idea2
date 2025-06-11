@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { 
   Video, 
   BookOpen, 
@@ -18,7 +19,8 @@ import {
   User,
   ChevronDown,
   ChevronRight,
-  Check
+  Check,
+  List
 } from "lucide-react";
 import { mockCourses, Module, Topic, TopicItem } from "@/lib/mockData";
 import Header from "@/components/Header";
@@ -29,6 +31,7 @@ const ModuleContentPage = () => {
   const [selectedItem, setSelectedItem] = useState<string>("");
   const [expandedTopics, setExpandedTopics] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -154,6 +157,9 @@ const ModuleContentPage = () => {
 
   const handleItemSelect = (itemId: string) => {
     setSelectedItem(itemId);
+    if (isMobile) {
+      setIsSheetOpen(false);
+    }
   };
 
   const getSelectedItem = () => {
@@ -165,6 +171,21 @@ const ModuleContentPage = () => {
   };
 
   const selectedItemData = getSelectedItem();
+
+  const getAllItems = () => {
+    const items: { item: TopicItem; topicId: string }[] = [];
+    currentModule.topics.forEach(topic => {
+      topic.items.forEach(item => {
+        items.push({ item, topicId: topic.id });
+      });
+    });
+    return items;
+  };
+
+  const allItems = getAllItems();
+  const currentIndex = allItems.findIndex(({ item }) => item.id === selectedItem);
+  const prevItem = currentIndex > 0 ? allItems[currentIndex - 1] : null;
+  const nextItem = currentIndex < allItems.length - 1 ? allItems[currentIndex + 1] : null;
 
   const getTimeRemaining = (dateTime: Date) => {
     const now = new Date();
@@ -203,12 +224,14 @@ const ModuleContentPage = () => {
       if (isScheduled) {
         return (
           <div className="max-w-4xl mx-auto p-8">
-            <h1 className="text-3xl font-heading font-bold mb-4">{item.title}</h1>
+            <div className="flex justify-between items-start mb-4">
+              <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
+            </div>
             <p className="text-muted-foreground mb-6">{item.description || "Join this live interactive session with your instructor and fellow students."}</p>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <p className="text-sm text-muted-foreground">Scheduled Date</p>
-                <p className="font-medium">{item.scheduledDateTime?.toLocaleDateString()}</p>
+                <p className="text-sm text-muted-foreground">Scheduled Date & Time</p>
+                <p className="font-medium">{item.scheduledDateTime?.toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Duration</p>
@@ -218,7 +241,11 @@ const ModuleContentPage = () => {
             <div className="bg-info-light p-4 rounded-lg mb-6">
               <p className="text-info">Class recording will be available after the class</p>
             </div>
-            <p className="text-lg">Starts in {getTimeRemaining(item.scheduledDateTime!)}</p>
+            <div className="text-center">
+              <Button disabled variant="outline" className="bg-transparent border-muted text-muted-foreground">
+                Starts in {getTimeRemaining(item.scheduledDateTime!)}
+              </Button>
+            </div>
           </div>
         );
       }
@@ -230,15 +257,17 @@ const ModuleContentPage = () => {
             <p className="text-muted-foreground mb-6">{item.description || "Join this live interactive session with your instructor and fellow students."}</p>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
-                <p className="text-sm text-muted-foreground">Scheduled Date</p>
-                <p className="font-medium">{item.scheduledDateTime?.toLocaleDateString()}</p>
+                <p className="text-sm text-muted-foreground">Scheduled Date & Time</p>
+                <p className="font-medium">{item.scheduledDateTime?.toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Duration</p>
                 <p className="font-medium">{item.duration || '45 mins'}</p>
               </div>
             </div>
-            <Button className="mb-6">Join Class</Button>
+            <div className="text-center">
+              <Button className="mb-6">Join Class</Button>
+            </div>
           </div>
         );
       }
@@ -250,8 +279,8 @@ const ModuleContentPage = () => {
             <p className="text-muted-foreground mb-6">{item.description || "This live class has been completed."}</p>
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div>
-                <p className="text-sm text-muted-foreground">Date</p>
-                <p className="font-medium">{item.scheduledDateTime?.toLocaleDateString()}</p>
+                <p className="text-sm text-muted-foreground">Date & Time</p>
+                <p className="font-medium">{item.scheduledDateTime?.toLocaleString()}</p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Duration</p>
@@ -262,7 +291,10 @@ const ModuleContentPage = () => {
                 <p className="font-medium text-success">Present</p>
               </div>
             </div>
-            <p className="text-success mb-6">✓ Class completed</p>
+            <p className="text-success mb-6 flex items-center gap-2">
+              <Check className="w-5 h-5" />
+              Class completed
+            </p>
             
             <div className="border-t border-border pt-6">
               <h2 className="text-xl font-heading font-semibold mb-4">Recording available for the live class</h2>
@@ -327,16 +359,18 @@ const ModuleContentPage = () => {
 
     if (item.type === 'assignment') {
       return (
-        <div className="max-w-2xl mx-auto p-8 text-center">
+        <div className="max-w-2xl mx-auto p-8">
           <div className="flex justify-between items-start mb-6">
-            <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
+            <h1 className="text-3xl font-heading font-bold text-left">{item.title}</h1>
             <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
               {item.status === 'completed' ? 'Attempted' : 'Not Attempted'}
             </Badge>
           </div>
-          <p className="text-muted-foreground mb-6">Due: December 15, 2024</p>
-          <p className="text-muted-foreground mb-8">Complete this assignment to demonstrate your understanding of the concepts covered in this module.</p>
-          <Button>Start Assignment</Button>
+          <p className="text-muted-foreground mb-6 text-left">Due: December 15, 2024</p>
+          <p className="text-muted-foreground mb-8 text-left">Complete this assignment to demonstrate your understanding of the concepts covered in this module.</p>
+          <div className="text-center">
+            <Button>Start Assignment</Button>
+          </div>
         </div>
       );
     }
@@ -347,14 +381,14 @@ const ModuleContentPage = () => {
       const canStart = new Date() >= startDate;
       
       return (
-        <div className="max-w-2xl mx-auto p-8 text-center">
+        <div className="max-w-2xl mx-auto p-8">
           <div className="flex justify-between items-start mb-6">
-            <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
+            <h1 className="text-3xl font-heading font-bold text-left">{item.title}</h1>
             <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
               {item.status === 'completed' ? 'Attempted' : 'Not Attempted'}
             </Badge>
           </div>
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-3 gap-4 mb-6 text-left">
             <div>
               <p className="text-sm text-muted-foreground">Start Date</p>
               <p className="font-medium">{startDate.toLocaleDateString()}</p>
@@ -368,10 +402,12 @@ const ModuleContentPage = () => {
               <p className="font-medium">2 hours</p>
             </div>
           </div>
-          <p className="text-muted-foreground mb-8">This assessment will test your knowledge and understanding of the module content.</p>
-          <Button disabled={!canStart}>
-            {canStart ? 'Start Assessment' : `Opens in ${getTimeRemaining(startDate)}`}
-          </Button>
+          <p className="text-muted-foreground mb-8 text-left">This assessment will test your knowledge and understanding of the module content.</p>
+          <div className="text-center">
+            <Button disabled={!canStart}>
+              {canStart ? 'Start Assessment' : `Opens in ${getTimeRemaining(startDate)}`}
+            </Button>
+          </div>
         </div>
       );
     }
@@ -379,103 +415,190 @@ const ModuleContentPage = () => {
     return null;
   };
 
+  const SidebarContent = () => (
+    <ScrollArea className="h-[calc(100vh-200px)] lg:h-[calc(100vh-200px)]">
+      <div className="p-4 space-y-4">
+        {currentModule.topics.map((topic: Topic) => (
+          <div key={topic.id} className="space-y-2">
+            <Button
+              variant="ghost"
+              className="w-full justify-start text-left h-auto p-3 hover:bg-primary-light hover:text-charcoal"
+              onClick={() => toggleTopic(topic.id)}
+            >
+              <div className="flex w-full justify-between items-start gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-sm break-words leading-relaxed whitespace-normal">
+                    {topic.name}
+                  </div>
+                </div>
+                <div className="flex-shrink-0 mt-0.5">
+                  {expandedTopics.includes(topic.id) ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </div>
+              </div>
+            </Button>
+            
+            {expandedTopics.includes(topic.id) && (
+              <div className="space-y-1 pl-0">
+                {topic.items.map((item: TopicItem, index) => {
+                  // Make second topic's live class "in progress"
+                  const isSecondTopicLiveClass = topic.id === currentModule.topics[1]?.id && item.type === 'live-class';
+                  const adjustedItem = isSecondTopicLiveClass ? {
+                    ...item,
+                    scheduledDateTime: new Date(Date.now() - 5 * 60 * 1000) // 5 minutes ago (in progress)
+                  } : item;
+
+                  return (
+                    <Button
+                      key={item.id}
+                      variant="ghost"
+                      size="sm"
+                      className={`w-full justify-start text-left h-auto p-3 text-sm break-words leading-relaxed whitespace-normal ${
+                        selectedItem === item.id 
+                          ? "bg-primary-light border-l-4 border-primary text-charcoal" 
+                          : "hover:bg-primary-light hover:text-charcoal"
+                      }`}
+                      onClick={() => handleItemSelect(item.id)}
+                    >
+                      <div className="flex items-start gap-3 w-full">
+                        <div className="flex-shrink-0 mt-1">
+                          {getItemIcon(item.type, item.status)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium break-words whitespace-normal text-left mb-1">
+                            {item.type === 'live-class' ? `Live Class: ${item.title}` :
+                             item.type === 'video' ? `Video: ${item.title}` :
+                             item.type === 'article' ? `Article: ${item.title}` :
+                             item.type === 'assignment' ? `Assignment: ${item.title}` :
+                             item.type === 'assessment' ? `Assessment: ${item.title}` :
+                             item.type === 'feedback' ? `Feedback Form: ${item.title}` :
+                             item.title}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {getItemDetails(adjustedItem)}
+                          </div>
+                        </div>
+                        {item.status === 'completed' && (
+                          <div className="flex-shrink-0">
+                            <Check className="w-4 h-4 text-success" />
+                          </div>
+                        )}
+                      </div>
+                    </Button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </ScrollArea>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="flex h-[calc(100vh-80px)]">
-        {/* Left Sidebar */}
-        <div className="w-80 bg-card border-r border-border shadow-4dp fixed h-full">
-          <div className="p-6 border-b border-border">
-            <Button variant="link" size="sm" asChild className="mb-4 p-0 h-auto text-foreground hover:text-foreground hover:no-underline">
-              <Link to={`/course/${courseId}`}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Course
-              </Link>
-            </Button>
-            <h2 className="text-lg font-heading font-semibold">Module Content</h2>
-            <p className="text-sm text-muted-foreground mt-1 break-words">Module {moduleId}: {currentModule.name}</p>
-          </div>
-          
-          <div className="border-t border-border"></div>
-          
-          <ScrollArea className="h-[calc(100vh-200px)]">
-            <div className="p-4 space-y-4">
-              {currentModule.topics.map((topic: Topic) => (
-                <div key={topic.id} className="space-y-2">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-left h-auto p-3 hover:bg-primary-light hover:text-charcoal"
-                    onClick={() => toggleTopic(topic.id)}
-                  >
-                    <div className="flex w-full justify-between items-start gap-2">
-                      <div className="flex-1 min-w-0">
-                        <div className="font-bold text-sm break-words leading-relaxed whitespace-normal">
-                          {topic.name}
-                        </div>
-                      </div>
-                      <div className="flex-shrink-0 mt-0.5">
-                        {expandedTopics.includes(topic.id) ? (
-                          <ChevronDown className="w-4 h-4" />
-                        ) : (
-                          <ChevronRight className="w-4 h-4" />
-                        )}
-                      </div>
-                    </div>
-                  </Button>
-                  
-                  {expandedTopics.includes(topic.id) && (
-                    <div className="space-y-1 pl-0">
-                      {topic.items.map((item: TopicItem) => (
-                        <Button
-                          key={item.id}
-                          variant="ghost"
-                          size="sm"
-                          className={`w-full justify-start text-left h-auto p-3 text-sm break-words leading-relaxed whitespace-normal ${
-                            selectedItem === item.id 
-                              ? "bg-primary-light border-l-4 border-primary text-charcoal" 
-                              : "hover:bg-primary-light hover:text-charcoal"
-                          }`}
-                          onClick={() => handleItemSelect(item.id)}
-                        >
-                          <div className="flex items-start gap-3 w-full">
-                            <div className="flex-shrink-0 mt-1">
-                              {getItemIcon(item.type, item.status)}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="font-medium break-words whitespace-normal text-left mb-1">
-                                {item.type === 'live-class' ? `Live Class: ${item.title}` :
-                                 item.type === 'video' ? `Video: ${item.title}` :
-                                 item.type === 'article' ? `Article: ${item.title}` :
-                                 item.type === 'assignment' ? `Assignment: ${item.title}` :
-                                 item.type === 'assessment' ? `Assessment: ${item.title}` :
-                                 item.type === 'feedback' ? `Feedback Form: ${item.title}` :
-                                 item.title}
-                              </div>
-                              <div className="text-xs text-muted-foreground">
-                                {getItemDetails(item)}
-                              </div>
-                            </div>
-                            {item.status === 'completed' && (
-                              <div className="flex-shrink-0">
-                                <Check className="w-4 h-4 text-success" />
-                              </div>
-                            )}
-                          </div>
-                        </Button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
+      
+      {/* Mobile: Module name at top */}
+      {isMobile && (
+        <div className="lg:hidden px-4 py-4 border-b border-border">
+          <h2 className="text-lg font-heading font-semibold">Module {moduleId}: {currentModule.name}</h2>
         </div>
+      )}
+
+      <div className="flex h-[calc(100vh-80px)] lg:h-[calc(100vh-80px)]">
+        {/* Desktop Sidebar */}
+        {!isMobile && (
+          <div className="w-80 bg-card border-r border-border shadow-4dp fixed h-full">
+            <div className="p-6 border-b border-border">
+              <Button variant="link" size="sm" asChild className="mb-4 p-0 h-auto text-foreground hover:text-foreground hover:no-underline">
+                <Link to={`/course/${courseId}`}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Course
+                </Link>
+              </Button>
+              <h2 className="text-lg font-heading font-semibold">Module Content</h2>
+              <p className="text-sm text-muted-foreground mt-1 break-words">Module {moduleId}: {currentModule.name}</p>
+            </div>
+            
+            <div className="border-t border-border"></div>
+            
+            <SidebarContent />
+          </div>
+        )}
 
         {/* Main Content Area */}
-        <div className="flex-1 ml-80 overflow-y-auto">
-          {renderContent()}
+        <div className={`flex-1 ${!isMobile ? 'ml-80' : ''} overflow-y-auto flex flex-col`}>
+          <div className="flex-1">
+            {renderContent()}
+          </div>
+          
+          {/* Navigation buttons at bottom */}
+          <div className="border-t border-border p-6">
+            <div className="max-w-4xl mx-auto flex justify-between items-center">
+              <Button
+                variant="link"
+                className="text-charcoal p-0 h-auto"
+                disabled={!prevItem}
+                onClick={() => prevItem && handleItemSelect(prevItem.item.id)}
+              >
+                Back
+              </Button>
+              <Button
+                variant="link"
+                className="text-primary p-0 h-auto"
+                disabled={!nextItem}
+                onClick={() => nextItem && handleItemSelect(nextItem.item.id)}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Mobile Bottom Bar */}
+      {isMobile && (
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border p-4 flex items-center justify-between">
+          <Button
+            variant="link"
+            className="text-charcoal p-0 h-auto"
+            disabled={!prevItem}
+            onClick={() => prevItem && handleItemSelect(prevItem.item.id)}
+          >
+            Back
+          </Button>
+          
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" className="border-primary text-primary">
+                <List className="w-4 h-4 mr-2" />
+                Module Content
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[80vh]">
+              <SheetHeader>
+                <SheetTitle>Module Content</SheetTitle>
+              </SheetHeader>
+              <div className="mt-4">
+                <SidebarContent />
+              </div>
+            </SheetContent>
+          </Sheet>
+          
+          <Button
+            variant="link"
+            className="text-primary p-0 h-auto"
+            disabled={!nextItem}
+            onClick={() => nextItem && handleItemSelect(nextItem.item.id)}
+          >
+            Next
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

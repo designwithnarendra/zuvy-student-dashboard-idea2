@@ -8,7 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import StudentDashboard from "./pages/StudentDashboard";
 import CourseDashboard from "./pages/CourseDashboard";
-import CurriculumPage from "./pages/CurriculumPage";
+import CourseSyllabusPage from "./pages/CourseSyllabusPage";
 import ModuleContentPage from "./pages/ModuleContentPage";
 import ContentViewer from "./pages/ContentViewer";
 
@@ -24,8 +24,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/dashboard" element={<StudentDashboard />} />
           <Route path="/course/:courseId" element={<CourseDashboard />} />
-          <Route path="/course/:courseId/curriculum" element={<CurriculumPage />} />
-          <Route path="/course/:courseId/curriculum/:moduleId/:topicId" element={<CurriculumPage />} />
+          <Route path="/course/:courseId/syllabus" element={<CourseSyllabusPage />} />
           <Route path="/course/:courseId/module/:moduleId" element={<ModuleContentPage />} />
           <Route path="/content/:type/:contentId" element={<ContentViewer />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

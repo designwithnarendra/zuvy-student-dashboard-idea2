@@ -113,17 +113,16 @@ const CourseDashboard = () => {
     } else if (progress === 0) {
       return "Start Learning";
     } else if (progress === 100) {
-      return "Review Module";
+      return "Revise Module";
     } else {
       return "Continue Learning";
     }
   };
 
   const getModuleProgress = (moduleId: string) => {
-    // Mock progress for different modules - updating to show first module as completed
     const progressMap: { [key: string]: number } = {
-      '1': 100, // First module completed
-      '2': 65,  // Second module in progress (current)
+      '1': 100,
+      '2': 65,
       '3': 0,
       '4': 0,
     };
@@ -131,7 +130,6 @@ const CourseDashboard = () => {
   };
 
   const getModuleDescription = (moduleId: string) => {
-    // Fallback descriptions for modules since they don't exist in the interface
     const descriptionMap: { [key: string]: string } = {
       '1': 'Learn the fundamentals of JavaScript programming language and build a strong foundation.',
       '2': 'Master DOM manipulation and event handling for interactive web applications.',
@@ -295,9 +293,9 @@ const CourseDashboard = () => {
               </div>
             </div>
 
-            {/* Progress Bar - Updated with thin height and positioned percentage */}
+            {/* Progress Bar - Updated with primary-light background */}
             <div className="mb-6">
-              <div className="relative bg-muted rounded-full h-2 w-full">
+              <div className="relative bg-primary-light rounded-full h-2 w-full">
                 <div 
                   className="bg-primary h-2 rounded-full transition-all duration-300 relative"
                   style={{ width: `${course.progress}%` }}
@@ -359,22 +357,24 @@ const CourseDashboard = () => {
                 <div className="space-y-4">
                   {modulesToShow.map((module) => {
                     const moduleProgress = getModuleProgress(module.id);
-                    // Updated logic: current module is the one in progress (module 2), not module 1
-                    const isCurrentModule = module.id === '2'; // Module 2 is current (65% progress)
+                    const isCurrentModule = module.id === '2';
                     const isCompleted = moduleProgress === 100;
                     
                     return (
                       <Card key={module.id} className={`shadow-4dp ${isCurrentModule ? 'border-2 border-primary' : ''}`}>
                         <CardContent className="p-6">
-                          <div className="flex justify-between items-start mb-3">
+                          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
                             <div className="flex-1">
                               {isCurrentModule && (
-                                <Badge className="mb-2 bg-primary/10 text-primary border-primary/20">Current Module</Badge>
+                                <Badge className="mb-2 bg-primary-light text-primary border-primary/20">Current Module</Badge>
+                              )}
+                              {isCompleted && (
+                                <Badge className="mb-2 bg-success-light text-success border-success/20">Completed</Badge>
                               )}
                               <h3 className="text-xl font-heading font-semibold mb-2">
                                 Module {module.id}: {module.name}
                               </h3>
-                              <p className="text-muted-foreground mb-3">
+                              <p className="text-muted-foreground mb-3 text-sm">
                                 {getModuleDescription(module.id)}
                               </p>
                               {isCurrentModule && (
@@ -383,8 +383,9 @@ const CourseDashboard = () => {
                                 </p>
                               )}
                             </div>
-                            <div className="flex items-center gap-2">
-                              {isCompleted && <Check className="w-5 h-5 text-success" />}
+
+                            {/* Action Button - Desktop: top right, Mobile: bottom */}
+                            <div className="hidden lg:flex flex-shrink-0">
                               <Button className="px-6" asChild>
                                 <Link to={`/course/${courseId}/module/${module.id}`}>
                                   {getModuleCTA(module.id, moduleProgress)}
@@ -393,9 +394,9 @@ const CourseDashboard = () => {
                             </div>
                           </div>
                           
-                          {/* Module Progress - Updated with thin height and positioned percentage */}
-                          <div className="mb-4">
-                            <div className="relative bg-muted rounded-full h-2 w-full">
+                          {/* Module Progress - Updated with primary-light background */}
+                          <div className="mb-4 lg:mb-0">
+                            <div className="relative bg-primary-light rounded-full h-2 w-full">
                               <div 
                                 className="bg-primary h-2 rounded-full transition-all duration-300 relative"
                                 style={{ width: `${moduleProgress}%` }}
@@ -411,6 +412,15 @@ const CourseDashboard = () => {
                                 </div>
                               </div>
                             </div>
+                          </div>
+
+                          {/* Action Button - Mobile: bottom */}
+                          <div className="lg:hidden mt-4">
+                            <Button className="w-full" asChild>
+                              <Link to={`/course/${courseId}/module/${module.id}`}>
+                                {getModuleCTA(module.id, moduleProgress)}
+                              </Link>
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>
@@ -508,18 +518,16 @@ const CourseDashboard = () => {
                   <div className="space-y-4 mb-6">
                     <h4 className="font-medium text-sm">Recent Classes</h4>
                     {course.attendanceStats.recentClasses.map((classItem) => (
-                      <div key={classItem.id} className="p-3 rounded-lg bg-muted/30">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">{classItem.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {formatDate(classItem.date)}
-                            </p>
-                          </div>
-                          <Badge variant="outline" className={classItem.status === 'attended' ? "text-success border-success" : "text-destructive border-destructive"}>
-                            {classItem.status === 'attended' ? 'Present' : 'Absent'}
-                          </Badge>
+                      <div key={classItem.id} className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{classItem.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(classItem.date)}
+                          </p>
                         </div>
+                        <Badge variant="outline" className={classItem.status === 'attended' ? "text-success border-success" : "text-destructive border-destructive"}>
+                          {classItem.status === 'attended' ? 'Present' : 'Absent'}
+                        </Badge>
                       </div>
                     ))}
                   </div>
