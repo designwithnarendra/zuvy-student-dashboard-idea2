@@ -7,7 +7,6 @@ const Index = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // This page now acts as a redirect handler for authenticated users
     // Filter enrolled courses
     const enrolledCourses = mockCourses.filter(course => course.status === 'enrolled');
     
@@ -27,7 +26,7 @@ const Index = () => {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center animate-fade-in">
         <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-        <h1 className="text-2xl font-heading font-semibold mb-2">Zuvy</h1>
+        <h1 className="text-2xl font-heading font-semibold mb-2">Neural Nexus</h1>
         <p className="text-muted-foreground">Loading your learning dashboard...</p>
       </div>
     </div>
