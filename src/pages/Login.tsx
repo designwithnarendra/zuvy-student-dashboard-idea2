@@ -4,6 +4,29 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useNavigate } from "react-router-dom";
 
+interface StudentProfile {
+  name: string;
+  role: string;
+  avatar: string;
+}
+
+interface Metric {
+  number: string;
+  description: string;
+}
+
+interface StudentCard {
+  type: 'student';
+  data: StudentProfile;
+}
+
+interface MetricCard {
+  type: 'metric';
+  data: Metric;
+}
+
+type CardItem = StudentCard | MetricCard;
+
 const Login = () => {
   const navigate = useNavigate();
 
@@ -12,21 +35,21 @@ const Login = () => {
     navigate('/dashboard');
   };
 
-  const studentProfiles = [
+  const studentProfiles: StudentProfile[] = [
     { name: "Priya Sharma", role: "SDE Intern at Google", avatar: "PS" },
     { name: "Arjun Patel", role: "Frontend Dev at Microsoft", avatar: "AP" },
     { name: "Sneha Kumar", role: "Data Scientist at Meta", avatar: "SK" },
     { name: "Rahul Singh", role: "Backend Dev at Amazon", avatar: "RS" },
   ];
 
-  const metrics = [
+  const metrics: Metric[] = [
     { number: "2000+", description: "Learners across 18 states" },
     { number: "95%", description: "Job placement rate" },
     { number: "500+", description: "Companies hiring our graduates" },
     { number: "₹12L", description: "Average salary package" },
   ];
 
-  const allCards = [
+  const allCards: CardItem[] = [
     { type: 'student', data: studentProfiles[0] },
     { type: 'metric', data: metrics[0] },
     { type: 'student', data: studentProfiles[1] },
@@ -89,19 +112,21 @@ const Login = () => {
                 <div key={index}>
                   {card.type === 'student' ? (
                     <Card className="p-4 bg-secondary/20 border-secondary/30 min-w-[180px]">
-                      <div className="flex flex-col items-center text-center">
-                        <Avatar className="h-12 w-12 mb-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-12 w-12">
                           <AvatarImage src="/placeholder.svg" />
                           <AvatarFallback className="bg-secondary text-secondary-foreground">
                             {card.data.avatar}
                           </AvatarFallback>
                         </Avatar>
-                        <p className="font-semibold text-secondary-foreground text-sm">
-                          {card.data.name}
-                        </p>
-                        <p className="text-xs text-secondary-foreground/80 mt-1">
-                          {card.data.role}
-                        </p>
+                        <div className="text-left">
+                          <p className="font-semibold text-secondary-foreground text-sm">
+                            {card.data.name}
+                          </p>
+                          <p className="text-xs text-secondary-foreground/80">
+                            {card.data.role}
+                          </p>
+                        </div>
                       </div>
                     </Card>
                   ) : (
@@ -126,19 +151,21 @@ const Login = () => {
                 <div key={index + 5}>
                   {card.type === 'student' ? (
                     <Card className="p-4 bg-secondary/20 border-secondary/30 min-w-[180px]">
-                      <div className="flex flex-col items-center text-center">
-                        <Avatar className="h-12 w-12 mb-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-12 w-12">
                           <AvatarImage src="/placeholder.svg" />
                           <AvatarFallback className="bg-secondary text-secondary-foreground">
                             {card.data.avatar}
                           </AvatarFallback>
                         </Avatar>
-                        <p className="font-semibold text-secondary-foreground text-sm">
-                          {card.data.name}
-                        </p>
-                        <p className="text-xs text-secondary-foreground/80 mt-1">
-                          {card.data.role}
-                        </p>
+                        <div className="text-left">
+                          <p className="font-semibold text-secondary-foreground text-sm">
+                            {card.data.name}
+                          </p>
+                          <p className="text-xs text-secondary-foreground/80">
+                            {card.data.role}
+                          </p>
+                        </div>
                       </div>
                     </Card>
                   ) : (
@@ -168,19 +195,21 @@ const Login = () => {
                 <div key={index} className="flex-shrink-0">
                   {card.type === 'student' ? (
                     <Card className="p-4 bg-secondary/20 border-secondary/30 w-[160px]">
-                      <div className="flex flex-col items-center text-center">
-                        <Avatar className="h-12 w-12 mb-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-12 w-12">
                           <AvatarImage src="/placeholder.svg" />
                           <AvatarFallback className="bg-secondary text-secondary-foreground">
                             {card.data.avatar}
                           </AvatarFallback>
                         </Avatar>
-                        <p className="font-semibold text-secondary-foreground text-sm">
-                          {card.data.name}
-                        </p>
-                        <p className="text-xs text-secondary-foreground/80 mt-1">
-                          {card.data.role}
-                        </p>
+                        <div className="text-left">
+                          <p className="font-semibold text-secondary-foreground text-sm">
+                            {card.data.name}
+                          </p>
+                          <p className="text-xs text-secondary-foreground/80">
+                            {card.data.role}
+                          </p>
+                        </div>
                       </div>
                     </Card>
                   ) : (
