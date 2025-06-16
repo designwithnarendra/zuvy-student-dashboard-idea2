@@ -52,11 +52,11 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       {/* Login Panel */}
-      <Card className="w-full max-w-md p-12 text-center mb-20 md:mb-20">
+      <Card className="w-full max-w-md p-12 md:p-12 p-6 text-center mb-20 md:mb-20">
         {/* Logo */}
         <div className="mb-6">
           <img 
-            src="/lovable-uploads/fb2fcb12-bf24-4b98-80db-81bc1e73d5f4.png" 
+            src="/lovable-uploads/e9f9f8b0-7112-47b9-8664-85f7a8319bb5.png" 
             alt="Zuvy Logo" 
             className="w-16 h-16 mx-auto"
           />
@@ -123,7 +123,7 @@ const Login = () => {
         <div className="md:hidden relative">
           <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {socialProofData.map((card, index) => (
-              <div key={index}>
+              <div key={index} className="flex-shrink-0">
                 {card.type === 'student' ? (
                   <StudentCard name={card.name!} role={card.role!} avatar={card.avatar!} />
                 ) : (
