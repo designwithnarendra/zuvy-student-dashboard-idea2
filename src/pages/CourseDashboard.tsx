@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -386,11 +387,19 @@ const CourseDashboard = () => {
 
                             {/* Action Button - Desktop: top right, Mobile: bottom */}
                             <div className="hidden lg:flex flex-shrink-0">
-                              <Button className="px-6" asChild>
-                                <Link to={`/course/${courseId}/module/${module.id}`}>
-                                  {getModuleCTA(module.id, moduleProgress)}
-                                </Link>
-                              </Button>
+                              {isCurrentModule ? (
+                                <Button className="px-6" asChild>
+                                  <Link to={`/course/${courseId}/module/${module.id}`}>
+                                    {getModuleCTA(module.id, moduleProgress)}
+                                  </Link>
+                                </Button>
+                              ) : (
+                                <Button variant="link" className="px-6 text-primary" asChild>
+                                  <Link to={`/course/${courseId}/module/${module.id}`}>
+                                    {getModuleCTA(module.id, moduleProgress)}
+                                  </Link>
+                                </Button>
+                              )}
                             </div>
                           </div>
                           
@@ -416,11 +425,19 @@ const CourseDashboard = () => {
 
                           {/* Action Button - Mobile: bottom */}
                           <div className="lg:hidden mt-4">
-                            <Button className="w-full" asChild>
-                              <Link to={`/course/${courseId}/module/${module.id}`}>
-                                {getModuleCTA(module.id, moduleProgress)}
-                              </Link>
-                            </Button>
+                            {isCurrentModule ? (
+                              <Button className="w-full" asChild>
+                                <Link to={`/course/${courseId}/module/${module.id}`}>
+                                  {getModuleCTA(module.id, moduleProgress)}
+                                </Link>
+                              </Button>
+                            ) : (
+                              <Button variant="link" className="w-full text-primary" asChild>
+                                <Link to={`/course/${courseId}/module/${module.id}`}>
+                                  {getModuleCTA(module.id, moduleProgress)}
+                                </Link>
+                              </Button>
+                            )}
                           </div>
                         </CardContent>
                       </Card>
