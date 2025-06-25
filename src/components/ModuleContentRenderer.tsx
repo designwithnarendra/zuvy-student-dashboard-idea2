@@ -63,18 +63,20 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
 
   const { item } = selectedItemData;
 
-  // Handle coding problem page
+  // Handle coding problem page as separate page
   if (showCodingProblem && item.type === 'coding-problem') {
     return (
-      <CodingProblemPage
-        problem={{
-          title: item.title,
-          difficulty: 'Medium',
-          topic: 'Arrays',
-          status: item.status
-        }}
-        onClose={() => setShowCodingProblem(false)}
-      />
+      <div className="fixed inset-0 z-50 bg-background">
+        <CodingProblemPage
+          problem={{
+            title: item.title,
+            difficulty: 'Medium',
+            topic: 'Arrays',
+            status: item.status
+          }}
+          onClose={() => setShowCodingProblem(false)}
+        />
+      </div>
     );
   }
 
@@ -145,26 +147,33 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
                   setQuizAnswers(newAnswers);
                 }}
                 disabled={quizSubmitted}
+                className="space-y-4"
               >
-                {q.options.map((option, optionIndex) => (
-                  <div key={optionIndex} className="flex items-center space-x-2">
-                    <RadioGroupItem 
-                      value={optionIndex.toString()} 
-                      id={`q${index}_option${optionIndex}`}
-                      className={quizSubmitted && parseInt(quizAnswers[index]) === optionIndex ? "border-primary" : ""}
-                    />
-                    <Label htmlFor={`q${index}_option${optionIndex}`} className={`cursor-pointer ${
-                      quizSubmitted && parseInt(quizAnswers[index]) === optionIndex ? "text-primary font-medium" : ""
-                    }`}>
-                      {option}
-                    </Label>
-                  </div>
-                ))}
-                {quizSubmitted && parseInt(quizAnswers[index]) !== q.correct && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Correct Answer: {q.options[q.correct]}
-                  </p>
-                )}
+                {q.options.map((option, optionIndex) => {
+                  const isSelected = parseInt(quizAnswers[index]) === optionIndex;
+                  const isCorrect = optionIndex === q.correct;
+                  const isWrong = quizSubmitted && isSelected && !isCorrect;
+                  const shouldHighlightCorrect = quizSubmitted && isCorrect;
+                  
+                  return (
+                    <div key={optionIndex} className="flex items-center space-x-2">
+                      <RadioGroupItem 
+                        value={optionIndex.toString()} 
+                        id={`q${index}_option${optionIndex}`}
+                        className={shouldHighlightCorrect ? "border-success" : isWrong ? "border-destructive" : ""}
+                      />
+                      <Label 
+                        htmlFor={`q${index}_option${optionIndex}`} 
+                        className={`cursor-pointer ${
+                          shouldHighlightCorrect ? "text-success font-medium" : 
+                          isWrong ? "text-destructive font-medium" : ""
+                        }`}
+                      >
+                        {option}
+                      </Label>
+                    </div>
+                  );
+                })}
               </RadioGroup>
             </div>
           ))}
@@ -174,6 +183,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
           <Button 
             onClick={handleQuizSubmit}
             disabled={!quizAnswers.every(answer => answer !== '') || quizSubmitted}
+            className={quizSubmitted ? "bg-success hover:bg-success" : ""}
           >
             {quizSubmitted ? 'Submitted ✓' : 'Submit'}
           </Button>
@@ -206,6 +216,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
               value={feedbackAnswers.mcq}
               onValueChange={(value) => setFeedbackAnswers(prev => ({ ...prev, mcq: value }))}
               disabled={feedbackSubmitted}
+              className="space-y-4"
             >
               {['Excellent', 'Good', 'Average', 'Poor'].map((option, index) => (
                 <div key={index} className="flex items-center space-x-2">
@@ -219,29 +230,31 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
           {/* Checkbox Question */}
           <div className="space-y-3">
             <h3 className="text-lg font-semibold">2. Which topics were most helpful? (Select all that apply)</h3>
-            {['DOM Manipulation', 'Event Handling', 'Interactive Elements', 'Performance Optimization'].map((option, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <Checkbox 
-                  id={`topic_${index}`}
-                  checked={feedbackAnswers.checkbox.includes(option)}
-                  onCheckedChange={(checked) => {
-                    if (checked) {
-                      setFeedbackAnswers(prev => ({ 
-                        ...prev, 
-                        checkbox: [...prev.checkbox, option] 
-                      }));
-                    } else {
-                      setFeedbackAnswers(prev => ({ 
-                        ...prev, 
-                        checkbox: prev.checkbox.filter(item => item !== option) 
-                      }));
-                    }
-                  }}
-                  disabled={feedbackSubmitted}
-                />
-                <Label htmlFor={`topic_${index}`} className="cursor-pointer">{option}</Label>
-              </div>
-            ))}
+            <div className="space-y-4">
+              {['DOM Manipulation', 'Event Handling', 'Interactive Elements', 'Performance Optimization'].map((option, index) => (
+                <div key={index} className="flex items-center space-x-2">
+                  <Checkbox 
+                    id={`topic_${index}`}
+                    checked={feedbackAnswers.checkbox.includes(option)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setFeedbackAnswers(prev => ({ 
+                          ...prev, 
+                          checkbox: [...prev.checkbox, option] 
+                        }));
+                      } else {
+                        setFeedbackAnswers(prev => ({ 
+                          ...prev, 
+                          checkbox: prev.checkbox.filter(item => item !== option) 
+                        }));
+                      }
+                    }}
+                    disabled={feedbackSubmitted}
+                  />
+                  <Label htmlFor={`topic_${index}`} className="cursor-pointer">{option}</Label>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Long Text Question */}
@@ -366,9 +379,9 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
             </div>
           </div>
           
-          <div className="text-center mb-6">
-            <Card className="bg-info-light border-info inline-block">
-              <CardContent className="p-4">
+          <div className="w-full mb-6">
+            <Card className="bg-info-light border-info">
+              <CardContent className="p-4 text-center">
                 <p className="text-info font-semibold">
                   Class starts in {getTimeRemaining(item.scheduledDateTime!)}
                 </p>
@@ -504,12 +517,18 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
   if (item.type === 'assignment') {
     const isDueDatePassed = new Date() > new Date('2024-12-15');
     
+    const handleAssignmentSubmit = () => {
+      if (assignmentLink.trim()) {
+        setAssignmentSubmitted(true);
+      }
+    };
+    
     return (
       <div className="max-w-4xl mx-auto p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-heading font-bold text-left">{item.title}</h1>
-          <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
-            {item.status === 'completed' ? 'Submitted' : 'Not Submitted'}
+          <Badge variant="outline" className={assignmentSubmitted ? "text-success border-success" : "text-muted-foreground"}>
+            {assignmentSubmitted ? 'Submitted' : 'Not Submitted'}
           </Badge>
         </div>
         <p className="text-muted-foreground mb-6 text-left">Due: December 15, 2024</p>
@@ -517,29 +536,34 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
           Complete this comprehensive assignment that covers all the concepts learned in this module. 
           You'll need to demonstrate your understanding through practical implementation and theoretical explanations.
           The assignment includes multiple components: coding exercises, written responses, and a final project.
+          This assignment will test your ability to apply DOM manipulation techniques in real-world scenarios.
         </p>
         
         <div className="mb-8">
           <h2 className="text-xl font-heading font-semibold mb-4">Make a Submission</h2>
           <div className="space-y-4">
-            <Input
-              placeholder="Paste your assignment link (Google Drive, GitHub, etc.)"
-              value={assignmentLink}
-              onChange={(e) => setAssignmentLink(e.target.value)}
-              disabled={isDueDatePassed}
-            />
+            {assignmentSubmitted ? (
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">Submitted:</p>
+                <a href={assignmentLink} target="_blank" rel="noopener noreferrer" className="text-primary underline break-all">
+                  {assignmentLink}
+                </a>
+              </div>
+            ) : (
+              <Input
+                placeholder="Paste your assignment link (Google Drive, GitHub, etc.)"
+                value={assignmentLink}
+                onChange={(e) => setAssignmentLink(e.target.value)}
+                disabled={isDueDatePassed}
+              />
+            )}
             {!isDueDatePassed && (
               <Button 
-                onClick={() => setAssignmentSubmitted(true)}
-                disabled={!assignmentLink.trim() || assignmentSubmitted}
+                onClick={handleAssignmentSubmit}
+                disabled={!assignmentLink.trim()}
               >
-                {assignmentSubmitted ? 'Submitted ✓' : 'Submit Assignment'}
+                {assignmentSubmitted ? 'Re-Submit Assignment' : 'Submit Assignment'}
               </Button>
-            )}
-            {assignmentSubmitted && assignmentLink && (
-              <p className="text-sm text-muted-foreground">
-                Submitted: <a href={assignmentLink} target="_blank" rel="noopener noreferrer" className="text-primary underline">{assignmentLink}</a>
-              </p>
             )}
           </div>
         </div>

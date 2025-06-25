@@ -3,199 +3,219 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Clock, CheckCircle, XCircle, AlertCircle, RotateCcw } from "lucide-react";
+import { Clock, CheckCircle, XCircle, Calendar } from "lucide-react";
+import AssessmentModal from "./AssessmentModal";
 
-interface AssessmentStateCardProps {
-  state: 'scheduled' | 'open' | 'interrupted' | 'reAttemptRequested' | 'completed' | 'expired';
-  countdown?: number;
+interface Assessment {
+  id: string;
+  title: string;
+  description: string;
+  startDate: Date;
   endDate: Date;
-  score?: number;
+  duration: string;
   totalMarks: number;
   passScore: number;
-  onReAttemptRequest: () => void;
-  onBeginAssessment: () => void;
+  state: 'scheduled' | 'active' | 'completed' | 'expired';
+  score?: number;
+  attemptStatus: string;
 }
 
-const AssessmentStateCard = ({ 
-  state, 
-  countdown, 
-  endDate, 
-  score, 
-  totalMarks, 
-  passScore,
-  onReAttemptRequest, 
-  onBeginAssessment 
-}: AssessmentStateCardProps) => {
-  const [timeLeft, setTimeLeft] = useState<string>("");
+interface AssessmentStateCardProps {
+  assessment: Assessment;
+}
+
+const AssessmentStateCard = ({ assessment }: AssessmentStateCardProps) => {
+  const [timeLeft, setTimeLeft] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    if (state === 'open') {
-      const updateTimeLeft = () => {
+    if (assessment.state === 'scheduled') {
+      const updateTimer = () => {
         const now = new Date();
-        const timeDiff = endDate.getTime() - now.getTime();
+        const timeDiff = assessment.startDate.getTime() - now.getTime();
         
         if (timeDiff <= 0) {
-          setTimeLeft("Expired");
+          setTimeLeft('0');
           return;
         }
         
-        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-        
-        if (days > 0) {
-          setTimeLeft(`${days} day${days > 1 ? 's' : ''} left`);
-        } else if (hours > 0) {
-          setTimeLeft(`${hours} hour${hours > 1 ? 's' : ''} left`);
-        } else {
-          setTimeLeft(`${minutes} minute${minutes > 1 ? 's' : ''} left`);
-        }
+        const seconds = Math.floor(timeDiff / 1000);
+        setTimeLeft(seconds.toString());
       };
 
-      updateTimeLeft();
-      const timer = setInterval(updateTimeLeft, 60000);
-      return () => clearInterval(timer);
-    }
-  }, [state, endDate]);
+      updateTimer();
+      const interval = setInterval(updateTimer, 1000);
 
-  const renderStateContent = () => {
-    switch (state) {
-      case 'scheduled':
-        return (
-          <div className="text-center">
-            <Clock className="w-12 h-12 mx-auto mb-4 text-info" />
-            <h3 className="text-lg font-semibold mb-2">Assessment Scheduled</h3>
-            {countdown !== undefined && (
-              <Card className="bg-info-light border-info inline-block mb-4">
+      return () => clearInterval(interval);
+    }
+  }, [assessment.state, assessment.startDate]);
+
+  const formatTimeLeft = (seconds: string) => {
+    const sec = parseInt(seconds);
+    if (sec <= 0) return "Assessment starting now";
+    
+    if (sec < 60) return `${sec} second${sec !== 1 ? 's' : ''}`;
+    
+    const mins = Math.floor(sec / 60);
+    if (mins < 60) return `${mins} minute${mins !== 1 ? 's' : ''}`;
+    
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} hour${hours !== 1 ? 's' : ''}`;
+    
+    const days = Math.floor(hours / 24);
+    return `${days} day${days !== 1 ? 's' : ''}`;
+  };
+
+  const getScoreStatus = () => {
+    if (assessment.score === undefined) return null;
+    return assessment.score >= assessment.passScore ? 'pass' : 'fail';
+  };
+
+  const scoreStatus = getScoreStatus();
+
+  if (assessment.state === 'scheduled') {
+    return (
+      <>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-xl font-heading font-bold">{assessment.title}</h3>
+              <Badge variant="outline" className="bg-info-light text-info border-info">
+                Scheduled
+              </Badge>
+            </div>
+            
+            <p className="text-muted-foreground mb-6">{assessment.description}</p>
+            
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Start Date</p>
+                  <p className="font-medium">{assessment.startDate.toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <div>
+                  <p className="text-sm text-muted-foreground">Duration</p>
+                  <p className="font-medium">{assessment.duration}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="text-center mb-6">
+              <Card className="bg-info-light border-info inline-block">
                 <CardContent className="p-4">
                   <p className="text-info font-semibold">
-                    Starting in {countdown} seconds
+                    Assessment starts in {formatTimeLeft(timeLeft)}
                   </p>
                 </CardContent>
               </Card>
-            )}
-            <p className="text-muted-foreground mb-4">The assessment will be available shortly</p>
-          </div>
-        );
+            </div>
 
-      case 'open':
-        return (
-          <div className="text-center">
-            <CheckCircle className="w-12 h-12 mx-auto mb-4 text-success" />
-            <h3 className="text-lg font-semibold mb-2">Assessment Open</h3>
-            <p className="text-muted-foreground mb-4">{timeLeft}</p>
-            <Button onClick={onBeginAssessment} size="lg">
-              Begin Assessment
-            </Button>
-          </div>
-        );
+            <div className="text-center">
+              <Button 
+                onClick={() => setShowModal(true)}
+                disabled={parseInt(timeLeft) > 0}
+              >
+                Begin Assessment
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
-      case 'completed':
-        if (score !== undefined) {
-          const hasPassed = score >= passScore;
-          return (
+        <AssessmentModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          assessmentTitle={assessment.title}
+          duration={assessment.duration}
+        />
+      </>
+    );
+  }
+
+  if (assessment.state === 'completed') {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-heading font-bold">{assessment.title}</h3>
+            <div className="flex gap-2">
+              <Badge variant="outline" className="bg-success-light text-success border-success">
+                Completed
+              </Badge>
+              {scoreStatus && (
+                <Badge 
+                  variant="outline" 
+                  className={scoreStatus === 'pass' 
+                    ? "bg-success-light text-success border-success" 
+                    : "bg-destructive-light text-destructive border-destructive"
+                  }
+                >
+                  {scoreStatus === 'pass' ? 'Pass' : 'Fail'}
+                </Badge>
+              )}
+            </div>
+          </div>
+          
+          <p className="text-muted-foreground mb-6">{assessment.description}</p>
+          
+          {assessment.score !== undefined && (
+            <div className="flex items-center gap-2 mb-4">
+              {scoreStatus === 'pass' ? (
+                <CheckCircle className="w-5 h-5 text-success" />
+              ) : (
+                <XCircle className="w-5 h-5 text-destructive" />
+              )}
+              <span className="font-medium">Score: {assessment.score}/{assessment.totalMarks}</span>
+            </div>
+          )}
+          
+          <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="text-center mb-6">
-                {hasPassed ? (
-                  <CheckCircle className="w-12 h-12 mx-auto mb-4 text-success" />
-                ) : (
-                  <XCircle className="w-12 h-12 mx-auto mb-4 text-destructive" />
-                )}
-                <h3 className="text-lg font-semibold mb-2">Assessment Completed</h3>
-                <p className="text-muted-foreground">You have completed this assessment</p>
-              </div>
-              
-              <Card className={hasPassed ? "bg-success-light border-success" : "bg-destructive-light border-destructive"}>
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className={`text-lg font-semibold ${hasPassed ? 'text-success' : 'text-destructive'}`}>
-                        Your Score: {score}/{totalMarks}
-                      </p>
-                      <p className={hasPassed ? 'text-success' : 'text-destructive'}>
-                        {hasPassed ? 'Congratulations, you passed!' : `You need at least ${passScore} marks to pass`}
-                      </p>
-                    </div>
-                    <Button 
-                      variant="link" 
-                      className={`p-0 h-auto ${hasPassed ? 'text-success hover:text-success' : 'text-destructive hover:text-destructive'}`}
-                    >
-                      View Results
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <p className="text-sm text-muted-foreground">Submitted Date</p>
+              <p className="font-medium">{assessment.endDate.toLocaleDateString()}</p>
             </div>
-          );
-        }
-        return (
-          <div className="text-center">
-            <CheckCircle className="w-12 h-12 mx-auto mb-4 text-success" />
-            <h3 className="text-lg font-semibold mb-2">Assessment Completed</h3>
-            <p className="text-muted-foreground">You have completed this assessment</p>
-          </div>
-        );
-
-      case 'expired':
-        return (
-          <div>
-            <div className="text-center mb-6">
-              <XCircle className="w-12 h-12 mx-auto mb-4 text-destructive" />
-              <h3 className="text-lg font-semibold mb-2">Assessment Ended</h3>
-              <p className="text-muted-foreground">This assessment has ended</p>
-            </div>
-            
-            <Card className="bg-destructive-light border-destructive">
-              <CardContent className="p-6">
-                <p className="text-destructive text-center">
-                  The assessment has ended and cannot be attempted
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        );
-
-      case 'interrupted':
-        return (
-          <div className="text-center">
-            <AlertCircle className="w-12 h-12 mx-auto mb-4 text-warning" />
-            <h3 className="text-lg font-semibold mb-2">Assessment Interrupted</h3>
-            <p className="text-muted-foreground mb-4">Your previous attempt was interrupted</p>
-            <div className="space-x-4">
-              <Button onClick={onBeginAssessment} size="lg">
-                Resume Assessment
-              </Button>
-              <Button variant="outline" onClick={onReAttemptRequest}>
-                Request Re-attempt
-              </Button>
+            <div>
+              <p className="text-sm text-muted-foreground">Duration</p>
+              <p className="font-medium">{assessment.duration}</p>
             </div>
           </div>
-        );
+        </CardContent>
+      </Card>
+    );
+  }
 
-      case 'reAttemptRequested':
-        return (
-          <div className="text-center">
-            <RotateCcw className="w-12 h-12 mx-auto mb-4 text-info" />
-            <h3 className="text-lg font-semibold mb-2">Re-attempt Requested</h3>
-            <p className="text-muted-foreground mb-4">Your re-attempt request is being processed</p>
-            <Badge variant="outline" className="text-info border-info">
-              Processing Request
+  if (assessment.state === 'expired') {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex justify-between items-start mb-4">
+            <h3 className="text-xl font-heading font-bold">{assessment.title}</h3>
+            <Badge variant="outline" className="bg-muted text-muted-foreground">
+              Expired
             </Badge>
           </div>
-        );
+          
+          <p className="text-muted-foreground mb-6">{assessment.description}</p>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-sm text-muted-foreground">End Date</p>
+              <p className="font-medium">{assessment.endDate.toLocaleDateString()}</p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Status</p>
+              <p className="font-medium text-muted-foreground">Assessment Expired</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <Card>
-      <CardContent className="p-8">
-        {renderStateContent()}
-      </CardContent>
-    </Card>
-  );
+  return null;
 };
 
 export default AssessmentStateCard;

@@ -45,11 +45,13 @@ const AssessmentModal = ({ isOpen, onClose, assessmentTitle, duration }: Assessm
 
   if (showInstructions) {
     return (
-      <AssessmentInstructions
-        assessmentTitle={assessmentTitle}
-        duration={duration}
-        onClose={handleExitFullscreen}
-      />
+      <div className="fixed inset-0 z-50 bg-background">
+        <AssessmentInstructions
+          assessmentTitle={assessmentTitle}
+          duration={duration}
+          onClose={handleExitFullscreen}
+        />
+      </div>
     );
   }
 
@@ -57,11 +59,13 @@ const AssessmentModal = ({ isOpen, onClose, assessmentTitle, duration }: Assessm
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-warning" />
-            <DialogTitle>Start Assessment</DialogTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-warning" />
+              <DialogTitle>Start Assessment</DialogTitle>
+            </div>
           </div>
-          <div className="mt-4">
+          <div className="mt-6">
             <DialogDescription className="text-left">
               The assessment will happen in full screen mode. No tab switching, window switching, or full screen exit is allowed. Violations can result in auto-submission.
             </DialogDescription>

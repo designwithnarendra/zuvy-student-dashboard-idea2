@@ -220,7 +220,15 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
               <Card key={index}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold">{challenge.title}</h3>
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">{challenge.title}</h3>
+                      {completedSections.coding && (
+                        <div className="flex items-center gap-2 text-success">
+                          <Check className="w-4 h-4" />
+                          <span className="text-sm">Submitted</span>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex gap-2">
                       <Badge className={getDifficultyColor(challenge.difficulty)}>
                         {challenge.difficulty}
@@ -251,7 +259,15 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
               <Card key={index}>
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-lg font-semibold">{quiz.title}</h3>
+                    <div>
+                      <h3 className="text-lg font-semibold mb-2">{quiz.title}</h3>
+                      {completedSections.mcq && (
+                        <div className="flex items-center gap-2 text-success">
+                          <Check className="w-4 h-4" />
+                          <span className="text-sm">Submitted</span>
+                        </div>
+                      )}
+                    </div>
                     <div className="flex gap-2">
                       <Badge className={getDifficultyColor(quiz.difficulty)}>
                         {quiz.difficulty}
@@ -281,7 +297,15 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-lg font-semibold">Programming Concepts</h3>
+                  <div>
+                    <h3 className="text-lg font-semibold mb-2">Programming Concepts</h3>
+                    {completedSections.openended && (
+                      <div className="flex items-center gap-2 text-success">
+                        <Check className="w-4 h-4" />
+                        <span className="text-sm">Submitted</span>
+                      </div>
+                    )}
+                  </div>
                   <Badge variant="outline">2 questions</Badge>
                 </div>
                 <div className="flex justify-end">

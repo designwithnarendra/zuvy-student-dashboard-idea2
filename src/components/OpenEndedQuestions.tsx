@@ -78,6 +78,7 @@ const OpenEndedQuestions = ({ onBack, onComplete, timeLeft }: OpenEndedQuestions
             size="lg"
             onClick={handleSubmit}
             disabled={!allAnswered || isSubmitted}
+            className={isSubmitted ? "bg-success hover:bg-success" : ""}
           >
             {isSubmitted ? 'Submitted ✓' : 'Submit'}
           </Button>

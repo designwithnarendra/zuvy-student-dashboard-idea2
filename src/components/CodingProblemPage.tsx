@@ -111,7 +111,7 @@ function findPairs(nums, target) {
             />
             
             <div className="flex justify-between mt-4">
-              <Button onClick={handleRunCode} disabled={isReadOnly}>
+              <Button onClick={handleRunCode} disabled={isReadOnly || isSubmitted}>
                 Run Code
               </Button>
               <Button 
