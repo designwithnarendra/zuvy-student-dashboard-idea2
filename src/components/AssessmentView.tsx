@@ -57,6 +57,12 @@ const AssessmentView = ({ assessment }: AssessmentViewProps) => {
     setShowModal(true);
   };
 
+  // Create updated assessment object with current state
+  const currentAssessment = {
+    ...assessment,
+    state: currentState as 'scheduled' | 'active' | 'completed' | 'expired'
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-8">
       <div className="space-y-6">
@@ -71,14 +77,7 @@ const AssessmentView = ({ assessment }: AssessmentViewProps) => {
         />
         
         <AssessmentStateCard
-          currentState={currentState}
-          countdown={isCountdownActive ? countdown : undefined}
-          endDate={assessment.endDate}
-          score={assessment.score}
-          totalMarks={assessment.totalMarks}
-          passScore={assessment.passScore}
-          onReAttemptRequest={handleReAttemptRequest}
-          onBeginAssessment={handleBeginAssessment}
+          assessment={currentAssessment}
         />
       </div>
 
