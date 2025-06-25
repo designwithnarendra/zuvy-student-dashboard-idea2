@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import AssessmentHeader from "./AssessmentHeader";
 import AssessmentStateCard from "./AssessmentStateCard";
+import AssessmentModal from "./AssessmentModal";
 
 interface AssessmentData {
   id: string;
@@ -25,6 +26,7 @@ const AssessmentView = ({ assessment }: AssessmentViewProps) => {
   const [currentState, setCurrentState] = useState(assessment.state);
   const [countdown, setCountdown] = useState(3);
   const [isCountdownActive, setIsCountdownActive] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (currentState === 'scheduled') {
@@ -52,8 +54,7 @@ const AssessmentView = ({ assessment }: AssessmentViewProps) => {
   };
 
   const handleBeginAssessment = () => {
-    console.log('Begin Assessment clicked');
-    // This will be implemented with the assessment modal and fullscreen functionality
+    setShowModal(true);
   };
 
   return (
@@ -80,6 +81,13 @@ const AssessmentView = ({ assessment }: AssessmentViewProps) => {
           onBeginAssessment={handleBeginAssessment}
         />
       </div>
+
+      <AssessmentModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        assessmentTitle={assessment.title}
+        duration={assessment.duration}
+      />
     </div>
   );
 };
