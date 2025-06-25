@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,6 +23,7 @@ import {
 } from "lucide-react";
 import { mockCourses, Module, Topic, TopicItem } from "@/lib/mockData";
 import Header from "@/components/Header";
+import AssessmentView from "@/components/AssessmentView";
 
 const ModuleContentPage = () => {
   const { courseId, moduleId } = useParams();
@@ -82,6 +82,108 @@ const ModuleContentPage = () => {
       </div>
     );
   }
+
+  // Enhanced module with additional assessments for module 2
+  const enhancedModule = moduleId === '2' ? {
+    ...currentModule,
+    topics: [
+      ...currentModule.topics,
+      {
+        id: 'assessments',
+        name: 'Assessments',
+        items: [
+          {
+            id: 'dom-concepts-assessment',
+            title: 'DOM Concepts Assessment',
+            type: 'assessment',
+            status: 'not-completed',
+            description: 'Test your understanding of DOM concepts and manipulation techniques.',
+            scheduledDateTime: new Date(Date.now() + 5000), // 5 seconds from now
+            duration: '2 hours'
+          },
+          {
+            id: 'high-score-assessment',
+            title: 'JavaScript Fundamentals Assessment',
+            type: 'assessment',
+            status: 'completed',
+            description: 'Comprehensive test covering JavaScript basics and advanced concepts.'
+          },
+          {
+            id: 'low-score-assessment',
+            title: 'Event Handling Assessment',
+            type: 'assessment',
+            status: 'completed',
+            description: 'Assessment focusing on event handling and user interactions.'
+          },
+          {
+            id: 'expired-assessment',
+            title: 'DOM Manipulation Final Test',
+            type: 'assessment',
+            status: 'not-completed',
+            description: 'Final assessment for DOM manipulation concepts.'
+          }
+        ]
+      }
+    ]
+  } : currentModule;
+
+  // Assessment data mapping
+  const getAssessmentData = (itemId: string) => {
+    const assessmentMap: { [key: string]: any } = {
+      'dom-concepts-assessment': {
+        id: 'dom-concepts-assessment',
+        title: 'DOM Concepts Assessment',
+        description: 'This assessment covers DOM manipulation, event handling, and interactive web development concepts. Complete coding problems, MCQ quiz, and open-ended questions.',
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        duration: '2 hours',
+        totalMarks: 100,
+        passScore: 60,
+        state: 'scheduled',
+        attemptStatus: 'Not Attempted'
+      },
+      'high-score-assessment': {
+        id: 'high-score-assessment',
+        title: 'JavaScript Fundamentals Assessment',
+        description: 'Comprehensive assessment covering JavaScript basics, data types, functions, and control structures.',
+        startDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+        endDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        duration: '90 minutes',
+        totalMarks: 100,
+        passScore: 60,
+        state: 'completed',
+        score: 70,
+        attemptStatus: 'Attempted'
+      },
+      'low-score-assessment': {
+        id: 'low-score-assessment',
+        title: 'Event Handling Assessment',
+        description: 'Assessment focusing on event handling, user interactions, and dynamic content updates.',
+        startDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        endDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        duration: '75 minutes',
+        totalMarks: 100,
+        passScore: 60,
+        state: 'completed',
+        score: 30,
+        attemptStatus: 'Attempted'
+      },
+      'expired-assessment': {
+        id: 'expired-assessment',
+        title: 'DOM Manipulation Final Test',
+        description: 'Final comprehensive assessment covering all DOM manipulation concepts and techniques.',
+        startDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+        endDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        duration: '3 hours',
+        totalMarks: 150,
+        passScore: 60,
+        state: 'expired',
+        attemptStatus: 'Not Attempted'
+      }
+    };
+    
+    return assessmentMap[itemId];
+  };
 
   const getItemIcon = (type: string, status: string) => {
     const getIconComponent = () => {
@@ -163,7 +265,7 @@ const ModuleContentPage = () => {
   };
 
   const getSelectedItem = () => {
-    for (const topic of currentModule.topics) {
+    for (const topic of enhancedModule.topics) {
       const item = topic.items.find(item => item.id === selectedItem);
       if (item) return { item, topicId: topic.id };
     }
@@ -174,7 +276,7 @@ const ModuleContentPage = () => {
 
   const getAllItems = () => {
     const items: { item: TopicItem; topicId: string }[] = [];
-    currentModule.topics.forEach(topic => {
+    enhancedModule.topics.forEach(topic => {
       topic.items.forEach(item => {
         items.push({ item, topicId: topic.id });
       });
@@ -213,6 +315,14 @@ const ModuleContentPage = () => {
     }
 
     const { item } = selectedItemData;
+
+    // Handle assessment rendering
+    if (item.type === 'assessment') {
+      const assessmentData = getAssessmentData(item.id);
+      if (assessmentData) {
+        return <AssessmentView assessment={assessmentData} />;
+      }
+    }
 
     if (item.type === 'live-class') {
       const isScheduled = item.scheduledDateTime && new Date() < item.scheduledDateTime;
@@ -418,7 +528,7 @@ const ModuleContentPage = () => {
   const SidebarContent = () => (
     <ScrollArea className="h-[calc(100vh-200px)] lg:h-[calc(100vh-200px)]">
       <div className="p-4 space-y-4">
-        {currentModule.topics.map((topic: Topic) => (
+        {enhancedModule.topics.map((topic: Topic) => (
           <div key={topic.id} className="space-y-2">
             <Button
               variant="ghost"
@@ -445,7 +555,7 @@ const ModuleContentPage = () => {
               <div className="space-y-1 pl-0">
                 {topic.items.map((item: TopicItem, index) => {
                   // Make second topic's live class "in progress"
-                  const isSecondTopicLiveClass = topic.id === currentModule.topics[1]?.id && item.type === 'live-class';
+                  const isSecondTopicLiveClass = topic.id === enhancedModule.topics[1]?.id && item.type === 'live-class';
                   const adjustedItem = isSecondTopicLiveClass ? {
                     ...item,
                     scheduledDateTime: new Date(Date.now() - 5 * 60 * 1000) // 5 minutes ago (in progress)
@@ -505,7 +615,7 @@ const ModuleContentPage = () => {
       {/* Mobile: Module name at top */}
       {isMobile && (
         <div className="lg:hidden px-4 py-4 border-b border-border">
-          <h2 className="text-lg font-heading font-semibold">Module {moduleId}: {currentModule.name}</h2>
+          <h2 className="text-lg font-heading font-semibold">Module {moduleId}: {enhancedModule.name}</h2>
         </div>
       )}
 
@@ -521,7 +631,7 @@ const ModuleContentPage = () => {
                 </Link>
               </Button>
               <h2 className="text-lg font-heading font-semibold">Module Content</h2>
-              <p className="text-sm text-muted-foreground mt-1 break-words">Module {moduleId}: {currentModule.name}</p>
+              <p className="text-sm text-muted-foreground mt-1 break-words">Module {moduleId}: {enhancedModule.name}</p>
             </div>
             
             <div className="border-t border-border"></div>
