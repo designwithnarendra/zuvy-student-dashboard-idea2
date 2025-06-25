@@ -66,19 +66,20 @@ const ModuleContentPage = () => {
   }
 
   // Enhanced module with additional assessments for module 2
-  const enhancedModule = moduleId === '2' ? {
+  const enhancedModule: Module = moduleId === '2' ? {
     ...currentModule,
     topics: [
       ...currentModule.topics,
       {
         id: 'assessments',
         name: 'Assessments',
+        description: 'Module assessments and evaluations',
         items: [
           {
             id: 'dom-concepts-assessment',
             title: 'DOM Concepts Assessment',
-            type: 'assessment',
-            status: 'not-completed',
+            type: 'assessment' as const,
+            status: 'not-completed' as const,
             description: 'Test your understanding of DOM concepts and manipulation techniques.',
             scheduledDateTime: new Date(Date.now() + 5000),
             duration: '2 hours'
@@ -86,25 +87,25 @@ const ModuleContentPage = () => {
           {
             id: 'high-score-assessment',
             title: 'JavaScript Fundamentals Assessment',
-            type: 'assessment',
-            status: 'completed',
+            type: 'assessment' as const,
+            status: 'completed' as const,
             description: 'Comprehensive test covering JavaScript basics and advanced concepts.'
           },
           {
             id: 'low-score-assessment',
             title: 'Event Handling Assessment',
-            type: 'assessment',
-            status: 'completed',
+            type: 'assessment' as const,
+            status: 'completed' as const,
             description: 'Assessment focusing on event handling and user interactions.'
           },
           {
             id: 'expired-assessment',
             title: 'DOM Manipulation Final Test',
-            type: 'assessment',
-            status: 'not-completed',
+            type: 'assessment' as const,
+            status: 'not-completed' as const,
             description: 'Final assessment for DOM manipulation concepts.'
           }
-        ]
+        ] as TopicItem[]
       }
     ]
   } : currentModule;
