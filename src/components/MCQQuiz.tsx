@@ -79,56 +79,38 @@ const MCQQuiz = ({ quiz, onBack, onComplete, timeLeft }: MCQQuizProps) => {
 
       <div className="max-w-4xl mx-auto p-8">
         <div className="space-y-8">
-          {questions.map((q, index) => {
-            const isSelected = answers[index] !== '';
-            const selectedOption = parseInt(answers[index]);
-            const isCorrect = selectedOption === q.correct;
-            
-            return (
-              <div key={index} className="space-y-4">
-                <h3 className="text-lg font-semibold">
-                  {index + 1}. {q.question}
-                </h3>
-                <RadioGroup
-                  value={answers[index]}
-                  onValueChange={(value) => handleAnswerChange(index, value)}
-                  disabled={isSubmitted}
-                  className="space-y-4"
-                >
-                  {q.options.map((option, optionIndex) => {
-                    const isThisCorrect = optionIndex === q.correct;
-                    const isThisSelected = selectedOption === optionIndex;
-                    const shouldShowCorrect = isSubmitted && isThisCorrect;
-                    const shouldShowWrong = isSubmitted && isThisSelected && !isThisCorrect;
-                    
-                    return (
-                      <div key={optionIndex} className="flex items-center space-x-2">
-                        <RadioGroupItem 
-                          value={optionIndex.toString()} 
-                          id={`q${index}_option${optionIndex}`}
-                          className={shouldShowCorrect ? "border-success" : shouldShowWrong ? "border-destructive" : ""}
-                        />
-                        <Label 
-                          htmlFor={`q${index}_option${optionIndex}`} 
-                          className={`cursor-pointer ${
-                            shouldShowCorrect ? "text-success font-medium" : 
-                            shouldShowWrong ? "text-destructive font-medium" : ""
-                          }`}
-                        >
-                          {option}
-                        </Label>
-                      </div>
-                    );
-                  })}
-                </RadioGroup>
-                {isSubmitted && !isCorrect && isSelected && (
+          {questions.map((q, index) => (
+            <div key={index} className="space-y-4">
+              <h3 className="text-lg font-semibold">
+                {index + 1}. {q.question}
+              </h3>
+              <RadioGroup
+                value={answers[index]}
+                onValueChange={(value) => handleAnswerChange(index, value)}
+                disabled={isSubmitted}
+              >
+                {q.options.map((option, optionIndex) => (
+                  <div key={optionIndex} className="flex items-center space-x-2">
+                    <RadioGroupItem 
+                      value={optionIndex.toString()} 
+                      id={`q${index}_option${optionIndex}`}
+                      className={isSubmitted && parseInt(answers[index]) === optionIndex ? "border-primary" : ""}
+                    />
+                    <Label htmlFor={`q${index}_option${optionIndex}`} className={`cursor-pointer ${
+                      isSubmitted && parseInt(answers[index]) === optionIndex ? "text-primary font-medium" : ""
+                    }`}>
+                      {option}
+                    </Label>
+                  </div>
+                ))}
+                {isSubmitted && parseInt(answers[index]) !== q.correct && (
                   <p className="text-sm text-muted-foreground mt-2">
                     Correct Answer: {q.options[q.correct]}
                   </p>
                 )}
-              </div>
-            );
-          })}
+              </RadioGroup>
+            </div>
+          ))}
         </div>
 
         <div className="flex justify-center mt-8">
@@ -136,7 +118,6 @@ const MCQQuiz = ({ quiz, onBack, onComplete, timeLeft }: MCQQuizProps) => {
             size="lg"
             onClick={handleSubmit}
             disabled={!allAnswered || isSubmitted}
-            className={isSubmitted ? "bg-success hover:bg-success" : ""}
           >
             {isSubmitted ? 'Submitted ✓' : 'Submit Quiz'}
           </Button>
