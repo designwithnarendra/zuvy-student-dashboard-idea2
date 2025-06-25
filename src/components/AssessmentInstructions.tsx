@@ -50,7 +50,7 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
 
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden) {
+      if (document.hidden && currentView !== 'instructions') {
         handleViolation('tab-switch');
       }
     };
@@ -62,7 +62,8 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
     };
 
     const handleCopyPaste = (e: ClipboardEvent) => {
-      if (e.type === 'paste') {
+      if (e.type === 'paste' && currentView !== 'instructions') {
+        e.preventDefault();
         handleViolation('copy-paste');
       }
     };
@@ -127,9 +128,9 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
 
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case 'Easy': return 'bg-success text-success-foreground';
-      case 'Medium': return 'bg-warning text-warning-foreground';
-      case 'Hard': return 'bg-destructive text-destructive-foreground';
+      case 'Easy': return 'bg-success-light text-success';
+      case 'Medium': return 'bg-warning-light text-black';
+      case 'Hard': return 'bg-destructive-light text-destructive';
       default: return 'bg-muted text-muted-foreground';
     }
   };
@@ -185,7 +186,7 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
         violation={currentViolation}
       />
       
-      <header className="flex items-center justify-between p-4 border-b">
+      <header className="w-full flex items-center justify-between p-4 border-b">
         <Button variant="ghost" size="icon" onClick={onClose}>
           <X className="w-5 h-5" />
         </Button>
@@ -195,7 +196,7 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
       </header>
 
       <div className="max-w-4xl mx-auto p-8">
-        <div className="text-center mb-8">
+        <div className="text-left mb-8">
           <h1 className="text-3xl font-heading font-bold mb-2">{assessmentTitle}</h1>
           <p className="text-muted-foreground">
             Complete all sections to submit your assessment. Read the instructions carefully before proceeding.
@@ -203,24 +204,22 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
         </div>
 
         <div className="space-y-8">
-          <Card>
-            <CardContent className="p-6">
-              <h2 className="text-xl font-heading font-semibold mb-4">Proctoring Rules</h2>
-              <ul className="space-y-2 text-muted-foreground">
-                <li>• No copy-pasting is allowed during the assessment</li>
-                <li>• Tab switching or window switching is not permitted</li>
-                <li>• Assessment screen exit will result in violations</li>
-                <li>• Maximum 3 violations are allowed before auto-submission</li>
-              </ul>
-            </CardContent>
-          </Card>
+          <div className="space-y-4">
+            <h2 className="text-xl font-heading font-semibold">Proctoring Rules</h2>
+            <ul className="space-y-2 text-muted-foreground">
+              <li>• No copy-pasting is allowed during the assessment</li>
+              <li>• Tab switching or window switching is not permitted</li>
+              <li>• Assessment screen exit will result in violations</li>
+              <li>• Maximum 3 violations are allowed before auto-submission</li>
+            </ul>
+          </div>
 
           <div className="space-y-6">
             <h2 className="text-2xl font-heading font-bold">Coding Challenges</h2>
             {codingChallenges.map((challenge, index) => (
               <Card key={index}>
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-semibold">{challenge.title}</h3>
                     <div className="flex gap-2">
                       <Badge className={getDifficultyColor(challenge.difficulty)}>
@@ -238,7 +237,7 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
                         setCurrentView('coding');
                       }}
                     >
-                      Solve Challenge
+                      {completedSections.coding ? 'View Solution' : 'Solve Challenge'}
                     </Button>
                   </div>
                 </CardContent>
@@ -251,7 +250,7 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
             {mcqQuizzes.map((quiz, index) => (
               <Card key={index}>
                 <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-6">
                     <h3 className="text-lg font-semibold">{quiz.title}</h3>
                     <div className="flex gap-2">
                       <Badge className={getDifficultyColor(quiz.difficulty)}>
@@ -269,7 +268,7 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
                         setCurrentView('mcq');
                       }}
                     >
-                      Attempt Quiz
+                      {completedSections.mcq ? 'View Answers' : 'Attempt Quiz'}
                     </Button>
                   </div>
                 </CardContent>
@@ -281,7 +280,7 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
             <h2 className="text-2xl font-heading font-bold">Open Ended Questions</h2>
             <Card>
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-6">
                   <h3 className="text-lg font-semibold">Programming Concepts</h3>
                   <Badge variant="outline">2 questions</Badge>
                 </div>
@@ -291,7 +290,7 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
                     className="text-primary p-0 h-auto"
                     onClick={() => setCurrentView('openended')}
                   >
-                    Attempt Questions
+                    {completedSections.openended ? 'View Answers' : 'Attempt Questions'}
                   </Button>
                 </div>
               </CardContent>

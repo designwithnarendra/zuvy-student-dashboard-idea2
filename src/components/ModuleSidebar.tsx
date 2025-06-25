@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -28,6 +28,18 @@ interface ModuleSidebarProps {
 const ModuleSidebar = ({ courseId, moduleId, module, selectedItem, onItemSelect }: ModuleSidebarProps) => {
   const [expandedTopics, setExpandedTopics] = useState<string[]>([]);
 
+  // Auto-expand the topic that contains the selected item
+  useEffect(() => {
+    if (selectedItem) {
+      const topicWithSelectedItem = module.topics.find(topic => 
+        topic.items.some(item => item.id === selectedItem)
+      );
+      if (topicWithSelectedItem && !expandedTopics.includes(topicWithSelectedItem.id)) {
+        setExpandedTopics(prev => [...prev, topicWithSelectedItem.id]);
+      }
+    }
+  }, [selectedItem, module.topics, expandedTopics]);
+
   const getItemIcon = (type: string, status: string) => {
     const getIconComponent = () => {
       switch (type) {
@@ -45,6 +57,8 @@ const ModuleSidebar = ({ courseId, moduleId, module, selectedItem, onItemSelect 
           return <BookOpen className="w-6 h-6" />;
         case 'feedback':
           return <User className="w-6 h-6" />;
+        case 'coding-problem':
+          return <BookOpen className="w-6 h-6" />;
         default:
           return <Circle className="w-6 h-6" />;
       }
@@ -64,6 +78,8 @@ const ModuleSidebar = ({ courseId, moduleId, module, selectedItem, onItemSelect 
           return status === 'completed' ? 'text-success' : 'text-warning';
         case 'feedback':
           return status === 'completed' ? 'text-success' : 'text-info';
+        case 'coding-problem':
+          return status === 'completed' ? 'text-success' : 'text-accent';
         default:
           return 'text-muted-foreground';
       }
@@ -89,6 +105,12 @@ const ModuleSidebar = ({ courseId, moduleId, module, selectedItem, onItemSelect 
     if (item.type === 'assessment') {
       return 'Starts: Dec 20, 2024 10:00 AM';
     }
+    if (item.type === 'quiz') {
+      return '5 questions';
+    }
+    if (item.type === 'coding-problem') {
+      return 'Practice problem';
+    }
     return '';
   };
 
@@ -101,7 +123,7 @@ const ModuleSidebar = ({ courseId, moduleId, module, selectedItem, onItemSelect 
   };
 
   return (
-    <div className="w-80 bg-card border-r border-border shadow-4dp fixed h-full">
+    <div className="w-80 bg-background border-r border-border shadow-4dp fixed h-full">
       <div className="p-6 border-b border-border">
         <Button variant="link" size="sm" asChild className="mb-4 p-0 h-auto text-foreground hover:text-foreground hover:no-underline">
           <Link to={`/course/${courseId}`}>
@@ -173,6 +195,8 @@ const ModuleSidebar = ({ courseId, moduleId, module, selectedItem, onItemSelect 
                                item.type === 'assignment' ? `Assignment: ${item.title}` :
                                item.type === 'assessment' ? `Assessment: ${item.title}` :
                                item.type === 'feedback' ? `Feedback Form: ${item.title}` :
+                               item.type === 'quiz' ? `Quiz: ${item.title}` :
+                               item.type === 'coding-problem' ? `Coding Problem: ${item.title}` :
                                item.title}
                             </div>
                             <div className="text-xs text-muted-foreground">

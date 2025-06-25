@@ -59,11 +59,13 @@ const AssessmentModal = ({ isOpen, onClose, assessmentTitle, duration }: Assessm
         <DialogHeader>
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-warning" />
-            <DialogTitle>Assessment Instructions</DialogTitle>
+            <DialogTitle>Start Assessment</DialogTitle>
           </div>
-          <DialogDescription className="text-left">
-            The assessment will happen in full screen mode. No tab switching, window switching, or full screen exit is allowed. Violations can result in auto-submission.
-          </DialogDescription>
+          <div className="mt-4">
+            <DialogDescription className="text-left">
+              The assessment will happen in full screen mode. No tab switching, window switching, or full screen exit is allowed. Violations can result in auto-submission.
+            </DialogDescription>
+          </div>
         </DialogHeader>
         <DialogFooter className="flex gap-2">
           <Button variant="outline" onClick={onClose}>

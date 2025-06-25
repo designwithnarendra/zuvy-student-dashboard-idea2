@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
@@ -66,7 +65,7 @@ const MCQQuiz = ({ quiz, onBack, onComplete, timeLeft }: MCQQuizProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="flex items-center justify-between p-4 border-b">
+      <header className="w-full flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack}>
             <X className="w-5 h-5" />
@@ -79,32 +78,38 @@ const MCQQuiz = ({ quiz, onBack, onComplete, timeLeft }: MCQQuizProps) => {
       </header>
 
       <div className="max-w-4xl mx-auto p-8">
-        <div className="space-y-6">
+        <div className="space-y-8">
           {questions.map((q, index) => (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  Question {index + 1}: {q.question}
-                </h3>
-                <RadioGroup
-                  value={answers[index]}
-                  onValueChange={(value) => handleAnswerChange(index, value)}
-                  disabled={isSubmitted}
-                >
-                  {q.options.map((option, optionIndex) => (
-                    <div key={optionIndex} className="flex items-center space-x-2">
-                      <RadioGroupItem 
-                        value={optionIndex.toString()} 
-                        id={`q${index}_option${optionIndex}`} 
-                      />
-                      <Label htmlFor={`q${index}_option${optionIndex}`} className="cursor-pointer">
-                        {option}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-              </CardContent>
-            </Card>
+            <div key={index} className="space-y-4">
+              <h3 className="text-lg font-semibold">
+                {index + 1}. {q.question}
+              </h3>
+              <RadioGroup
+                value={answers[index]}
+                onValueChange={(value) => handleAnswerChange(index, value)}
+                disabled={isSubmitted}
+              >
+                {q.options.map((option, optionIndex) => (
+                  <div key={optionIndex} className="flex items-center space-x-2">
+                    <RadioGroupItem 
+                      value={optionIndex.toString()} 
+                      id={`q${index}_option${optionIndex}`}
+                      className={isSubmitted && parseInt(answers[index]) === optionIndex ? "border-primary" : ""}
+                    />
+                    <Label htmlFor={`q${index}_option${optionIndex}`} className={`cursor-pointer ${
+                      isSubmitted && parseInt(answers[index]) === optionIndex ? "text-primary font-medium" : ""
+                    }`}>
+                      {option}
+                    </Label>
+                  </div>
+                ))}
+                {isSubmitted && parseInt(answers[index]) !== q.correct && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Correct Answer: {q.options[q.correct]}
+                  </p>
+                )}
+              </RadioGroup>
+            </div>
           ))}
         </div>
 

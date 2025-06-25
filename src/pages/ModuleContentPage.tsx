@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -65,11 +64,38 @@ const ModuleContentPage = () => {
     );
   }
 
-  // Enhanced module with additional assessments for module 2
+  // Enhanced module with additional content for module 2
   const enhancedModule: Module = moduleId === '2' ? {
     ...currentModule,
     topics: [
-      ...currentModule.topics,
+      {
+        ...currentModule.topics[0],
+        items: [
+          ...currentModule.topics[0].items,
+          {
+            id: 'dom-quiz-1',
+            title: 'DOM Fundamentals Quiz',
+            type: 'quiz',
+            status: 'not-completed',
+            description: 'Test your understanding of DOM basics with multiple choice questions.'
+          },
+          {
+            id: 'course-feedback-1',
+            title: 'Module 2 Feedback',
+            type: 'feedback',
+            status: 'not-completed',
+            description: 'Share your feedback about this module to help us improve.'
+          },
+          {
+            id: 'coding-problem-1',
+            title: 'Array Manipulation Challenge',
+            type: 'coding-problem',
+            status: 'not-completed',
+            description: 'Practice array manipulation techniques with this coding problem.'
+          }
+        ]
+      },
+      ...currentModule.topics.slice(1),
       {
         id: 'assessments',
         name: 'Assessments',
@@ -78,39 +104,39 @@ const ModuleContentPage = () => {
           {
             id: 'dom-concepts-assessment',
             title: 'DOM Concepts Assessment',
-            type: 'assessment' as const,
-            status: 'not-completed' as const,
+            type: 'assessment',
+            status: 'not-completed',
             description: 'Test your understanding of DOM concepts and manipulation techniques.',
-            scheduledDateTime: new Date(Date.now() + 5000),
+            scheduledDateTime: new Date(Date.now() + 10000),
             duration: '2 hours'
           },
           {
             id: 'high-score-assessment',
             title: 'JavaScript Fundamentals Assessment',
-            type: 'assessment' as const,
-            status: 'completed' as const,
+            type: 'assessment',
+            status: 'completed',
             description: 'Comprehensive test covering JavaScript basics and advanced concepts.'
           },
           {
             id: 'low-score-assessment',
             title: 'Event Handling Assessment',
-            type: 'assessment' as const,
-            status: 'completed' as const,
+            type: 'assessment',
+            status: 'completed',
             description: 'Assessment focusing on event handling and user interactions.'
           },
           {
             id: 'expired-assessment',
             title: 'DOM Manipulation Final Test',
-            type: 'assessment' as const,
-            status: 'not-completed' as const,
+            type: 'assessment',
+            status: 'not-completed',
             description: 'Final assessment for DOM manipulation concepts.'
           }
-        ] as TopicItem[]
+        ]
       }
     ]
   } : currentModule;
 
-  // Assessment data mapping
+  // Assessment data mapping with fixed state logic
   const getAssessmentData = (itemId: string) => {
     const assessmentMap: { [key: string]: any } = {
       'dom-concepts-assessment': {

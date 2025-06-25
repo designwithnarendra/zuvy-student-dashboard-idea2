@@ -49,16 +49,18 @@ const ViolationModal = ({ isOpen, onClose, violation }: ViolationModalProps) => 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-warning" />
-            <DialogTitle>{violationInfo.title}</DialogTitle>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-warning" />
+              <DialogTitle className="text-lg">{violationInfo.title}</DialogTitle>
+            </div>
           </div>
-          <div className="flex items-center gap-2 mt-2">
-            <Badge variant="destructive">
+          <div className="mt-4">
+            <Badge variant="destructive" className="mb-4">
               Violation {violation.count}/3
             </Badge>
           </div>
-          <DialogDescription className="text-left">
+          <DialogDescription className="text-left text-base">
             {violationInfo.description}
           </DialogDescription>
         </DialogHeader>

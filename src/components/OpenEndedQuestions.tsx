@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
 
@@ -43,7 +42,7 @@ const OpenEndedQuestions = ({ onBack, onComplete, timeLeft }: OpenEndedQuestions
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="flex items-center justify-between p-4 border-b">
+      <header className="w-full flex items-center justify-between p-4 border-b">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack}>
             <X className="w-5 h-5" />
@@ -58,21 +57,19 @@ const OpenEndedQuestions = ({ onBack, onComplete, timeLeft }: OpenEndedQuestions
       <div className="max-w-4xl mx-auto p-8">
         <div className="space-y-8">
           {questions.map((q, index) => (
-            <Card key={index}>
-              <CardContent className="p-6">
-                <h3 className="text-lg font-semibold mb-4">
-                  Question {index + 1}
-                </h3>
-                <p className="text-muted-foreground mb-4">{q.question}</p>
-                <Textarea
-                  value={answers[index]}
-                  onChange={(e) => handleAnswerChange(index, e.target.value)}
-                  placeholder={q.placeholder}
-                  className="min-h-32"
-                  disabled={isSubmitted}
-                />
-              </CardContent>
-            </Card>
+            <div key={index} className="space-y-4">
+              <h3 className="text-lg font-semibold">
+                Question {index + 1}
+              </h3>
+              <p className="text-muted-foreground">{q.question}</p>
+              <Textarea
+                value={answers[index]}
+                onChange={(e) => handleAnswerChange(index, e.target.value)}
+                placeholder={q.placeholder}
+                className="min-h-32"
+                disabled={isSubmitted}
+              />
+            </div>
           ))}
         </div>
 
