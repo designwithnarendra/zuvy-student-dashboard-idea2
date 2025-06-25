@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import AssessmentView from "./AssessmentView";
 import CodingProblemPage from "./CodingProblemPage";
 
 interface ModuleContentRendererProps {
-  selectedItemData: { item: TopicItem; topicId: string } | null;
+  selectedItemData: { item: any; topicId: string } | null;
   getAssessmentData: (itemId: string) => any;
 }
 
@@ -347,7 +348,12 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
     if (isScheduled) {
       return (
         <div className="max-w-4xl mx-auto p-8">
-          <h1 className="text-3xl font-heading font-bold mb-4">{item.title}</h1>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
+            <Badge variant="outline" className="text-muted-foreground">
+              Scheduled
+            </Badge>
+          </div>
           <p className="text-muted-foreground mb-6">{item.description || "Join this live interactive session with your instructor and fellow students."}</p>
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
@@ -378,7 +384,12 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
     if (isInProgress) {
       return (
         <div className="max-w-4xl mx-auto p-8">
-          <h1 className="text-3xl font-heading font-bold mb-4">{item.title}</h1>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
+            <Badge variant="outline" className="text-success border-success">
+              Live Now
+            </Badge>
+          </div>
           <p className="text-muted-foreground mb-6">{item.description || "Join this live interactive session with your instructor and fellow students."}</p>
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
@@ -400,7 +411,12 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
     if (isCompleted) {
       return (
         <div className="max-w-4xl mx-auto p-8">
-          <h1 className="text-3xl font-heading font-bold mb-4">{item.title}</h1>
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
+            <Badge variant="outline" className="text-success border-success">
+              Completed
+            </Badge>
+          </div>
           <p className="text-muted-foreground mb-6">{item.description || "This live class has been completed."}</p>
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div>

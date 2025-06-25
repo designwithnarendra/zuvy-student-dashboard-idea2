@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -92,7 +91,7 @@ const ModuleSidebar = ({ courseId, moduleId, module, selectedItem, onItemSelect 
     );
   };
 
-  const getItemDetails = (item: TopicItem) => {
+  const getItemDetails = (item: any) => {
     if (item.type === 'live-class' || item.type === 'video') {
       return item.duration || '45 mins';
     }
@@ -164,7 +163,7 @@ const ModuleSidebar = ({ courseId, moduleId, module, selectedItem, onItemSelect 
               
               {expandedTopics.includes(topic.id) && (
                 <div className="space-y-1 pl-0">
-                  {topic.items.map((item: TopicItem) => {
+                  {topic.items.map((item: any) => {
                     const isSecondTopicLiveClass = topic.id === module.topics[1]?.id && item.type === 'live-class';
                     const adjustedItem = isSecondTopicLiveClass ? {
                       ...item,

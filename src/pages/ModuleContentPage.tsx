@@ -75,22 +75,22 @@ const ModuleContentPage = () => {
           {
             id: 'dom-quiz-1',
             title: 'DOM Fundamentals Quiz',
-            type: 'quiz',
-            status: 'not-completed',
+            type: 'quiz' as any,
+            status: 'not-started',
             description: 'Test your understanding of DOM basics with multiple choice questions.'
           },
           {
             id: 'course-feedback-1',
             title: 'Module 2 Feedback',
-            type: 'feedback',
-            status: 'not-completed',
+            type: 'feedback' as any,
+            status: 'not-started',
             description: 'Share your feedback about this module to help us improve.'
           },
           {
             id: 'coding-problem-1',
             title: 'Array Manipulation Challenge',
-            type: 'coding-problem',
-            status: 'not-completed',
+            type: 'coding-problem' as any,
+            status: 'not-started',
             description: 'Practice array manipulation techniques with this coding problem.'
           }
         ]
@@ -105,7 +105,7 @@ const ModuleContentPage = () => {
             id: 'dom-concepts-assessment',
             title: 'DOM Concepts Assessment',
             type: 'assessment',
-            status: 'not-completed',
+            status: 'not-started',
             description: 'Test your understanding of DOM concepts and manipulation techniques.',
             scheduledDateTime: new Date(Date.now() + 10000),
             duration: '2 hours'
@@ -128,7 +128,7 @@ const ModuleContentPage = () => {
             id: 'expired-assessment',
             title: 'DOM Manipulation Final Test',
             type: 'assessment',
-            status: 'not-completed',
+            status: 'not-started',
             description: 'Final assessment for DOM manipulation concepts.'
           }
         ]
