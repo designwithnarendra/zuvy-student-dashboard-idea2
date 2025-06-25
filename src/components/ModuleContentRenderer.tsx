@@ -3,17 +3,14 @@ import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Play, Check, Calendar as CalendarIcon, Clock } from "lucide-react";
-import { TopicItem } from "@/lib/mockData";
+import { Play, Check, Clock } from "lucide-react";
 import AssessmentView from "./AssessmentView";
 import CodingProblemPage from "./CodingProblemPage";
+import VideoLearningItem from "./VideoLearningItem";
+import ArticleLearningItem from "./ArticleLearningItem";
+import QuizLearningItem from "./QuizLearningItem";
+import FeedbackLearningItem from "./FeedbackLearningItem";
 
 interface ModuleContentRendererProps {
   selectedItemData: { item: any; topicId: string } | null;
@@ -22,16 +19,6 @@ interface ModuleContentRendererProps {
 
 const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleContentRendererProps) => {
   const [showCodingProblem, setShowCodingProblem] = useState(false);
-  const [quizSubmitted, setQuizSubmitted] = useState(false);
-  const [quizAnswers, setQuizAnswers] = useState<string[]>(new Array(5).fill(''));
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
-  const [feedbackAnswers, setFeedbackAnswers] = useState({
-    mcq: '',
-    checkbox: [] as string[],
-    text: '',
-    date: null as Date | null,
-    time: ''
-  });
   const [assignmentLink, setAssignmentLink] = useState('');
   const [assignmentSubmitted, setAssignmentSubmitted] = useState(false);
 
@@ -88,233 +75,21 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
     }
   }
 
-  // Handle Quiz rendering
-  if (item.type === 'quiz') {
-    const questions = [
-      {
-        question: "What does DOM stand for?",
-        options: ["Document Object Model", "Data Object Management", "Dynamic Object Method", "Document Oriented Markup"],
-        correct: 0
-      },
-      {
-        question: "Which method is used to select an element by ID?",
-        options: ["document.getElement()", "document.getElementById()", "document.selectId()", "document.findById()"],
-        correct: 1
-      },
-      {
-        question: "How do you add an event listener to an element?",
-        options: ["element.addListener()", "element.addEventListener()", "element.on()", "element.bind()"],
-        correct: 1
-      },
-      {
-        question: "Which property is used to change the text content of an element?",
-        options: ["innerHTML", "textContent", "innerText", "Both B and C"],
-        correct: 3
-      },
-      {
-        question: "What is the correct way to create a new HTML element?",
-        options: ["document.new()", "document.createElement()", "document.create()", "document.newElement()"],
-        correct: 1
-      }
-    ];
-
-    const handleQuizSubmit = () => {
-      if (quizAnswers.every(answer => answer !== '')) {
-        setQuizSubmitted(true);
-      }
-    };
-
-    return (
-      <div className="max-w-4xl mx-auto p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
-          <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
-            {item.status === 'completed' ? 'Completed' : 'Not Completed'}
-          </Badge>
-        </div>
-        
-        <div className="space-y-6">
-          {questions.map((q, index) => (
-            <div key={index} className="space-y-3">
-              <h3 className="text-lg font-semibold">
-                {index + 1}. {q.question}
-              </h3>
-              <RadioGroup
-                value={quizAnswers[index]}
-                onValueChange={(value) => {
-                  const newAnswers = [...quizAnswers];
-                  newAnswers[index] = value;
-                  setQuizAnswers(newAnswers);
-                }}
-                disabled={quizSubmitted}
-                className="space-y-4"
-              >
-                {q.options.map((option, optionIndex) => {
-                  const isSelected = parseInt(quizAnswers[index]) === optionIndex;
-                  const isCorrect = optionIndex === q.correct;
-                  const isWrong = quizSubmitted && isSelected && !isCorrect;
-                  const shouldHighlightCorrect = quizSubmitted && isCorrect;
-                  
-                  return (
-                    <div key={optionIndex} className="flex items-center space-x-2">
-                      <RadioGroupItem 
-                        value={optionIndex.toString()} 
-                        id={`q${index}_option${optionIndex}`}
-                        className={shouldHighlightCorrect ? "border-success" : isWrong ? "border-destructive" : ""}
-                      />
-                      <Label 
-                        htmlFor={`q${index}_option${optionIndex}`} 
-                        className={`cursor-pointer ${
-                          shouldHighlightCorrect ? "text-success font-medium" : 
-                          isWrong ? "text-destructive font-medium" : ""
-                        }`}
-                      >
-                        {option}
-                      </Label>
-                    </div>
-                  );
-                })}
-              </RadioGroup>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex justify-center mt-8">
-          <Button 
-            onClick={handleQuizSubmit}
-            disabled={!quizAnswers.every(answer => answer !== '') || quizSubmitted}
-            className={quizSubmitted ? "bg-success hover:bg-success" : ""}
-          >
-            {quizSubmitted ? 'Submitted ✓' : 'Submit'}
-          </Button>
-        </div>
-      </div>
-    );
+  // Handle different learning item types with focused components
+  if (item.type === 'video') {
+    return <VideoLearningItem item={item} />;
   }
 
-  // Handle Feedback Form rendering
+  if (item.type === 'article') {
+    return <ArticleLearningItem item={item} />;
+  }
+
+  if (item.type === 'quiz') {
+    return <QuizLearningItem item={item} />;
+  }
+
   if (item.type === 'feedback') {
-    const handleFeedbackSubmit = () => {
-      setFeedbackSubmitted(true);
-    };
-
-    return (
-      <div className="max-w-4xl mx-auto p-8">
-        <h1 className="text-3xl font-heading font-bold mb-2">{item.title}</h1>
-        {feedbackSubmitted && (
-          <div className="bg-success-light p-4 rounded-lg mb-6 text-success">
-            Your feedback has been submitted successfully
-          </div>
-        )}
-        <p className="text-muted-foreground mb-8">{item.description}</p>
-        
-        <div className="space-y-8">
-          {/* MCQ Question */}
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold">1. How would you rate the overall quality of this module?</h3>
-            <RadioGroup
-              value={feedbackAnswers.mcq}
-              onValueChange={(value) => setFeedbackAnswers(prev => ({ ...prev, mcq: value }))}
-              disabled={feedbackSubmitted}
-              className="space-y-4"
-            >
-              {['Excellent', 'Good', 'Average', 'Poor'].map((option, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option} id={`rating_${index}`} />
-                  <Label htmlFor={`rating_${index}`} className="cursor-pointer">{option}</Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-
-          {/* Checkbox Question */}
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold">2. Which topics were most helpful? (Select all that apply)</h3>
-            <div className="space-y-4">
-              {['DOM Manipulation', 'Event Handling', 'Interactive Elements', 'Performance Optimization'].map((option, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <Checkbox 
-                    id={`topic_${index}`}
-                    checked={feedbackAnswers.checkbox.includes(option)}
-                    onCheckedChange={(checked) => {
-                      if (checked) {
-                        setFeedbackAnswers(prev => ({ 
-                          ...prev, 
-                          checkbox: [...prev.checkbox, option] 
-                        }));
-                      } else {
-                        setFeedbackAnswers(prev => ({ 
-                          ...prev, 
-                          checkbox: prev.checkbox.filter(item => item !== option) 
-                        }));
-                      }
-                    }}
-                    disabled={feedbackSubmitted}
-                  />
-                  <Label htmlFor={`topic_${index}`} className="cursor-pointer">{option}</Label>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Long Text Question */}
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold">3. What suggestions do you have for improving this module?</h3>
-            <Textarea
-              value={feedbackAnswers.text}
-              onChange={(e) => setFeedbackAnswers(prev => ({ ...prev, text: e.target.value }))}
-              placeholder="Share your suggestions..."
-              className="min-h-24"
-              disabled={feedbackSubmitted}
-            />
-          </div>
-
-          {/* Date Question */}
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold">4. When did you start this module?</h3>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" disabled={feedbackSubmitted}>
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {feedbackAnswers.date ? feedbackAnswers.date.toLocaleDateString() : "Select date"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={feedbackAnswers.date || undefined}
-                  onSelect={(date) => setFeedbackAnswers(prev => ({ ...prev, date: date || null }))}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Time Question */}
-          <div className="space-y-3">
-            <h3 className="text-lg font-semibold">5. What time of day do you prefer studying?</h3>
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4" />
-              <Input
-                type="time"
-                value={feedbackAnswers.time}
-                onChange={(e) => setFeedbackAnswers(prev => ({ ...prev, time: e.target.value }))}
-                disabled={feedbackSubmitted}
-                className="w-40"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-center mt-8">
-          <Button 
-            onClick={handleFeedbackSubmit}
-            disabled={feedbackSubmitted}
-          >
-            {feedbackSubmitted ? 'Submitted ✓' : 'Submit'}
-          </Button>
-        </div>
-      </div>
-    );
+    return <FeedbackLearningItem item={item} />;
   }
 
   // Handle Coding Problem rendering
@@ -380,7 +155,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
           </div>
           
           <div className="w-full mb-6">
-            <Card className="bg-info-light border-info">
+            <Card className="bg-info-light border-info w-full">
               <CardContent className="p-4 text-center">
                 <p className="text-info font-semibold">
                   Class starts in {getTimeRemaining(item.scheduledDateTime!)}
@@ -463,54 +238,6 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
         </div>
       );
     }
-  }
-
-  // Handle video rendering
-  if (item.type === 'video') {
-    return (
-      <div className="max-w-4xl mx-auto p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
-          <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
-            {item.status === 'completed' ? 'Watched' : 'Not Watched'}
-          </Badge>
-        </div>
-        <p className="text-muted-foreground mb-6">Duration: {item.duration || '20 mins'}</p>
-        <div className="bg-black rounded-lg aspect-video flex items-center justify-center">
-          <div className="text-center text-white">
-            <Play className="w-16 h-16 mx-auto mb-4" />
-            <p>Video Content</p>
-            <p className="text-sm opacity-75">{item.duration || '20 mins'}</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle article rendering
-  if (item.type === 'article') {
-    return (
-      <div className="max-w-4xl mx-auto p-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
-          <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
-            {item.status === 'completed' ? 'Read' : 'To be Read'}
-          </Badge>
-        </div>
-        <p className="text-muted-foreground mb-6">Approximate read time: 5 mins</p>
-        <div className="prose max-w-none mb-8">
-          <p>This is a sample article content. In a real implementation, this would contain the actual article text with proper formatting, images, and other content elements.</p>
-          <p>The article content would be comprehensive and educational, providing valuable insights and knowledge to the student.</p>
-        </div>
-        {item.status !== 'completed' && (
-          <div className="flex justify-center">
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-              Mark as Read
-            </Button>
-          </div>
-        )}
-      </div>
-    );
   }
 
   // Handle assignment rendering

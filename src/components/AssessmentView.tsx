@@ -71,7 +71,7 @@ const AssessmentView = ({ assessment }: AssessmentViewProps) => {
         />
         
         <AssessmentStateCard
-          state={currentState}
+          currentState={currentState}
           countdown={isCountdownActive ? countdown : undefined}
           endDate={assessment.endDate}
           score={assessment.score}

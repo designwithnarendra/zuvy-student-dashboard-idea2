@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { X, Check } from "lucide-react";
 import CodingChallenge from "./CodingChallenge";
 import MCQQuiz from "./MCQQuiz";
 import OpenEndedQuestions from "./OpenEndedQuestions";
