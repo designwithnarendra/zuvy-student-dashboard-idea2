@@ -1,14 +1,16 @@
 
-
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { mockCourses, Module, TopicItem } from "@/lib/mockData";
+import { mockCourses } from "@/lib/mockData";
 import Header from "@/components/Header";
 import ModuleSidebar from "@/components/ModuleSidebar";
 import ModuleContentRenderer from "@/components/ModuleContentRenderer";
 import ModuleNavigation from "@/components/ModuleNavigation";
 import MobileSidebar from "@/components/MobileSidebar";
+import { enhanceModule } from "@/utils/moduleEnhancer";
+import { getAssessmentData } from "@/utils/assessmentData";
+import { useModuleNavigation } from "@/hooks/useModuleNavigation";
 
 const ModuleContentPage = () => {
   const { courseId, moduleId } = useParams();
@@ -66,198 +68,9 @@ const ModuleContentPage = () => {
     );
   }
 
-  // Enhanced module with additional content for module 2
-  const enhancedModule: Module = moduleId === '2' ? {
-    ...currentModule,
-    topics: [
-      {
-        ...currentModule.topics[0],
-        items: [
-          ...currentModule.topics[0].items,
-          {
-            id: 'dom-quiz-1',
-            title: 'DOM Fundamentals Quiz',
-            type: 'quiz' as any,
-            status: 'not-started',
-            description: 'Test your understanding of DOM basics with multiple choice questions.'
-          },
-          {
-            id: 'course-feedback-1',
-            title: 'Module 2 Feedback',
-            type: 'feedback' as any,
-            status: 'not-started',
-            description: 'Share your feedback about this module to help us improve.'
-          },
-          {
-            id: 'coding-problem-1',
-            title: 'Array Manipulation Challenge',
-            type: 'assignment' as any,
-            status: 'not-started',
-            description: 'Practice array manipulation techniques with this coding problem.'
-          }
-        ]
-      },
-      ...currentModule.topics.slice(1),
-      {
-        id: 'assessments',
-        name: 'Assessments',
-        description: 'Module assessments and evaluations',
-        items: [
-          {
-            id: 'dom-concepts-assessment',
-            title: 'DOM Concepts Assessment',
-            type: 'assessment',
-            status: 'not-started',
-            description: 'Test your understanding of DOM concepts and manipulation techniques.',
-            scheduledDateTime: new Date(Date.now() + 10000),
-            duration: '2 hours'
-          },
-          {
-            id: 'interrupted-assessment',
-            title: 'React Fundamentals Assessment',
-            type: 'assessment',
-            status: 'in-progress',
-            description: 'Assessment covering React basics, components, state management, and hooks.'
-          },
-          {
-            id: 'high-score-assessment',
-            title: 'JavaScript Fundamentals Assessment',
-            type: 'assessment',
-            status: 'completed',
-            description: 'Comprehensive test covering JavaScript basics and advanced concepts.'
-          },
-          {
-            id: 'low-score-assessment',
-            title: 'Event Handling Assessment',
-            type: 'assessment',
-            status: 'completed',
-            description: 'Assessment focusing on event handling and user interactions.'
-          },
-          {
-            id: 'expired-assessment',
-            title: 'DOM Manipulation Final Test',
-            type: 'assessment',
-            status: 'not-started',
-            description: 'Final assessment for DOM manipulation concepts.'
-          },
-          {
-            id: 'reattempt-assessment',
-            title: 'CSS Fundamentals Assessment',
-            type: 'assessment',
-            status: 'in-progress',
-            description: 'Assessment covering CSS selectors, styling, and layout techniques.'
-          }
-        ] as TopicItem[]
-      }
-    ]
-  } : currentModule;
-
-  // Assessment data mapping with fixed state logic
-  const getAssessmentData = (itemId: string) => {
-    const assessmentMap: { [key: string]: any } = {
-      'dom-concepts-assessment': {
-        id: 'dom-concepts-assessment',
-        title: 'DOM Concepts Assessment',
-        description: 'This assessment covers DOM manipulation, event handling, and interactive web development concepts. Complete coding problems, MCQ quiz, and open-ended questions.',
-        startDate: new Date(),
-        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        duration: '2 hours',
-        totalMarks: 100,
-        passScore: 60,
-        state: 'scheduled',
-        attemptStatus: 'Not Attempted'
-      },
-      'interrupted-assessment': {
-        id: 'interrupted-assessment',
-        title: 'React Fundamentals Assessment',
-        description: 'Assessment covering React basics, components, state management, and hooks.',
-        startDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-        duration: '90 minutes',
-        totalMarks: 100,
-        passScore: 60,
-        state: 'interrupted',
-        attemptStatus: 'Interrupted'
-      },
-      'high-score-assessment': {
-        id: 'high-score-assessment',
-        title: 'JavaScript Fundamentals Assessment',
-        description: 'Comprehensive assessment covering JavaScript basics, data types, functions, and control structures.',
-        startDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        duration: '90 minutes',
-        totalMarks: 100,
-        passScore: 60,
-        state: 'completed',
-        score: 70,
-        attemptStatus: 'Attempted'
-      },
-      'low-score-assessment': {
-        id: 'low-score-assessment',
-        title: 'Event Handling Assessment',
-        description: 'Assessment focusing on event handling, user interactions, and dynamic content updates.',
-        startDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        duration: '75 minutes',
-        totalMarks: 100,
-        passScore: 60,
-        state: 'completed',
-        score: 30,
-        attemptStatus: 'Attempted'
-      },
-      'expired-assessment': {
-        id: 'expired-assessment',
-        title: 'DOM Manipulation Final Test',
-        description: 'Final comprehensive assessment covering all DOM manipulation concepts and techniques.',
-        startDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-        duration: '3 hours',
-        totalMarks: 150,
-        passScore: 60,
-        state: 'expired',
-        attemptStatus: 'Not Attempted'
-      },
-      'reattempt-assessment': {
-        id: 'reattempt-assessment',
-        title: 'CSS Fundamentals Assessment',
-        description: 'Assessment covering CSS selectors, styling, and layout techniques.',
-        startDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-        duration: '2 hours',
-        totalMarks: 100,
-        passScore: 60,
-        state: 'reAttemptRequested',
-        attemptStatus: 'Interrupted'
-      }
-    };
-    
-    return assessmentMap[itemId];
-  };
-
-  const getSelectedItem = () => {
-    for (const topic of enhancedModule.topics) {
-      const item = topic.items.find(item => item.id === selectedItem);
-      if (item) return { item, topicId: topic.id };
-    }
-    return null;
-  };
-
+  const enhancedModule = enhanceModule(currentModule, moduleId!);
+  const { getSelectedItem, prevItem, nextItem } = useModuleNavigation(enhancedModule, selectedItem);
   const selectedItemData = getSelectedItem();
-
-  const getAllItems = () => {
-    const items: { item: TopicItem; topicId: string }[] = [];
-    enhancedModule.topics.forEach(topic => {
-      topic.items.forEach(item => {
-        items.push({ item, topicId: topic.id });
-      });
-    });
-    return items;
-  };
-
-  const allItems = getAllItems();
-  const currentIndex = allItems.findIndex(({ item }) => item.id === selectedItem);
-  const prevItem = currentIndex > 0 ? allItems[currentIndex - 1] : null;
-  const nextItem = currentIndex < allItems.length - 1 ? allItems[currentIndex + 1] : null;
 
   const handleItemSelect = (itemId: string) => {
     setSelectedItem(itemId);
@@ -325,4 +138,3 @@ const ModuleContentPage = () => {
 };
 
 export default ModuleContentPage;
-

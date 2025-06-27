@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
-import { X } from "lucide-react";
+import { X, Check } from "lucide-react";
 
 interface MCQQuizProps {
   quiz: {
@@ -71,6 +71,12 @@ const MCQQuiz = ({ quiz, onBack, onComplete, timeLeft }: MCQQuizProps) => {
             <X className="w-5 h-5" />
           </Button>
           <h1 className="text-xl font-heading font-semibold">{quiz.title}</h1>
+          {isSubmitted && (
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-success" />
+              <span className="text-success font-medium">Submitted</span>
+            </div>
+          )}
         </div>
         <div className="font-mono text-lg font-semibold">
           {timeLeft}
@@ -88,26 +94,39 @@ const MCQQuiz = ({ quiz, onBack, onComplete, timeLeft }: MCQQuizProps) => {
                 value={answers[index]}
                 onValueChange={(value) => handleAnswerChange(index, value)}
                 disabled={isSubmitted}
+                className="space-y-4"
               >
                 {q.options.map((option, optionIndex) => (
                   <div key={optionIndex} className="flex items-center space-x-2">
                     <RadioGroupItem 
                       value={optionIndex.toString()} 
                       id={`q${index}_option${optionIndex}`}
-                      className={isSubmitted && parseInt(answers[index]) === optionIndex ? "border-primary" : ""}
+                      className={
+                        isSubmitted 
+                          ? optionIndex === q.correct 
+                            ? "border-success text-success" 
+                            : parseInt(answers[index]) === optionIndex && optionIndex !== q.correct
+                              ? "border-destructive text-destructive"
+                              : ""
+                          : ""
+                      }
                     />
-                    <Label htmlFor={`q${index}_option${optionIndex}`} className={`cursor-pointer ${
-                      isSubmitted && parseInt(answers[index]) === optionIndex ? "text-primary font-medium" : ""
-                    }`}>
+                    <Label 
+                      htmlFor={`q${index}_option${optionIndex}`} 
+                      className={`cursor-pointer ${
+                        isSubmitted 
+                          ? optionIndex === q.correct 
+                            ? "text-success font-medium" 
+                            : parseInt(answers[index]) === optionIndex && optionIndex !== q.correct
+                              ? "text-destructive font-medium"
+                              : ""
+                          : ""
+                      }`}
+                    >
                       {option}
                     </Label>
                   </div>
                 ))}
-                {isSubmitted && parseInt(answers[index]) !== q.correct && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Correct Answer: {q.options[q.correct]}
-                  </p>
-                )}
               </RadioGroup>
             </div>
           ))}
@@ -118,6 +137,7 @@ const MCQQuiz = ({ quiz, onBack, onComplete, timeLeft }: MCQQuizProps) => {
             size="lg"
             onClick={handleSubmit}
             disabled={!allAnswered || isSubmitted}
+            className={isSubmitted ? "bg-success hover:bg-success" : ""}
           >
             {isSubmitted ? 'Submitted ✓' : 'Submit Quiz'}
           </Button>

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -51,7 +52,7 @@ const AssessmentModal = ({ isOpen, onClose, onProceed, assessmentTitle, duration
             <AlertTriangle className="w-5 h-5 text-warning" />
             <DialogTitle className="flex-1">Start Assessment</DialogTitle>
           </div>
-          <div className="mt-6">
+          <div className="mt-4">
             <DialogDescription className="text-left">
               The assessment will happen in full screen mode. No tab switching, window switching, or full screen exit is allowed. Violations can result in auto-submission.
             </DialogDescription>

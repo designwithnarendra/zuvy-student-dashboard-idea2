@@ -8,6 +8,8 @@ import CodingChallenge from "./CodingChallenge";
 import MCQQuiz from "./MCQQuiz";
 import OpenEndedQuestions from "./OpenEndedQuestions";
 import ViolationModal from "./ViolationModal";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { AlertTriangle } from "lucide-react";
 
 interface AssessmentPageProps {
   assessmentTitle: string;
@@ -21,13 +23,14 @@ interface ViolationType {
 }
 
 const AssessmentPage = ({ assessmentTitle, duration, onClose }: AssessmentPageProps) => {
-  const [timeLeft, setTimeLeft] = useState(7200); // 2 hours in seconds
+  const [timeLeft, setTimeLeft] = useState(7200);
   const [currentView, setCurrentView] = useState<'instructions' | 'coding' | 'mcq' | 'openended'>('instructions');
   const [selectedChallengeIndex, setSelectedChallengeIndex] = useState(0);
   const [selectedQuizIndex, setSelectedQuizIndex] = useState(0);
   const [violations, setViolations] = useState<ViolationType[]>([]);
   const [showViolationModal, setShowViolationModal] = useState(false);
   const [currentViolation, setCurrentViolation] = useState<ViolationType | null>(null);
+  const [showExitModal, setShowExitModal] = useState(false);
   const [completedSections, setCompletedSections] = useState({
     coding: false,
     mcq: false,
@@ -61,6 +64,13 @@ const AssessmentPage = ({ assessmentTitle, duration, onClose }: AssessmentPagePr
       }
     };
 
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && document.fullscreenElement) {
+        e.preventDefault();
+        handleViolation('fullscreen-exit');
+      }
+    };
+
     const handleCopyPaste = (e: ClipboardEvent) => {
       if (e.type === 'paste' && currentView !== 'instructions') {
         e.preventDefault();
@@ -70,11 +80,13 @@ const AssessmentPage = ({ assessmentTitle, duration, onClose }: AssessmentPagePr
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('paste', handleCopyPaste);
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('keydown', handleKeyDown);
       document.removeEventListener('paste', handleCopyPaste);
     };
   }, [currentView]);
@@ -105,6 +117,20 @@ const AssessmentPage = ({ assessmentTitle, duration, onClose }: AssessmentPagePr
   };
 
   const handleAutoSubmit = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+    onClose();
+  };
+
+  const handleCloseAttempt = () => {
+    setShowExitModal(true);
+  };
+
+  const handleConfirmExit = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+    }
     onClose();
   };
 
@@ -191,9 +217,33 @@ const AssessmentPage = ({ assessmentTitle, duration, onClose }: AssessmentPagePr
         onClose={() => setShowViolationModal(false)}
         violation={currentViolation}
       />
+
+      <Dialog open={showExitModal} onOpenChange={setShowExitModal}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-warning" />
+              <DialogTitle>Exit Assessment?</DialogTitle>
+            </div>
+            <div className="mt-4">
+              <DialogDescription className="text-left">
+                Are you sure you want to exit the assessment? Your progress will be saved, but you may need to request a re-attempt to continue. We encourage you to complete the assessment now.
+              </DialogDescription>
+            </div>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowExitModal(false)}>
+              Continue Assessment
+            </Button>
+            <Button onClick={handleConfirmExit} variant="destructive">
+              Exit Assessment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       <header className="w-full flex items-center justify-between p-4 border-b">
-        <Button variant="ghost" size="icon" onClick={onClose}>
+        <Button variant="ghost" size="icon" onClick={handleCloseAttempt}>
           <X className="w-5 h-5" />
         </Button>
         <div className="font-mono text-lg font-semibold">
@@ -325,7 +375,7 @@ const AssessmentPage = ({ assessmentTitle, duration, onClose }: AssessmentPagePr
             <Button 
               size="lg" 
               disabled={!canSubmitAssessment}
-              onClick={onClose}
+              onClick={handleConfirmExit}
             >
               Submit Assessment
             </Button>
