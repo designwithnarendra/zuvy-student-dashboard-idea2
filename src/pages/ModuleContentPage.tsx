@@ -111,6 +111,13 @@ const ModuleContentPage = () => {
             duration: '2 hours'
           },
           {
+            id: 'interrupted-assessment',
+            title: 'React Fundamentals Assessment',
+            type: 'assessment',
+            status: 'interrupted',
+            description: 'Assessment covering React basics, components, state management, and hooks.'
+          },
+          {
             id: 'high-score-assessment',
             title: 'JavaScript Fundamentals Assessment',
             type: 'assessment',
@@ -150,6 +157,18 @@ const ModuleContentPage = () => {
         passScore: 60,
         state: 'scheduled',
         attemptStatus: 'Not Attempted'
+      },
+      'interrupted-assessment': {
+        id: 'interrupted-assessment',
+        title: 'React Fundamentals Assessment',
+        description: 'Assessment covering React basics, components, state management, and hooks.',
+        startDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+        duration: '90 minutes',
+        totalMarks: 100,
+        passScore: 60,
+        state: 'interrupted',
+        attemptStatus: 'Interrupted'
       },
       'high-score-assessment': {
         id: 'high-score-assessment',

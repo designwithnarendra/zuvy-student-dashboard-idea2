@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -311,11 +310,11 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
           <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
-            {item.status === 'completed' ? 'Attempted' : 'Not Attempted'}
+            {item.status === 'completed' ? 'Submitted' : 'Not Attempted'}
           </Badge>
         </div>
         
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-4 mb-6">
           <div>
             <p className="text-sm text-muted-foreground">Difficulty</p>
             <p className="font-medium">Medium</p>
@@ -324,13 +323,19 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
             <p className="text-sm text-muted-foreground">Topic</p>
             <p className="font-medium">Arrays</p>
           </div>
+          {item.status === 'completed' && (
+            <div>
+              <p className="text-sm text-muted-foreground">Status</p>
+              <p className="font-medium text-success">Submitted</p>
+            </div>
+          )}
         </div>
         
         <p className="text-muted-foreground mb-8">{item.description}</p>
         
         <div className="text-center">
           <Button onClick={() => setShowCodingProblem(true)}>
-            {item.status === 'completed' ? 'View Submission' : 'Start Practice'}
+            {item.status === 'completed' ? 'View Solution' : 'Start Practice'}
           </Button>
         </div>
       </div>

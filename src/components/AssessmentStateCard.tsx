@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -74,7 +73,6 @@ const AssessmentStateCard = ({
                 </CardContent>
               </Card>
             )}
-            <p className="text-muted-foreground mb-4">The assessment will be available shortly</p>
           </div>
         );
 
@@ -102,7 +100,6 @@ const AssessmentStateCard = ({
                   <XCircle className="w-12 h-12 mx-auto mb-4 text-destructive" />
                 )}
                 <h3 className="text-lg font-semibold mb-2">Assessment Completed</h3>
-                <p className="text-muted-foreground">You have completed this assessment</p>
               </div>
               
               <Card className={hasPassed ? "bg-success-light border-success" : "bg-destructive-light border-destructive"}>
@@ -132,7 +129,6 @@ const AssessmentStateCard = ({
           <div className="text-center">
             <CheckCircle className="w-12 h-12 mx-auto mb-4 text-success" />
             <h3 className="text-lg font-semibold mb-2">Assessment Completed</h3>
-            <p className="text-muted-foreground">You have completed this assessment</p>
           </div>
         );
 
@@ -142,7 +138,6 @@ const AssessmentStateCard = ({
             <div className="text-center mb-6">
               <XCircle className="w-12 h-12 mx-auto mb-4 text-destructive" />
               <h3 className="text-lg font-semibold mb-2">Assessment Ended</h3>
-              <p className="text-muted-foreground">This assessment has ended</p>
             </div>
             
             <Card className="bg-destructive-light border-destructive">

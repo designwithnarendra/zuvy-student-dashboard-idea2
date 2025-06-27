@@ -28,6 +28,10 @@ const CodingProblemPage = ({ problem, onClose }: CodingProblemPageProps) => {
 
   const handleSubmit = () => {
     setIsSubmitted(true);
+    // Simulate delay before returning to module page
+    setTimeout(() => {
+      onClose();
+    }, 1500);
   };
 
   const problemDescription = `
@@ -51,17 +55,20 @@ function findPairs(nums, target) {
   const isReadOnly = problem.status === 'completed';
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="fixed inset-0 bg-background z-50">
       <header className="flex items-center justify-between p-4 border-b">
         <Button variant="ghost" size="icon" onClick={onClose}>
           <X className="w-5 h-5" />
         </Button>
+        <h1 className="text-xl font-heading font-semibold absolute left-1/2 transform -translate-x-1/2">
+          {problem.title}
+        </h1>
+        <div></div>
       </header>
 
       <div className="flex h-[calc(100vh-80px)]">
         <div className="w-1/2 p-6 border-r overflow-y-auto">
           <div className="mb-4">
-            <h1 className="text-2xl font-heading font-bold mb-2">{problem.title}</h1>
             <div className="flex gap-2 mb-4">
               <span className={`px-2 py-1 rounded text-xs font-medium ${
                 problem.difficulty === 'Easy' ? 'bg-success-light text-success' :
@@ -111,7 +118,7 @@ function findPairs(nums, target) {
             />
             
             <div className="flex justify-between mt-4">
-              <Button onClick={handleRunCode} disabled={isReadOnly}>
+              <Button onClick={handleRunCode} disabled={isReadOnly || isSubmitted}>
                 Run Code
               </Button>
               <Button 

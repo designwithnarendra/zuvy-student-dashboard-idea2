@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 import AssessmentHeader from "./AssessmentHeader";
 import AssessmentStateCard from "./AssessmentStateCard";
 import AssessmentModal from "./AssessmentModal";
+import AssessmentPage from "./AssessmentPage";
 
 interface AssessmentData {
   id: string;
@@ -27,6 +27,7 @@ const AssessmentView = ({ assessment }: AssessmentViewProps) => {
   const [countdown, setCountdown] = useState(3);
   const [isCountdownActive, setIsCountdownActive] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showAssessmentPage, setShowAssessmentPage] = useState(false);
 
   useEffect(() => {
     if (currentState === 'scheduled') {
@@ -56,6 +57,26 @@ const AssessmentView = ({ assessment }: AssessmentViewProps) => {
   const handleBeginAssessment = () => {
     setShowModal(true);
   };
+
+  const handleStartAssessment = () => {
+    setShowModal(false);
+    setShowAssessmentPage(true);
+  };
+
+  const handleCloseAssessment = () => {
+    setShowAssessmentPage(false);
+    setCurrentState('interrupted');
+  };
+
+  if (showAssessmentPage) {
+    return (
+      <AssessmentPage
+        assessmentTitle={assessment.title}
+        duration={assessment.duration}
+        onClose={handleCloseAssessment}
+      />
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto p-8">
@@ -87,6 +108,7 @@ const AssessmentView = ({ assessment }: AssessmentViewProps) => {
         onClose={() => setShowModal(false)}
         assessmentTitle={assessment.title}
         duration={assessment.duration}
+        onProceed={handleStartAssessment}
       />
     </div>
   );
