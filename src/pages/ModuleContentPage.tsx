@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -75,21 +76,21 @@ const ModuleContentPage = () => {
           {
             id: 'dom-quiz-1',
             title: 'DOM Fundamentals Quiz',
-            type: 'quiz' as any,
+            type: 'quiz',
             status: 'not-started',
             description: 'Test your understanding of DOM basics with multiple choice questions.'
           },
           {
             id: 'course-feedback-1',
             title: 'Module 2 Feedback',
-            type: 'feedback' as any,
+            type: 'feedback',
             status: 'not-started',
             description: 'Share your feedback about this module to help us improve.'
           },
           {
             id: 'coding-problem-1',
             title: 'Array Manipulation Challenge',
-            type: 'coding-problem' as any,
+            type: 'coding-problem',
             status: 'not-started',
             description: 'Practice array manipulation techniques with this coding problem.'
           }
@@ -114,7 +115,7 @@ const ModuleContentPage = () => {
             id: 'interrupted-assessment',
             title: 'React Fundamentals Assessment',
             type: 'assessment',
-            status: 'interrupted',
+            status: 'in-progress',
             description: 'Assessment covering React basics, components, state management, and hooks.'
           },
           {
@@ -137,6 +138,13 @@ const ModuleContentPage = () => {
             type: 'assessment',
             status: 'not-started',
             description: 'Final assessment for DOM manipulation concepts.'
+          },
+          {
+            id: 'reattempt-assessment',
+            title: 'CSS Fundamentals Assessment',
+            type: 'assessment',
+            status: 'in-progress',
+            description: 'Assessment covering CSS selectors, styling, and layout techniques.'
           }
         ]
       }
@@ -207,6 +215,18 @@ const ModuleContentPage = () => {
         passScore: 60,
         state: 'expired',
         attemptStatus: 'Not Attempted'
+      },
+      'reattempt-assessment': {
+        id: 'reattempt-assessment',
+        title: 'CSS Fundamentals Assessment',
+        description: 'Assessment covering CSS selectors, styling, and layout techniques.',
+        startDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        endDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        duration: '2 hours',
+        totalMarks: 100,
+        passScore: 60,
+        state: 'reAttemptRequested',
+        attemptStatus: 'Interrupted'
       }
     };
     
