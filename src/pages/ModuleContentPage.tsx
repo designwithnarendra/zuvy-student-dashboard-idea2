@@ -1,4 +1,5 @@
 
+
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -76,21 +77,21 @@ const ModuleContentPage = () => {
           {
             id: 'dom-quiz-1',
             title: 'DOM Fundamentals Quiz',
-            type: 'quiz',
+            type: 'quiz' as any,
             status: 'not-started',
             description: 'Test your understanding of DOM basics with multiple choice questions.'
           },
           {
             id: 'course-feedback-1',
             title: 'Module 2 Feedback',
-            type: 'feedback',
+            type: 'feedback' as any,
             status: 'not-started',
             description: 'Share your feedback about this module to help us improve.'
           },
           {
             id: 'coding-problem-1',
             title: 'Array Manipulation Challenge',
-            type: 'coding-problem',
+            type: 'assignment' as any,
             status: 'not-started',
             description: 'Practice array manipulation techniques with this coding problem.'
           }
@@ -146,7 +147,7 @@ const ModuleContentPage = () => {
             status: 'in-progress',
             description: 'Assessment covering CSS selectors, styling, and layout techniques.'
           }
-        ]
+        ] as TopicItem[]
       }
     ]
   } : currentModule;
@@ -324,3 +325,4 @@ const ModuleContentPage = () => {
 };
 
 export default ModuleContentPage;
+
