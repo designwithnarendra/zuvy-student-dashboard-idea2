@@ -1,245 +1,122 @@
-
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Clock, Calendar, AlertTriangle, CheckCircle, XCircle, RotateCcw } from "lucide-react";
+import AssessmentModal from "./AssessmentModal";
+import AssessmentPage from "./AssessmentPage";
 
 interface AssessmentStateCardProps {
-  state: 'scheduled' | 'open' | 'interrupted' | 'reAttemptRequested' | 'reAttemptFlow' | 'completed' | 'expired';
-  countdown?: number;
-  endDate: Date;
-  score?: number;
-  totalMarks: number;
-  passScore: number;
-  onReAttemptRequest: () => void;
-  onBeginAssessment: () => void;
+  assessment: any;
 }
 
-const AssessmentStateCard = ({ 
-  state, 
-  countdown, 
-  endDate, 
-  score, 
-  totalMarks, 
-  passScore, 
-  onReAttemptRequest, 
-  onBeginAssessment 
-}: AssessmentStateCardProps) => {
-  const [reAttemptFlowState, setReAttemptFlowState] = useState<'interrupted' | 'requested' | 'approved'>('interrupted');
+const AssessmentStateCard = ({ assessment }: AssessmentStateCardProps) => {
+  const [showAssessmentModal, setShowAssessmentModal] = useState(false);
+  const [startAssessment, setStartAssessment] = useState(false);
 
-  const handleReAttemptRequest = () => {
-    setReAttemptFlowState('requested');
-    setTimeout(() => {
-      setReAttemptFlowState('approved');
-    }, 3000);
+  const handleCloseAssessment = () => {
+    setStartAssessment(false);
+    setShowAssessmentModal(false);
   };
 
-  const getTimeRemaining = () => {
-    const now = new Date();
-    const timeDiff = endDate.getTime() - now.getTime();
-    
-    if (timeDiff <= 0) return "Assessment has ended";
-    
-    const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    
-    if (days > 0) return `${days} day${days > 1 ? 's' : ''} remaining`;
-    if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} remaining`;
-    return "Less than 1 hour remaining";
+  const handleProceedAssessment = () => {
+    setStartAssessment(true);
   };
 
-  if (state === 'reAttemptFlow') {
-    if (reAttemptFlowState === 'interrupted') {
-      return (
-        <Card className="border-warning bg-warning-light">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <AlertTriangle className="w-5 h-5 text-warning" />
-              <h3 className="font-semibold">Assessment Interrupted</h3>
-            </div>
-            <p className="text-muted-foreground mb-4">
-              Your previous attempt was interrupted. You can request a re-attempt to complete the assessment.
-            </p>
-            <Button onClick={handleReAttemptRequest}>
-              Request Re-Attempt
-            </Button>
-          </CardContent>
-        </Card>
-      );
-    }
+  const startDate = new Date();
+  const endDate = new Date(startDate.getTime() + (60 * 60 * 1000));
 
-    if (reAttemptFlowState === 'requested') {
-      return (
-        <Card className="border-info bg-info-light">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Clock className="w-5 h-5 text-info" />
-              <h3 className="font-semibold">Re-attempt Requested</h3>
-            </div>
-            <p className="text-muted-foreground">
-              Your re-attempt request has been sent. We'll notify you on email once it's approved.
-            </p>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    if (reAttemptFlowState === 'approved') {
-      return (
-        <Card className="border-success bg-success-light">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <CheckCircle className="w-5 h-5 text-success" />
-              <h3 className="font-semibold">Re-attempt Approved</h3>
-            </div>
-            <p className="text-muted-foreground mb-4">
-              Your re-attempt has been approved. You can now begin the assessment.
-            </p>
-            <p className="text-sm text-muted-foreground mb-4">{getTimeRemaining()}</p>
-            <Button onClick={onBeginAssessment}>
-              Begin Assessment
-            </Button>
-          </CardContent>
-        </Card>
-      );
-    }
-  }
-
-  if (state === 'scheduled') {
-    return (
-      <Card className="border-info bg-info-light">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Clock className="w-5 h-5 text-info" />
-            <h3 className="font-semibold">Assessment Scheduled</h3>
-          </div>
-          {countdown !== undefined && (
-            <div className="text-center mb-4">
-              <div className="text-2xl font-mono font-bold text-info">
-                {countdown}
-              </div>
-              <p className="text-sm text-muted-foreground">seconds to start</p>
-            </div>
-          )}
-          <p className="text-muted-foreground">{getTimeRemaining()}</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (state === 'open') {
-    return (
-      <Card className="border-success bg-success-light">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <CheckCircle className="w-5 h-5 text-success" />
-            <h3 className="font-semibold">Assessment Available</h3>
-          </div>
-          <p className="text-muted-foreground mb-4">
-            The assessment is now available. Click below to begin.
-          </p>
-          <p className="text-sm text-muted-foreground mb-4">{getTimeRemaining()}</p>
-          <Button onClick={onBeginAssessment}>
-            Begin Assessment
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (state === 'interrupted') {
-    return (
-      <Card className="border-warning bg-warning-light">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <AlertTriangle className="w-5 h-5 text-warning" />
-            <h3 className="font-semibold">Assessment Interrupted</h3>
-          </div>
-          <p className="text-muted-foreground mb-4">
-            Your assessment was interrupted. You can request a re-attempt if needed.
-          </p>
-          <p className="text-sm text-muted-foreground mb-4">{getTimeRemaining()}</p>
-          <Button onClick={onReAttemptRequest}>
-            Request Re-Attempt
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (state === 'reAttemptRequested') {
-    return (
-      <Card className="border-info bg-info-light">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Clock className="w-5 h-5 text-info" />
-            <h3 className="font-semibold">Re-attempt Requested</h3>
-          </div>
-          <p className="text-muted-foreground">
-            Your re-attempt request is being processed. We'll notify you once approved.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (state === 'completed') {
-    const passed = score !== undefined && score >= passScore;
-    return (
-      <Card className={`border-${passed ? 'success' : 'destructive'} bg-${passed ? 'success' : 'destructive'}-light`}>
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            {passed ? (
-              <CheckCircle className="w-5 h-5 text-success" />
-            ) : (
-              <XCircle className="w-5 h-5 text-destructive" />
+  return (
+    <>
+      <Card className="p-6">
+        <CardContent className="p-0 text-center">
+          <div className="flex flex-col items-center justify-center space-y-4">
+            {/* Available State */}
+            {assessment.state === 'available' && (
+              <>
+                <CheckCircle className="w-12 h-12 text-success" />
+                <h6 className="text-xl font-heading font-semibold text-success">Assessment Available</h6>
+                <p className="text-muted-foreground">
+                  You can now take the assessment. Make sure you have enough time to complete it.
+                </p>
+                <Button onClick={() => setShowAssessmentModal(true)}>
+                  Begin Assessment
+                </Button>
+              </>
             )}
-            <h3 className="font-semibold">Assessment Completed</h3>
+
+            {/* In Progress State */}
+            {assessment.state === 'in-progress' && (
+              <>
+                <Clock className="w-12 h-12 text-warning" />
+                <h6 className="text-xl font-heading font-semibold text-warning">Assessment In Progress</h6>
+                <p className="text-muted-foreground">
+                  Continue where you left off. Time is running!
+                </p>
+                <Button onClick={() => setStartAssessment(true)}>
+                  Continue Assessment
+                </Button>
+              </>
+            )}
+
+            {/* Completed State */}
+            {assessment.state === 'completed' && (
+              <>
+                <CheckCircle className="w-12 h-12 text-success" />
+                <h6 className="text-xl font-heading font-semibold text-success">Assessment Completed</h6>
+                <p className="text-muted-foreground">
+                  You have already completed this assessment.
+                </p>
+                <Badge variant="secondary">Score: {assessment.score}</Badge>
+              </>
+            )}
+
+            {/* Expired State */}
+            {assessment.state === 'expired' && (
+              <>
+                <XCircle className="w-12 h-12 text-destructive" />
+                <h6 className="text-xl font-heading font-semibold text-destructive">Assessment Expired</h6>
+                <p className="text-muted-foreground">
+                  The assessment time has expired. You cannot take it anymore.
+                </p>
+              </>
+            )}
+
+            {/* Re-attempt State */}
+            {assessment.state === 'reattempt' && (
+              <>
+                <RotateCcw className="w-12 h-12 text-primary" />
+                <h6 className="text-xl font-heading font-semibold text-primary">Re-attempt Available</h6>
+                <p className="text-muted-foreground">
+                  You can re-attempt the assessment.
+                </p>
+                <Button onClick={() => setShowAssessmentModal(true)}>
+                  Re-attempt Assessment
+                </Button>
+              </>
+            )}
           </div>
-          <div className="space-y-2 mb-4">
-            <div className="flex justify-between">
-              <span>Your Score:</span>
-              <span className="font-semibold">{score}/{totalMarks}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Pass Score:</span>
-              <span>{passScore}/{totalMarks}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Result:</span>
-              <Badge variant={passed ? "default" : "destructive"}>
-                {passed ? "Passed" : "Failed"}
-              </Badge>
-            </div>
-          </div>
-          {!passed && (
-            <Button onClick={onReAttemptRequest} variant="outline">
-              Request Re-Attempt
-            </Button>
-          )}
         </CardContent>
       </Card>
-    );
-  }
 
-  if (state === 'expired') {
-    return (
-      <Card className="border-destructive bg-destructive-light">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <XCircle className="w-5 h-5 text-destructive" />
-            <h3 className="font-semibold">Assessment Expired</h3>
-          </div>
-          <p className="text-muted-foreground">
-            The assessment period has ended. This assessment is no longer available.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
+      <AssessmentModal
+        isOpen={showAssessmentModal}
+        onClose={() => setShowAssessmentModal(false)}
+        onProceed={handleProceedAssessment}
+        assessmentTitle={assessment.title}
+        duration={assessment.duration}
+      />
 
-  return null;
+      {startAssessment && (
+        <AssessmentPage
+          assessmentTitle={assessment.title}
+          duration={assessment.duration}
+          onClose={handleCloseAssessment}
+        />
+      )}
+    </>
+  );
 };
 
 export default AssessmentStateCard;
