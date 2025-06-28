@@ -84,7 +84,7 @@ const MCQQuiz = ({ quiz, onBack, onComplete, timeLeft }: MCQQuizProps) => {
       </header>
 
       <div className="max-w-4xl mx-auto p-8">
-        <div className="space-y-6">
+        <div className="space-y-8">
           {questions.map((q, index) => (
             <div key={index} className="space-y-4">
               <h3 className="text-lg font-semibold">
