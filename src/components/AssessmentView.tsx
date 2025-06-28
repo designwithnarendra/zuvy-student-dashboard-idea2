@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import AssessmentHeader from "./AssessmentHeader";
 import AssessmentStateCard from "./AssessmentStateCard";
@@ -78,6 +79,17 @@ const AssessmentView = ({ assessment }: AssessmentViewProps) => {
     );
   }
 
+  // Create updated assessment object with current state
+  const updatedAssessment = {
+    ...assessment,
+    state: currentState === 'open' ? 'available' : 
+           currentState === 'reAttemptRequested' ? 'reattempt' :
+           currentState === 'interrupted' ? 'in-progress' :
+           currentState === 'completed' ? 'completed' :
+           currentState === 'expired' ? 'expired' :
+           'available'
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-8">
       <div className="space-y-6">
@@ -91,16 +103,7 @@ const AssessmentView = ({ assessment }: AssessmentViewProps) => {
           description={assessment.description}
         />
         
-        <AssessmentStateCard
-          state={currentState}
-          countdown={isCountdownActive ? countdown : undefined}
-          endDate={assessment.endDate}
-          score={assessment.score}
-          totalMarks={assessment.totalMarks}
-          passScore={assessment.passScore}
-          onReAttemptRequest={handleReAttemptRequest}
-          onBeginAssessment={handleBeginAssessment}
-        />
+        <AssessmentStateCard assessment={updatedAssessment} />
       </div>
 
       <AssessmentModal
