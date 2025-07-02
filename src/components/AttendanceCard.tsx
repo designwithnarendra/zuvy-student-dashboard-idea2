@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -46,11 +45,11 @@ const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
               View Full Attendance
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[80vh]">
             <DialogHeader>
               <DialogTitle className="text-xl">Full Attendance Record</DialogTitle>
             </DialogHeader>
-            <div className="space-y-1">
+            <div className="space-y-1 overflow-y-auto max-h-[60vh]">
               {[...classes, 
                 { id: "4", name: "JavaScript Fundamentals", status: 'attended' as const, date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), instructor: "Dr. Sarah Chen" },
                 { id: "5", name: "HTML & CSS Basics", status: 'attended' as const, date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), instructor: "Dr. Sarah Chen" },
@@ -87,10 +86,10 @@ const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[80vh]">
-            <SheetHeader>
+            <SheetHeader className="border-b pb-4">
               <SheetTitle className="text-xl">Full Attendance Record</SheetTitle>
             </SheetHeader>
-            <div className="space-y-1 mt-4 overflow-y-auto">
+            <div className="space-y-1 mt-4 overflow-y-auto flex-1">
               {[...classes, 
                 { id: "4", name: "JavaScript Fundamentals", status: 'attended' as const, date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), instructor: "Dr. Sarah Chen" },
                 { id: "5", name: "HTML & CSS Basics", status: 'attended' as const, date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), instructor: "Dr. Sarah Chen" },
@@ -137,7 +136,7 @@ const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
 
         <div className="space-y-4 mb-6">
           <h4 className="font-medium text-sm">Recent Classes</h4>
-          {attendanceStats.recentClasses.map((classItem) => (
+          {attendanceStats.recentClasses.slice(0, 3).map((classItem) => (
             <div key={classItem.id} className="flex items-center justify-between">
               <div className="flex-1">
                 <p className="font-medium text-sm">{classItem.name}</p>

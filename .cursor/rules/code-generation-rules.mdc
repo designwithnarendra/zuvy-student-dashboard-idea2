@@ -1,0 +1,27 @@
+---
+description: When generating code for any task
+globs: 
+alwaysApply: false
+---
+# UI Code Generation Rules
+
+## 1. Visual & Aesthetic Excellence
+- **Design Fidelity:** Adhere strictly to visual design principles. Strive for pixel-perfect implementation of UI mockups or descriptions, with a keen eye on spacing, typography, color palettes, and shadows.
+- **Micro-interactions:** Go beyond static pages. Implement subtle animations, transitions, and feedback on user actions (e.g., button clicks, hover states) to create a delightful and responsive user experience. Use `tailwindcss-animate` and other libraries to achieve this.
+- **Responsive First:** All components and layouts must be fully responsive and tested across mobile, tablet, and desktop breakpoints.
+
+## 2. Component-Driven Architecture
+- **Leverage shadcn/ui:** Prioritize using components from the existing `shadcn/ui` library whenever possible to ensure consistency and speed up development.
+- **Modularity:** When a custom component is needed, break it down into the smallest logical, reusable pieces. Avoid monolithic components.
+- **TypeScript:** Use TypeScript strictly for all components, defining clear `Props` and `State` interfaces to ensure type safety and improve maintainability.
+
+## 3. Code Quality & Maintainability
+- **Clarity and Simplicity:** Write clean, readable, and self-documenting code. Use descriptive names for variables and functions. Keep functions small and focused on a single task.
+- **Efficient State Management:** Use React hooks (`useState`, `useReducer`) for local component state. For data that would notionally come from a server (like courses, modules), use `@tanstack/react-query` to manage it, even with mock data.
+- **No Unnecessary Code:** Avoid adding code that isn't required by the task at hand. Ensure every line of code has a clear purpose.
+- **Refactoring:** If implementing a new feature reveals a suboptimal code structure, proactively refactor it for better clarity and maintainability.
+
+## 4. Functional & Secure Prototyping
+- **Functionality First:** Ensure that all UI elements are not just visually present but also functional. Buttons should be clickable, forms should be manageable, and navigation should work as expected.
+- **Mock Data Integrity:** All prototyping will be done with mock data. The structure of this data should be well-defined and consistent with what a real backend might provide.
+- **Client-Side Security:** While a full backend is not in use, avoid common pitfalls like exposing sensitive information or keys directly in the frontend code. 

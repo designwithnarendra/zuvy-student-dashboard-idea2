@@ -1,9 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { X, CheckCircle } from "lucide-react";
 import CodingChallenge from "./CodingChallenge";
 import MCQQuiz from "./MCQQuiz";
 import OpenEndedQuestions from "./OpenEndedQuestions";
@@ -12,15 +11,31 @@ import ViolationModal from "./ViolationModal";
 interface AssessmentInstructionsProps {
   assessmentTitle: string;
   duration: string;
-  onClose: () => void;
+  assessmentId: string;
+  isViewMode?: boolean;
+  viewModeData?: {
+    score: number;
+    passed: boolean;
+    answers: any;
+  };
+  onClose: (result?: { score: number; passed: boolean }) => void;
+  onExitRequest?: () => void;
 }
 
 interface ViolationType {
-  type: 'tab-switch' | 'fullscreen-exit' | 'copy-paste';
+  type: 'fullscreen-exit' | 'copy-paste';
   count: number;
 }
 
-const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: AssessmentInstructionsProps) => {
+const AssessmentInstructions = ({ 
+  assessmentTitle, 
+  duration, 
+  assessmentId, 
+  isViewMode = false, 
+  viewModeData, 
+  onClose, 
+  onExitRequest 
+}: AssessmentInstructionsProps) => {
   const [timeLeft, setTimeLeft] = useState(7200); // 2 hours in seconds
   const [currentView, setCurrentView] = useState<'instructions' | 'coding' | 'mcq' | 'openended'>('instructions');
   const [selectedChallengeIndex, setSelectedChallengeIndex] = useState(0);
@@ -28,13 +43,60 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
   const [violations, setViolations] = useState<ViolationType[]>([]);
   const [showViolationModal, setShowViolationModal] = useState(false);
   const [currentViolation, setCurrentViolation] = useState<ViolationType | null>(null);
+  
+  // Initialize completion state based on view mode and stored assessment state
   const [completedSections, setCompletedSections] = useState({
     coding: false,
     mcq: false,
     openended: false
   });
 
+  // Load assessment-specific completion state on mount
   useEffect(() => {
+    const loadCompletionState = () => {
+      if (isViewMode) {
+        // In view mode, mark all sections as completed
+        setCompletedSections({
+          coding: true,
+          mcq: true,
+          openended: true
+        });
+        return;
+      }
+
+      // Load specific completion state for this assessment
+      const completionKey = `assessment-completion-${assessmentId}`;
+      const savedCompletion = sessionStorage.getItem(completionKey);
+      
+      if (savedCompletion) {
+        try {
+          const parsed = JSON.parse(savedCompletion);
+          setCompletedSections(parsed);
+        } catch {
+          // If parsing fails, reset to default
+          setCompletedSections({
+            coding: false,
+            mcq: false,
+            openended: false
+          });
+        }
+      }
+    };
+
+    loadCompletionState();
+  }, [assessmentId, isViewMode]);
+
+  // Save completion state whenever it changes
+  useEffect(() => {
+    if (!isViewMode && assessmentId) {
+      const completionKey = `assessment-completion-${assessmentId}`;
+      sessionStorage.setItem(completionKey, JSON.stringify(completedSections));
+    }
+  }, [completedSections, assessmentId, isViewMode]);
+
+  useEffect(() => {
+    if (isViewMode) return; // Don't run timer in view mode
+
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
@@ -46,38 +108,44 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [isViewMode]);
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden && currentView !== 'instructions') {
-        handleViolation('tab-switch');
-      }
-    };
+    // Removed tab-switch detection as per requirements
 
     const handleFullscreenChange = () => {
-      if (!document.fullscreenElement && currentView !== 'instructions') {
+      if (!document.fullscreenElement && currentView !== 'instructions' && !isViewMode) {
         handleViolation('fullscreen-exit');
       }
     };
 
     const handleCopyPaste = (e: ClipboardEvent) => {
-      if (e.type === 'paste' && currentView !== 'instructions') {
+      if ((e.type === 'copy' || e.type === 'paste') && currentView !== 'instructions' && !isViewMode) {
         e.preventDefault();
         handleViolation('copy-paste');
       }
     };
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Detect Ctrl+C, Ctrl+V, Cmd+C, Cmd+V
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'v') && currentView !== 'instructions' && !isViewMode) {
+        e.preventDefault();
+        handleViolation('copy-paste');
+      }
+    };
+
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('paste', handleCopyPaste);
+    document.addEventListener('copy', handleCopyPaste);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('paste', handleCopyPaste);
+      document.removeEventListener('copy', handleCopyPaste);
+      document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentView]);
+      }, [currentView, isViewMode]);
 
   const handleViolation = (type: ViolationType['type']) => {
     const existingViolation = violations.find(v => v.type === type);
@@ -104,8 +172,50 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
     }
   };
 
+  const calculateScore = () => {
+    // Calculate score based on assessment ID and completion status
+    if (assessmentId === 'high-score-assessment') {
+      return 85; // Pass score for view results
+    } else if (assessmentId === 'low-score-assessment') {
+      return 45; // Fail score for view results
+    } else if (assessmentId === 'scheduled-assessment') {
+      return 35; // Fail score to show re-attempt
+    }
+    
+    // For other assessments, calculate based on completion
+    const completionCount = Object.values(completedSections).filter(Boolean).length;
+    const baseScore = completionCount * 30; // 30 points per section
+    return Math.min(baseScore + Math.floor(Math.random() * 20), 100);
+  };
+
   const handleAutoSubmit = () => {
-    onClose();
+    const finalScore = calculateScore();
+    const passed = finalScore >= 60;
+    onClose({ score: finalScore, passed });
+  };
+
+  const handleManualClose = () => {
+    // In view mode, close immediately
+    if (isViewMode) {
+      onClose();
+      return;
+    }
+    
+    // In assessment mode, trigger exit warning modal
+    if (onExitRequest) {
+      onExitRequest();
+    } else {
+      // Fallback to direct close with partial score
+      const finalScore = calculateScore();
+      const passed = finalScore >= 60;
+      onClose({ score: finalScore, passed });
+    }
+  };
+
+  const handleSubmitAssessment = () => {
+    const finalScore = calculateScore();
+    const passed = finalScore >= 60;
+    onClose({ score: finalScore, passed });
   };
 
   const formatTime = (seconds: number) => {
@@ -141,12 +251,18 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
     return (
       <CodingChallenge
         challenge={codingChallenges[selectedChallengeIndex]}
+        challengeIndex={`${assessmentId}-coding-${selectedChallengeIndex}`}
         onBack={() => setCurrentView('instructions')}
         onComplete={() => {
           setCompletedSections(prev => ({ ...prev, coding: true }));
           setCurrentView('instructions');
         }}
         timeLeft={formatTime(timeLeft)}
+        initialCode={
+          selectedChallengeIndex === 0 ? '// Write your solution here\nfunction maxSubarraySum(nums) {\n    // Your code here\n    return 0;\n}\n' :
+          selectedChallengeIndex === 1 ? '// Write your solution here\nfunction isPalindrome(s) {\n    // Your code here\n    return false;\n}\n' :
+          '// Write your solution here\nfunction twoSum(nums, target) {\n    // Your code here\n    return [];\n}\n'
+        }
       />
     );
   }
@@ -155,12 +271,17 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
     return (
       <MCQQuiz
         quiz={mcqQuizzes[selectedQuizIndex]}
-        onBack={() => setCurrentView('instructions')}
+        quizId={`${assessmentId}-mcq-${selectedQuizIndex}`}
+        onBack={() => {
+          // Only update completion if the quiz was submitted
+          setCurrentView('instructions');
+        }}
         onComplete={() => {
           setCompletedSections(prev => ({ ...prev, mcq: true }));
           setCurrentView('instructions');
         }}
         timeLeft={formatTime(timeLeft)}
+        isViewMode={isViewMode && completedSections.mcq}
       />
     );
   }
@@ -168,12 +289,16 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
   if (currentView === 'openended') {
     return (
       <OpenEndedQuestions
-        onBack={() => setCurrentView('instructions')}
+        questionsId={`${assessmentId}-openended`}
+        onBack={() => {
+          setCurrentView('instructions');
+        }}
         onComplete={() => {
           setCompletedSections(prev => ({ ...prev, openended: true }));
           setCurrentView('instructions');
         }}
         timeLeft={formatTime(timeLeft)}
+        isViewMode={isViewMode && completedSections.openended}
       />
     );
   }
@@ -186,12 +311,53 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
         violation={currentViolation}
       />
       
-      <header className="w-full flex items-center justify-between p-4 border-b">
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="w-5 h-5" />
-        </Button>
-        <div className="font-mono text-lg font-semibold">
-          {formatTime(timeLeft)}
+      <header className="sticky top-0 z-50 w-full bg-background border-b">
+        <div className="flex items-center justify-between p-4">
+          <Button variant="ghost" size="icon" onClick={handleManualClose}>
+            <X className="w-5 h-5" />
+          </Button>
+          
+          <div className="flex items-center gap-6">
+            {!isViewMode && (
+              <div className="text-center">
+                <div className="text-sm text-muted-foreground">Time Remaining</div>
+                <div className="font-mono text-lg font-semibold">{formatTime(timeLeft)}</div>
+              </div>
+            )}
+            
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground">
+                {isViewMode ? 'Viewing Results' : 'Assessment'}
+              </div>
+              <div className="font-semibold">{assessmentTitle}</div>
+            </div>
+          </div>
+          
+          <div className="w-10"> {/* Spacer for balance */}</div>
+        </div>
+        
+        {/* Assessment Details Bar */}
+        <div className="px-4 py-2 bg-muted/30 border-t">
+          <div className="flex justify-center gap-8 text-sm">
+            <div className="text-center">
+              <span className="text-muted-foreground">Duration:</span>
+              <span className="ml-1 font-medium">{duration}</span>
+            </div>
+            <div className="text-center">
+              <span className="text-muted-foreground">Total Marks:</span>
+              <span className="ml-1 font-medium">100</span>
+            </div>
+            <div className="text-center">
+              <span className="text-muted-foreground">Pass Score:</span>
+              <span className="ml-1 font-medium">60</span>
+            </div>
+            {!isViewMode && (
+              <div className="text-center">
+                <span className="text-muted-foreground">Start:</span>
+                <span className="ml-1 font-medium">{new Date().toLocaleDateString()}</span>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -228,7 +394,15 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
                       <Badge variant="outline">{challenge.marks} marks</Badge>
                     </div>
                   </div>
-                  <div className="flex justify-end">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      {completedSections.coding && (
+                        <div className="flex items-center space-x-1 text-success">
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="text-sm font-medium">Completed</span>
+                        </div>
+                      )}
+                    </div>
                     <Button 
                       variant="link" 
                       className="text-primary p-0 h-auto"
@@ -259,7 +433,15 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
                       <Badge variant="outline">{quiz.marks} marks</Badge>
                     </div>
                   </div>
-                  <div className="flex justify-end">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      {completedSections.mcq && (
+                        <div className="flex items-center space-x-1 text-success">
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="text-sm font-medium">Completed</span>
+                        </div>
+                      )}
+                    </div>
                     <Button 
                       variant="link" 
                       className="text-primary p-0 h-auto"
@@ -284,7 +466,15 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
                   <h3 className="text-lg font-semibold">Programming Concepts</h3>
                   <Badge variant="outline">2 questions</Badge>
                 </div>
-                <div className="flex justify-end">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    {completedSections.openended && (
+                      <div className="flex items-center space-x-1 text-success">
+                        <CheckCircle className="w-4 h-4" />
+                        <span className="text-sm font-medium">Completed</span>
+                      </div>
+                    )}
+                  </div>
                   <Button 
                     variant="link" 
                     className="text-primary p-0 h-auto"
@@ -297,15 +487,17 @@ const AssessmentInstructions = ({ assessmentTitle, duration, onClose }: Assessme
             </Card>
           </div>
 
-          <div className="flex justify-center pt-8">
-            <Button 
-              size="lg" 
-              disabled={!canSubmitAssessment}
-              onClick={onClose}
-            >
-              Submit Assessment
-            </Button>
-          </div>
+          {!isViewMode && (
+            <div className="flex justify-center pt-8">
+              <Button 
+                size="lg" 
+                disabled={!canSubmitAssessment}
+                onClick={handleSubmitAssessment}
+              >
+                Submit Assessment
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

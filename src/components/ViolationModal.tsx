@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertTriangle } from "lucide-react";
 
 interface ViolationType {
-  type: 'tab-switch' | 'fullscreen-exit' | 'copy-paste';
+  type: 'fullscreen-exit' | 'copy-paste';
   count: number;
 }
 
@@ -20,25 +20,23 @@ const ViolationModal = ({ isOpen, onClose, violation }: ViolationModalProps) => 
 
   const getViolationInfo = (type: string) => {
     switch (type) {
-      case 'tab-switch':
-        return {
-          title: 'Tab Switch Detected',
-          description: 'Tab switches are not permitted during an ongoing assessment. Repeated violations will lead to automatic assessment submission at the current progress.'
-        };
       case 'fullscreen-exit':
         return {
           title: 'Full Screen Exit Detected',
-          description: 'Screen exit is not permitted and would erase your progress. Repeated violations will lead to automatic assessment submission at the current progress.'
+          description: 'You have attempted to exit full screen mode. Please return to full screen to continue your assessment. Repeated violations will lead to automatic assessment submission.',
+          action: 'Return to Full Screen'
         };
       case 'copy-paste':
         return {
-          title: 'Copy and Paste Detected',
-          description: 'Copying and pasting is not permitted. Repeated violations will lead to automatic assessment submission at the current progress.'
+          title: 'Copy/Paste Violation',
+          description: 'Copy and paste operations are not permitted during the assessment. This action has been blocked. Repeated violations will lead to automatic assessment submission.',
+          action: 'Continue Assessment'
         };
       default:
         return {
           title: 'Violation Detected',
-          description: 'A violation has been detected.'
+          description: 'A violation has been detected.',
+          action: 'Continue Assessment'
         };
     }
   };
@@ -65,8 +63,8 @@ const ViolationModal = ({ isOpen, onClose, violation }: ViolationModalProps) => 
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button onClick={onClose}>
-            Return to Assessment
+          <Button onClick={onClose} className="w-full">
+            {violationInfo.action}
           </Button>
         </DialogFooter>
       </DialogContent>

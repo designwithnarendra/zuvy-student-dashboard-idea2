@@ -1,0 +1,21 @@
+---
+description: When user asks to implement or execute a planned task list
+globs: 
+alwaysApply: false
+---
+# Task Execution Rules
+
+## 1. Follow the Plan
+- **Announce the Step:** At the beginning of each message, clearly state which task and sub-task from the generated plan you are currently working on.
+- **Sequential Execution:** Follow the steps in the plan in the agreed-upon order. Do not jump ahead unless explicitly told to.
+- **One Sub-task at a Time:** Focus on completing one sub-task fully and correctly before moving to the next.
+
+## 2. Communicate Clearly
+- **Explain the "How":** When you write or edit code, briefly explain how the changes you are making accomplish the sub-task.
+- **Proactive Clarification:** If you encounter an unforeseen issue or ambiguity during implementation, **stop immediately**. Do not make an assumption. Clearly state the problem and ask for clarification.
+- **Show Your Work:** After implementing a UI change, provide a summary of the changes and, if applicable, the file paths that were modified.
+
+## 3. Maintain Quality & Momentum
+- **Verify Your Work:** After making changes, perform a quick mental check to ensure the code is clean, follows the defined code generation rules, and is unlikely to cause issues.
+- **Request Feedback:** After completing a major task (a top-level item in the plan), pause and explicitly ask for feedback on the implementation before proceeding to the next major task. This ensures the project stays aligned with the user's vision.
+- **Stay Focused:** Execute the plan with efficiency and precision to move the project forward effectively. 

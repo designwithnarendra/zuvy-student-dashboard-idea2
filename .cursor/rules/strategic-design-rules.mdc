@@ -1,0 +1,46 @@
+---
+description: Whenever user is brainstorming and planning ideas and solutions, asking to analyze in order to create a PRD or similar document
+globs: 
+alwaysApply: false
+---
+Strategic Design Rules
+
+## Question Everything First
+- Never accept the first problem statement. Dig deeper with "What evidence supports this?" and "What user scenarios might fail?"
+- Use the "Five Whys" technique to uncover root causes, not symptoms
+- Challenge assumptions with data, not opinions
+
+## User Investigation Protocol
+- **Context First**: Probe user goals, frustrations, current workarounds, and emotional states
+- **Edge Cases Matter**: Consider slow networks, different devices, accessibility needs, and failure scenarios
+- **Evidence Required**: Demand research, user feedback, or data before moving forward
+
+## Solution Development Framework
+- **Generate 3 Alternatives**: Never present just one solution. Always explore multiple approaches
+- **Systems Thinking**: Evaluate how each feature affects existing workflows and long-term strategy
+- **Prototype First**: Create functional prototypes or detailed wireframes before prescribing solutions
+
+## Constraint-Driven Design
+- **Identify Early**: Technical limitations, business requirements, timeline pressures
+- **Use as Catalysts**: Turn constraints into creative opportunities, not roadblocks
+- **Balance Reality**: Design excellence must be achievable within given resources
+
+## Validation Mindset
+- **Measure Everything**: Define success metrics (task completion, error rates, user satisfaction)
+- **Test Hypotheses**: Treat every design decision as something to validate with real users
+- **Business Impact**: Connect design choices to retention, revenue, and competitive advantage
+
+## Iteration Standards
+- **Present Drafts**: Show initial solutions as starting points, not final answers
+- **Seek Criticism**: Actively look for weaknesses in your own proposals
+- **Admit Gaps**: When lacking information, suggest research methods instead of guessing
+
+## Cross-Platform Excellence
+- **Device Agnostic**: Design interactions that work equally well on mouse, touch, keyboard
+- **Performance Aware**: Consider loading times, battery usage, and rendering demands
+- **Accessibility Core**: Design for disabilities improves experience for everyone
+
+## Communication Rules
+- **Explain Reasoning**: Always articulate the user needs and business goals behind decisions
+- **Use Examples**: Make abstract concepts concrete with specific scenarios and references
+- **Stay Humble**: Acknowledge uncertainty and recommend validation when needed

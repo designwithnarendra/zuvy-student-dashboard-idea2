@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,25 +14,43 @@ import { TopicItem } from "@/lib/mockData";
 import AssessmentView from "./AssessmentView";
 import CodingProblemPage from "./CodingProblemPage";
 
+// Import types from ModuleContentPage
+interface ModuleItemState extends TopicItem {
+  submissionText?: string;
+  quizAnswers?: { [questionId: string]: string };
+  feedbackAnswers?: { [questionId: string]: string };
+  watchedPercentage?: number;
+  violationCount?: number;
+  assessmentAttempts?: number;
+  lastAttemptScore?: number;
+  submissionState?: 'not-started' | 'in-progress' | 'submitted';
+  submissionTime?: string;
+  testCasesPassed?: number;
+  totalTestCases?: number;
+}
+
+interface SessionStateHandlers {
+  handleAssignmentSubmission: (itemId: string, submissionLink: string) => void;
+  handleQuizSubmission: (itemId: string, answers: { [questionId: string]: string }) => void;
+  handleFeedbackSubmission: (itemId: string, answers: { [questionId: string]: string }) => void;
+  handleVideoWatch: (itemId: string, percentage: number) => void;
+  handleArticleRead: (itemId: string) => void;
+  handleLiveClassJoin: (itemId: string) => void;
+  handleCodingProblemCompletion: (itemId: string, testCasesPassed: number, totalTestCases: number, solutionCode?: string) => void;
+  handleAssessmentUpdate: (itemId: string, updates: { score?: number; state: string; violationCount?: number }) => void;
+  handleAssessmentReAttempt: (itemId: string) => void;
+  handleItemStatusUpdate: (itemId: string, status: TopicItem['status']) => void;
+  handleItemFieldUpdate: (itemId: string, field: keyof ModuleItemState, value: any) => void;
+}
+
 interface ModuleContentRendererProps {
   selectedItemData: { item: any; topicId: string } | null;
   getAssessmentData: (itemId: string) => any;
+  sessionStateHandlers: SessionStateHandlers;
 }
 
-const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleContentRendererProps) => {
-  const [showCodingProblem, setShowCodingProblem] = useState(false);
-  const [quizSubmitted, setQuizSubmitted] = useState(false);
-  const [quizAnswers, setQuizAnswers] = useState<string[]>(new Array(5).fill(''));
-  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
-  const [feedbackAnswers, setFeedbackAnswers] = useState({
-    mcq: '',
-    checkbox: [] as string[],
-    text: '',
-    date: null as Date | null,
-    time: ''
-  });
-  const [assignmentLink, setAssignmentLink] = useState('');
-  const [assignmentSubmitted, setAssignmentSubmitted] = useState(false);
+const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionStateHandlers }: ModuleContentRendererProps) => {
+  // All state management handled via session state
 
   const getTimeRemaining = (dateTime: Date) => {
     const now = new Date();
@@ -63,26 +80,16 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
 
   const { item } = selectedItemData;
 
-  // Handle coding problem page
-  if (showCodingProblem && item.type === 'coding-problem') {
-    return (
-      <CodingProblemPage
-        problem={{
-          title: item.title,
-          difficulty: 'Medium',
-          topic: 'Arrays',
-          status: item.status
-        }}
-        onClose={() => setShowCodingProblem(false)}
-      />
-    );
-  }
+
 
   // Handle assessment rendering
   if (item.type === 'assessment') {
     const assessmentData = getAssessmentData(item.id);
     if (assessmentData) {
-      return <AssessmentView assessment={assessmentData} />;
+      return <AssessmentView 
+        assessment={assessmentData} 
+        onReAttemptRequest={sessionStateHandlers.handleAssessmentReAttempt}
+      />;
     }
   }
 
@@ -90,37 +97,59 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
   if (item.type === 'quiz') {
     const questions = [
       {
+        id: "q1",
         question: "What does DOM stand for?",
         options: ["Document Object Model", "Data Object Management", "Dynamic Object Method", "Document Oriented Markup"],
         correct: 0
       },
       {
+        id: "q2", 
         question: "Which method is used to select an element by ID?",
         options: ["document.getElement()", "document.getElementById()", "document.selectId()", "document.findById()"],
         correct: 1
       },
       {
+        id: "q3",
         question: "How do you add an event listener to an element?",
         options: ["element.addListener()", "element.addEventListener()", "element.on()", "element.bind()"],
         correct: 1
       },
       {
+        id: "q4",
         question: "Which property is used to change the text content of an element?",
         options: ["innerHTML", "textContent", "innerText", "Both B and C"],
         correct: 3
       },
       {
+        id: "q5",
         question: "What is the correct way to create a new HTML element?",
         options: ["document.new()", "document.createElement()", "document.create()", "document.newElement()"],
+        correct: 1
+      },
+      {
+        id: "q6",
+        question: "Which event is triggered when the DOM is fully loaded?",
+        options: ["window.onload", "DOMContentLoaded", "document.ready", "page.loaded"],
         correct: 1
       }
     ];
 
+    // Get quiz state from session
+    const currentAnswers = (item as ModuleItemState).quizAnswers || {};
+    const isCompleted = item.status === 'completed';
+
+    const handleAnswerChange = (questionId: string, value: string) => {
+      const newAnswers = { ...currentAnswers, [questionId]: value };
+      sessionStateHandlers.handleItemFieldUpdate(item.id, 'quizAnswers', newAnswers);
+    };
+
     const handleQuizSubmit = () => {
-      if (quizAnswers.every(answer => answer !== '')) {
-        setQuizSubmitted(true);
+      if (questions.every(q => currentAnswers[q.id])) {
+        sessionStateHandlers.handleQuizSubmission(item.id, currentAnswers);
       }
     };
+
+    const allAnswered = questions.every(q => currentAnswers[q.id]);
 
     return (
       <div className="max-w-4xl mx-auto p-8">
@@ -130,38 +159,53 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
             {item.status === 'completed' ? 'Completed' : 'Not Completed'}
           </Badge>
         </div>
+
+        {isCompleted && (
+          <Card className="bg-success-light border-success mb-6">
+            <CardContent className="p-4">
+              <p className="text-success font-medium">You have submitted the quiz successfully.</p>
+            </CardContent>
+          </Card>
+        )}
         
-        <div className="space-y-6">
+        <div className="space-y-8">
           {questions.map((q, index) => (
-            <div key={index} className="space-y-3">
+            <div key={q.id} className="space-y-4">
               <h3 className="text-lg font-semibold">
                 {index + 1}. {q.question}
               </h3>
               <RadioGroup
-                value={quizAnswers[index]}
-                onValueChange={(value) => {
-                  const newAnswers = [...quizAnswers];
-                  newAnswers[index] = value;
-                  setQuizAnswers(newAnswers);
-                }}
-                disabled={quizSubmitted}
+                value={currentAnswers[q.id] || ''}
+                onValueChange={(value) => handleAnswerChange(q.id, value)}
+                disabled={isCompleted}
+                className="space-y-4"
               >
-                {q.options.map((option, optionIndex) => (
-                  <div key={optionIndex} className="flex items-center space-x-2">
-                    <RadioGroupItem 
-                      value={optionIndex.toString()} 
-                      id={`q${index}_option${optionIndex}`}
-                      className={quizSubmitted && parseInt(quizAnswers[index]) === optionIndex ? "border-primary" : ""}
-                    />
-                    <Label htmlFor={`q${index}_option${optionIndex}`} className={`cursor-pointer ${
-                      quizSubmitted && parseInt(quizAnswers[index]) === optionIndex ? "text-primary font-medium" : ""
-                    }`}>
-                      {option}
-                    </Label>
-                  </div>
-                ))}
-                {quizSubmitted && parseInt(quizAnswers[index]) !== q.correct && (
-                  <p className="text-sm text-muted-foreground mt-2">
+                {q.options.map((option, optionIndex) => {
+                  const isSelected = currentAnswers[q.id] === optionIndex.toString();
+                  const isCorrect = optionIndex === q.correct;
+                  const isWrong = isCompleted && isSelected && !isCorrect;
+                  
+                  return (
+                    <div key={optionIndex} className="flex items-center space-x-2">
+                      <RadioGroupItem 
+                        value={optionIndex.toString()} 
+                        id={`${q.id}_option${optionIndex}`}
+                        className={isCompleted && isCorrect ? "border-success" : isWrong ? "border-destructive" : ""}
+                      />
+                      <Label 
+                        htmlFor={`${q.id}_option${optionIndex}`} 
+                        className={`cursor-pointer ${
+                          isCompleted && isCorrect ? "text-success font-medium" : 
+                          isWrong ? "text-destructive font-medium" : ""
+                        }`}
+                      >
+                        {option}
+                      </Label>
+                    </div>
+                  );
+                })}
+                {isCompleted && currentAnswers[q.id] && parseInt(currentAnswers[q.id]) !== q.correct && (
+                  <p className="text-sm text-success mt-2 font-medium">
                     Correct Answer: {q.options[q.correct]}
                   </p>
                 )}
@@ -170,29 +214,52 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
           ))}
         </div>
 
-        <div className="flex justify-center mt-8">
-          <Button 
-            onClick={handleQuizSubmit}
-            disabled={!quizAnswers.every(answer => answer !== '') || quizSubmitted}
-          >
-            {quizSubmitted ? 'Submitted ✓' : 'Submit'}
-          </Button>
-        </div>
+        {!isCompleted && (
+          <div className="flex justify-center mt-8">
+            <Button 
+              onClick={handleQuizSubmit}
+              disabled={!allAnswered}
+            >
+              Submit
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
 
   // Handle Feedback Form rendering
   if (item.type === 'feedback') {
-    const handleFeedbackSubmit = () => {
-      setFeedbackSubmitted(true);
+    // Get feedback state from session
+    const currentAnswers = (item as ModuleItemState).feedbackAnswers || {};
+    const isCompleted = item.status === 'completed';
+
+          const handleFeedbackSubmit = () => {
+        const requiredFields = ['mcq', 'text', 'date', 'time'];
+        const checkboxArray = Array.isArray(currentAnswers.checkbox) ? currentAnswers.checkbox : [];
+        const hasCheckboxAnswer = checkboxArray.length > 0;
+        const allRequired = requiredFields.every(field => currentAnswers[field]);
+        
+        if (allRequired && hasCheckboxAnswer) {
+          sessionStateHandlers.handleFeedbackSubmission(item.id, currentAnswers);
+        }
+      };
+
+    const updateAnswer = (field: string, value: any) => {
+      const newAnswers = { ...currentAnswers, [field]: value };
+      sessionStateHandlers.handleItemFieldUpdate(item.id, 'feedbackAnswers', newAnswers);
     };
 
     return (
       <div className="max-w-4xl mx-auto p-8">
-        <h1 className="text-3xl font-heading font-bold mb-2">{item.title}</h1>
-        {feedbackSubmitted && (
-          <div className="bg-success-light p-4 rounded-lg mb-6 text-success">
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
+          <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
+            {item.status === 'completed' ? 'Completed' : 'Not Completed'}
+          </Badge>
+        </div>
+        {isCompleted && (
+          <div className="bg-success-light p-4 rounded-lg mt-4 mb-6 text-success">
             Your feedback has been submitted successfully
           </div>
         )}
@@ -200,12 +267,13 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
         
         <div className="space-y-8">
           {/* MCQ Question */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold">1. How would you rate the overall quality of this module?</h3>
             <RadioGroup
-              value={feedbackAnswers.mcq}
-              onValueChange={(value) => setFeedbackAnswers(prev => ({ ...prev, mcq: value }))}
-              disabled={feedbackSubmitted}
+              value={currentAnswers.mcq as string || ''}
+              onValueChange={(value) => updateAnswer('mcq', value)}
+              disabled={isCompleted}
+              className="space-y-4"
             >
               {['Excellent', 'Good', 'Average', 'Poor'].map((option, index) => (
                 <div key={index} className="flex items-center space-x-2">
@@ -217,27 +285,22 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
           </div>
 
           {/* Checkbox Question */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold">2. Which topics were most helpful? (Select all that apply)</h3>
             {['DOM Manipulation', 'Event Handling', 'Interactive Elements', 'Performance Optimization'].map((option, index) => (
               <div key={index} className="flex items-center space-x-2">
                 <Checkbox 
                   id={`topic_${index}`}
-                  checked={feedbackAnswers.checkbox.includes(option)}
+                  checked={Array.isArray(currentAnswers.checkbox) ? currentAnswers.checkbox.includes(option) : false}
                   onCheckedChange={(checked) => {
+                    const currentCheckbox = Array.isArray(currentAnswers.checkbox) ? currentAnswers.checkbox : [];
                     if (checked) {
-                      setFeedbackAnswers(prev => ({ 
-                        ...prev, 
-                        checkbox: [...prev.checkbox, option] 
-                      }));
+                      updateAnswer('checkbox', [...currentCheckbox, option]);
                     } else {
-                      setFeedbackAnswers(prev => ({ 
-                        ...prev, 
-                        checkbox: prev.checkbox.filter(item => item !== option) 
-                      }));
+                      updateAnswer('checkbox', currentCheckbox.filter(item => item !== option));
                     }
                   }}
-                  disabled={feedbackSubmitted}
+                  disabled={isCompleted}
                 />
                 <Label htmlFor={`topic_${index}`} className="cursor-pointer">{option}</Label>
               </div>
@@ -245,92 +308,156 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
           </div>
 
           {/* Long Text Question */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold">3. What suggestions do you have for improving this module?</h3>
             <Textarea
-              value={feedbackAnswers.text}
-              onChange={(e) => setFeedbackAnswers(prev => ({ ...prev, text: e.target.value }))}
+              value={currentAnswers.text as string || ''}
+              onChange={(e) => updateAnswer('text', e.target.value)}
               placeholder="Share your suggestions..."
               className="min-h-24"
-              disabled={feedbackSubmitted}
+              disabled={isCompleted}
             />
           </div>
 
           {/* Date Question */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold">4. When did you start this module?</h3>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" disabled={feedbackSubmitted}>
+                <Button variant="outline" disabled={isCompleted}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {feedbackAnswers.date ? feedbackAnswers.date.toLocaleDateString() : "Select date"}
+                  {currentAnswers.date ? new Date(currentAnswers.date as string).toLocaleDateString() : "Select date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
-                  selected={feedbackAnswers.date || undefined}
-                  onSelect={(date) => setFeedbackAnswers(prev => ({ ...prev, date: date || null }))}
+                  selected={currentAnswers.date ? new Date(currentAnswers.date as string) : undefined}
+                  onSelect={(date) => updateAnswer('date', date?.toISOString() || null)}
                 />
               </PopoverContent>
             </Popover>
           </div>
 
           {/* Time Question */}
-          <div className="space-y-3">
+          <div className="space-y-4">
             <h3 className="text-lg font-semibold">5. What time of day do you prefer studying?</h3>
             <div className="flex items-center space-x-2">
               <Clock className="h-4 w-4" />
               <Input
                 type="time"
-                value={feedbackAnswers.time}
-                onChange={(e) => setFeedbackAnswers(prev => ({ ...prev, time: e.target.value }))}
-                disabled={feedbackSubmitted}
+                value={currentAnswers.time as string || ''}
+                onChange={(e) => updateAnswer('time', e.target.value)}
+                disabled={isCompleted}
                 className="w-40"
               />
             </div>
           </div>
         </div>
 
-        <div className="flex justify-center mt-8">
-          <Button 
-            onClick={handleFeedbackSubmit}
-            disabled={feedbackSubmitted}
-          >
-            {feedbackSubmitted ? 'Submitted ✓' : 'Submit'}
-          </Button>
-        </div>
+        {!isCompleted && (
+          <div className="flex justify-center mt-8">
+            <Button 
+              onClick={handleFeedbackSubmit}
+              disabled={!currentAnswers.mcq || !currentAnswers.text || !currentAnswers.date || !currentAnswers.time || !Array.isArray(currentAnswers.checkbox) || !currentAnswers.checkbox.length}
+            >
+              Submit
+            </Button>
+          </div>
+        )}
       </div>
     );
   }
 
   // Handle Coding Problem rendering
   if (item.type === 'coding-problem') {
+    const itemState = item as ModuleItemState;
+    
+    // Check for session-persistent submission state
+    const submissionData = sessionStorage.getItem(`coding-problem-${item.id}`);
+    const sessionSubmissionState = submissionData ? JSON.parse(submissionData).submissionState : null;
+    
+    const submissionState = sessionSubmissionState || itemState.submissionState || 'not-started';
+    const isSubmitted = submissionState === 'submitted';
+    
+    const handleStartPractice = () => {
+      // Navigate to separate coding problem page in same window
+      window.location.href = `/coding-problem/${item.id}`;
+    };
+
+    const handleViewSolution = () => {
+      // Navigate to solution viewer page in same window
+      window.location.href = `/solution-viewer/${item.id}`;
+    };
+
+    const getStatusBadge = () => {
+      switch (submissionState) {
+        case 'submitted':
+          return <Badge variant="outline" className="text-success border-success">Submitted</Badge>;
+        case 'in-progress':
+          return <Badge variant="outline" className="text-warning border-warning">In Progress</Badge>;
+        default:
+          return <Badge variant="outline" className="text-muted-foreground">Not Attempted</Badge>;
+      }
+    };
+
+    const getSubmissionInfo = () => {
+      if (submissionData) {
+        const parsed = JSON.parse(submissionData);
+        return {
+          submissionTime: parsed.submissionTime,
+          testCasesPassed: parsed.testCasesPassed || 5,
+          totalTestCases: parsed.totalTestCases || 5
+        };
+      }
+      return {
+        testCasesPassed: itemState.testCasesPassed || 5,
+        totalTestCases: itemState.totalTestCases || 5
+      };
+    };
+
+    const submissionInfo = getSubmissionInfo();
+
     return (
       <div className="max-w-4xl mx-auto p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
-          <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
-            {item.status === 'completed' ? 'Attempted' : 'Not Attempted'}
-          </Badge>
+          {getStatusBadge()}
         </div>
         
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
             <p className="text-sm text-muted-foreground">Difficulty</p>
-            <p className="font-medium">Medium</p>
+            <p className="font-medium">{item.difficulty || 'Medium'}</p>
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Topic</p>
-            <p className="font-medium">Arrays</p>
+            <p className="text-sm text-muted-foreground">Marks</p>
+            <p className="font-medium">{item.marks || 25} points</p>
           </div>
         </div>
         
         <p className="text-muted-foreground mb-8">{item.description}</p>
         
+        {isSubmitted && (
+          <div className="bg-success-light border border-success rounded-lg p-4 mb-6">
+            <div className="flex items-center gap-2 mb-2">
+              <Check className="w-5 h-5 text-success" />
+              <p className="font-semibold text-success">Problem Submitted</p>
+            </div>
+            <p className="text-sm text-success">
+              Test Cases: {submissionInfo.testCasesPassed}/{submissionInfo.totalTestCases} passed
+            </p>
+            {submissionInfo.submissionTime && (
+              <p className="text-sm text-success">
+                Submitted on: {new Date(submissionInfo.submissionTime).toLocaleString()}
+              </p>
+            )}
+          </div>
+        )}
+        
         <div className="text-center">
-          <Button onClick={() => setShowCodingProblem(true)}>
-            {item.status === 'completed' ? 'View Submission' : 'Start Practice'}
+          <Button onClick={isSubmitted ? handleViewSolution : handleStartPractice}>
+            {isSubmitted ? 'View Solution' : 'Start Practice'}
           </Button>
         </div>
       </div>
@@ -366,15 +493,13 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
             </div>
           </div>
           
-          <div className="text-center mb-6">
-            <Card className="bg-info-light border-info inline-block">
-              <CardContent className="p-4">
-                <p className="text-info font-semibold">
-                  Class starts in {getTimeRemaining(item.scheduledDateTime!)}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+          <Card className="bg-info-light border-info mb-6 h-14 flex items-center justify-center">
+            <CardContent className="p-4">
+              <p className="text-info font-semibold">
+                Class starts in {getTimeRemaining(item.scheduledDateTime!)}
+              </p>
+            </CardContent>
+          </Card>
           
           <p className="text-muted-foreground text-center">Class recording will be available after the class</p>
         </div>
@@ -402,7 +527,12 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
             </div>
           </div>
           <div className="text-center">
-            <Button className="mb-6">Join Class</Button>
+            <Button 
+              className="mb-6"
+              onClick={() => sessionStateHandlers.handleLiveClassJoin(item.id)}
+            >
+              Join Class
+            </Button>
           </div>
         </div>
       );
@@ -454,6 +584,13 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
 
   // Handle video rendering
   if (item.type === 'video') {
+    const videoId = item.videoUrl ? item.videoUrl.split('v=')[1] || item.videoUrl.split('/').pop()?.split('?')[0] : 'DrAZf4ZHqaM';
+    const watchedPercentage = (item as ModuleItemState).watchedPercentage || 0;
+    
+    const handleVideoEnd = () => {
+      sessionStateHandlers.handleVideoWatch(item.id, 100);
+    };
+
     return (
       <div className="max-w-4xl mx-auto p-8">
         <div className="flex justify-between items-center mb-6">
@@ -463,13 +600,41 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
           </Badge>
         </div>
         <p className="text-muted-foreground mb-6">Duration: {item.duration || '20 mins'}</p>
-        <div className="bg-black rounded-lg aspect-video flex items-center justify-center">
-          <div className="text-center text-white">
-            <Play className="w-16 h-16 mx-auto mb-4" />
-            <p>Video Content</p>
-            <p className="text-sm opacity-75">{item.duration || '20 mins'}</p>
-          </div>
+        <div className="bg-black rounded-lg aspect-video">
+          {videoId ? (
+            <iframe
+              width="100%"
+              height="100%"
+              src={`https://www.youtube.com/embed/${videoId}?enablejsapi=1`}
+              title={item.title}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowFullScreen
+              className="rounded-lg"
+              onLoad={() => {
+                // Simulate video watch completion after 5 seconds for demo
+                setTimeout(() => {
+                  if (item.status !== 'completed') {
+                    handleVideoEnd();
+                  }
+                }, 5000);
+              }}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center text-white">
+                <Play className="w-16 h-16 mx-auto mb-4" />
+                <p>Video Content</p>
+                <p className="text-sm opacity-75">{item.duration || '20 mins'}</p>
+              </div>
+            </div>
+          )}
         </div>
+        {watchedPercentage > 0 && watchedPercentage < 100 && (
+          <div className="mt-4">
+            <p className="text-sm text-muted-foreground">Watched: {watchedPercentage}%</p>
+          </div>
+        )}
       </div>
     );
   }
@@ -491,7 +656,11 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
         </div>
         {item.status !== 'completed' && (
           <div className="flex justify-center">
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+            <Button 
+              variant="outline" 
+              className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+              onClick={() => sessionStateHandlers.handleArticleRead(item.id)}
+            >
               Mark as Read
             </Button>
           </div>
@@ -502,44 +671,106 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData }: ModuleCo
 
   // Handle assignment rendering
   if (item.type === 'assignment') {
-    const isDueDatePassed = new Date() > new Date('2024-12-15');
+    const isDueDatePassed = item.dueDate ? new Date() > item.dueDate : false;
+    const currentSubmission = (item as ModuleItemState).submissionText || '';
+    const isSubmitted = item.status === 'completed';
+    const [errorMessage, setErrorMessage] = useState<string>('');
+    const [inputValue, setInputValue] = useState(currentSubmission);
+    
+    const handleSubmissionChange = (value: string) => {
+      setInputValue(value);
+      setErrorMessage(''); // Clear error when user types
+      sessionStateHandlers.handleItemFieldUpdate(item.id, 'submissionText', value);
+    };
+
+    const isValidLink = (url: string) => {
+      const trimmedUrl = url.trim();
+      if (!trimmedUrl) return false;
+      
+      // Check for Google Drive links
+      const googleDrivePattern = /^https:\/\/(drive|docs)\.google\.com\//;
+      // Check for GitHub links
+      const githubPattern = /^https:\/\/github\.com\//;
+      
+      return googleDrivePattern.test(trimmedUrl) || githubPattern.test(trimmedUrl);
+    };
+
+    const handleSubmit = () => {
+      const trimmedInput = inputValue.trim();
+      
+      if (!trimmedInput) {
+        setErrorMessage('Please paste a submission link');
+        return;
+      }
+      
+      if (!isValidLink(trimmedInput)) {
+        setErrorMessage('Please provide a valid Google Drive or GitHub link');
+        return;
+      }
+      
+      setErrorMessage('');
+      sessionStateHandlers.handleAssignmentSubmission(item.id, trimmedInput);
+    };
+
+    const handleResubmit = () => {
+      sessionStateHandlers.handleItemStatusUpdate(item.id, 'not-started');
+      setInputValue('');
+      setErrorMessage('');
+    };
     
     return (
       <div className="max-w-4xl mx-auto p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-heading font-bold text-left">{item.title}</h1>
-          <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
-            {item.status === 'completed' ? 'Submitted' : 'Not Submitted'}
+          <Badge variant="outline" className={isSubmitted ? "text-success border-success" : "text-muted-foreground"}>
+            {isSubmitted ? 'Submitted' : 'Not Submitted'}
           </Badge>
         </div>
-        <p className="text-muted-foreground mb-6 text-left">Due: December 15, 2024</p>
+        <p className="text-muted-foreground mb-6 text-left">
+          Due: {item.dueDate ? item.dueDate.toLocaleDateString() : 'December 15, 2024'}
+        </p>
         <p className="text-muted-foreground mb-8 text-left">
-          Complete this comprehensive assignment that covers all the concepts learned in this module. 
-          You'll need to demonstrate your understanding through practical implementation and theoretical explanations.
-          The assignment includes multiple components: coding exercises, written responses, and a final project.
+          {item.description || 
+          "Complete this comprehensive assignment that covers all the concepts learned in this module. You'll need to demonstrate your understanding through practical implementation and theoretical explanations. The assignment includes multiple components: coding exercises, written responses, and a final project."}
         </p>
         
         <div className="mb-8">
           <h2 className="text-xl font-heading font-semibold mb-4">Make a Submission</h2>
           <div className="space-y-4">
-            <Input
-              placeholder="Paste your assignment link (Google Drive, GitHub, etc.)"
-              value={assignmentLink}
-              onChange={(e) => setAssignmentLink(e.target.value)}
-              disabled={isDueDatePassed}
-            />
-            {!isDueDatePassed && (
-              <Button 
-                onClick={() => setAssignmentSubmitted(true)}
-                disabled={!assignmentLink.trim() || assignmentSubmitted}
-              >
-                {assignmentSubmitted ? 'Submitted ✓' : 'Submit Assignment'}
-              </Button>
-            )}
-            {assignmentSubmitted && assignmentLink && (
-              <p className="text-sm text-muted-foreground">
-                Submitted: <a href={assignmentLink} target="_blank" rel="noopener noreferrer" className="text-primary underline">{assignmentLink}</a>
-              </p>
+            {!isSubmitted ? (
+              <>
+                <Input
+                  placeholder="Paste your assignment link (Google Drive, GitHub, etc.)"
+                  value={inputValue}
+                  onChange={(e) => handleSubmissionChange(e.target.value)}
+                  disabled={isDueDatePassed}
+                />
+                {!isDueDatePassed && (
+                  <Button 
+                    onClick={handleSubmit}
+                  >
+                    Submit Assignment
+                  </Button>
+                )}
+                {errorMessage && (
+                  <p className="text-sm text-destructive">{errorMessage}</p>
+                )}
+              </>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Your Submission</h3>
+                  <p className="text-muted-foreground break-all">{inputValue}</p>
+                </div>
+                {!isDueDatePassed && (
+                  <Button 
+                    variant="outline"
+                    onClick={handleResubmit}
+                  >
+                    Resubmit Assignment
+                  </Button>
+                )}
+              </div>
             )}
           </div>
         </div>

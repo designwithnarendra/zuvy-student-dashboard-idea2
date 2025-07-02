@@ -11,7 +11,10 @@ import StudentDashboard from "./pages/StudentDashboard";
 import CourseDashboard from "./pages/CourseDashboard";
 import CourseSyllabusPage from "./pages/CourseSyllabusPage";
 import ModuleContentPage from "./pages/ModuleContentPage";
-import ContentViewer from "./pages/ContentViewer";
+import ProjectPage from "./pages/ProjectPage";
+import AssessmentPage from "./pages/AssessmentPage";
+import SolutionViewerPage from "./pages/SolutionViewerPage";
+import CodingProblemPage from "./pages/CodingProblemPage";
 
 const queryClient = new QueryClient();
 
@@ -28,7 +31,11 @@ const App = () => (
           <Route path="/course/:courseId" element={<CourseDashboard />} />
           <Route path="/course/:courseId/syllabus" element={<CourseSyllabusPage />} />
           <Route path="/course/:courseId/module/:moduleId" element={<ModuleContentPage />} />
-          <Route path="/content/:type/:contentId" element={<ContentViewer />} />
+          <Route path="/course/:courseId/project/:projectId" element={<ProjectPage />} />
+          <Route path="/assessment/:courseId/:moduleId/:assessmentId" element={<AssessmentPage />} />
+          <Route path="/assessment/:assessmentId" element={<AssessmentPage />} />
+          <Route path="/solution-viewer/:itemId" element={<SolutionViewerPage />} />
+          <Route path="/coding-problem/:itemId" element={<CodingProblemPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

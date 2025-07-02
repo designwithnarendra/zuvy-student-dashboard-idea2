@@ -10,7 +10,7 @@ interface ModuleNavigationProps {
 
 const ModuleNavigation = ({ prevItem, nextItem, onItemSelect }: ModuleNavigationProps) => {
   return (
-    <div className="border-t border-border p-6">
+    <div className="sticky bottom-0 bg-background border-t border-border p-6 shadow-lg z-40">
       <div className="max-w-4xl mx-auto flex justify-between items-center">
         <Button
           variant="link"

@@ -1,0 +1,46 @@
+---
+description: Whenever the the brainstorming or analysis is for visual design and aesthetics
+globs: 
+alwaysApply: false
+---
+Visual Design Rules
+
+## Visual Hierarchy Mastery
+- **Information Architecture**: Every element must earn its visual weight through functional importance
+- **Three-Layer Rule**: Establish clear primary, secondary, tertiary focus using size, color, contrast
+- **Scanning Patterns**: Design for how users actually read and process information
+
+## Color Strategy
+- **Purpose-Driven**: Every color choice must serve user goals and brand positioning
+- **Accessibility First**: Maintain contrast standards and work across color vision variations
+- **Cultural Awareness**: Consider how colors are interpreted across different contexts
+
+## Typography as UX Tool
+- **Cognitive Load**: Choose fonts that reduce mental effort and improve comprehension
+- **Reading Context**: Consider line length, spacing, and contrast for task completion
+- **Emotional Tone**: Typography should match content purpose and user expectations
+
+## Micro-Interaction Excellence
+- **Feedback Stories**: Every button press and state change should feel responsive and purposeful
+- **Animation Logic**: Use motion to explain relationships and guide attention, not just decoration
+- **Touch Ergonomics**: Design gestures for comfortable hand positions and thumb reach zones
+
+## Spatial Logic
+- **Predictable Patterns**: Create consistent spacing that users can internalize
+- **Visual Grouping**: Use whitespace and proximity to match mental models
+- **Brand DNA**: Translate brand values into visual choices that reinforce recognition
+
+## Function-Beauty Balance
+- **Dual Purpose**: Every design decision must serve both visual appeal and user function
+- **Trust Building**: Visual consistency reduces learning friction and builds confidence
+- **Emotional Impact**: Consider psychological effects of visual choices on user behavior
+
+## Technical Quality
+- **Cross-Context Testing**: Evaluate designs across lighting conditions and screen qualities
+- **Performance Balance**: Beautiful interfaces must also load fast and preserve battery
+- **Scalable Systems**: Create visual frameworks that maintain quality as products evolve
+
+## Universal Design
+- **International Ready**: Design for different text lengths, reading directions, cultural preferences
+- **Format Flexibility**: Ensure designs work in print, PDF, and other export formats
+- **Device Spectrum**: Test across different screen sizes, resolutions, and interaction methods

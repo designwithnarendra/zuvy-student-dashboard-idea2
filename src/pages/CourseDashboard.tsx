@@ -6,6 +6,7 @@ import { mockCourses } from "@/lib/mockData";
 import Header from "@/components/Header";
 import CourseInfoBanner from "@/components/CourseInfoBanner";
 import ModuleCard from "@/components/ModuleCard";
+import ProjectCard from "@/components/ProjectCard";
 import WhatsNextCard from "@/components/WhatsNextCard";
 import AttendanceCard from "@/components/AttendanceCard";
 
@@ -61,42 +62,88 @@ const CourseDashboard = () => {
     return descriptionMap[moduleId] || "Learn essential concepts and build practical skills.";
   };
 
-  const modulesToShow = showAllModules ? course.modules : course.modules.slice(0, 7);
+  // Create a combined array of modules and projects in the correct order
+  const createCourseContent = () => {
+    const content = [];
+    
+    // Add modules 1 and 2
+    if (course.modules[0]) content.push({ type: 'module', data: course.modules[0] });
+    if (course.modules[1]) content.push({ type: 'module', data: course.modules[1] });
+    
+    // Add first project after module 2
+    if (course.projects[0]) content.push({ type: 'project', data: course.projects[0] });
+    
+    // Add remaining modules 3, 4, 5
+    for (let i = 2; i < Math.min(5, course.modules.length); i++) {
+      content.push({ type: 'module', data: course.modules[i] });
+    }
+    
+    // Add second project after module 5 (if exists)
+    if (course.projects[1]) content.push({ type: 'project', data: course.projects[1] });
+    
+    // Add any remaining modules if not showing all
+    if (!showAllModules) {
+      return content.slice(0, 7);
+    }
+    
+    // Add remaining modules when showing all
+    for (let i = 5; i < course.modules.length; i++) {
+      content.push({ type: 'module', data: course.modules[i] });
+    }
+    
+    return content;
+  };
+
+  const courseContent = createCourseContent();
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <div className="w-full">
-        <CourseInfoBanner course={course} />
+        <div>
+          <CourseInfoBanner course={course} />
+        </div>
 
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Course Modules */}
+            {/* Left Column - Course Content */}
             <div className="lg:col-span-2 space-y-8">
-              {/* Course Modules Section */}
+              {/* Course Content Section */}
               <div>
-                <h2 className="text-2xl font-heading font-semibold mb-6">Course Modules</h2>
+                <h2 className="text-2xl font-heading font-semibold mb-6">Course Content</h2>
                 
-                <div className="space-y-4">
-                  {modulesToShow.map((module) => {
-                    const moduleProgress = getModuleProgress(module.id);
-                    const isCurrentModule = module.id === '2';
-                    
-                    return (
-                      <ModuleCard
-                        key={module.id}
-                        module={module}
-                        courseId={courseId!}
-                        moduleProgress={moduleProgress}
-                        isCurrentModule={isCurrentModule}
-                        getModuleCTA={getModuleCTA}
-                        getModuleDescription={getModuleDescription}
-                        currentModuleNextItem={isCurrentModule ? course.currentModule.nextItem.name : undefined}
-                      />
-                    );
+                <div className="space-y-6">
+                  {courseContent.map((item, index) => {
+                    if (item.type === 'module') {
+                      const module = item.data;
+                      const moduleProgress = getModuleProgress(module.id);
+                      const isCurrentModule = module.id === '2';
+                      
+                      return (
+                        <ModuleCard
+                          key={`module-${module.id}`}
+                          module={module}
+                          courseId={courseId!}
+                          moduleProgress={moduleProgress}
+                          isCurrentModule={isCurrentModule}
+                          getModuleCTA={getModuleCTA}
+                          getModuleDescription={getModuleDescription}
+                          currentModuleNextItem={isCurrentModule ? course.currentModule.nextItem.name : undefined}
+                        />
+                      );
+                    } else {
+                      const project = item.data;
+                      return (
+                        <ProjectCard 
+                          key={`project-${project.id}`} 
+                          project={project}
+                          isCurrentFocus={false}
+                        />
+                      );
+                    }
                   })}
                   
-                  {course.modules.length > 7 && !showAllModules && (
+                  {course.modules.length > 5 && !showAllModules && (
                     <div className="flex justify-center">
                       <Button 
                         variant="link" 

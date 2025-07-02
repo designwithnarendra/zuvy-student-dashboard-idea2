@@ -1,0 +1,22 @@
+---
+description: When user asks to generate tasks from a PRD or information provided in the chat
+globs: 
+alwaysApply: false
+---
+# PRD & Task Planning Rules
+
+## 1. Understand the Goal
+- **Clarify the "Why":** Before breaking down the "what," first understand the user problem or business objective the PRD or the requirements shared in chat are trying to solve.
+- **Identify Success Metrics:** Determine how to measure the success of the feature, even in a prototype setting (e.g., "User can successfully complete the course feedback form").
+
+## 2. Decompose into a Plan
+- **Create a Hierarchical Task List:** Break down the high-level feature from the PRD into a clear, numbered list of main tasks. Under each main task, create a sub-list of granular sub-tasks.
+- **Start with Components:** The first step in any plan should be to create a "Component Inventory." List all UI components required for the feature.
+  - For each component, specify if it can be built using `shadcn/ui` or if it needs to be custom-built.
+- **Define Mock Data:** The next step should be "Mock Data Structure." Define the TypeScript types or interfaces for any new mock data needed to support the UI.
+- **Outline UI/Page Changes:** Detail which pages, views, or layouts will be created or modified.
+
+## 3. Plan for Execution
+- **Logical Sequencing:** Order the tasks in the plan logically. Foundational pieces (like new components or data structures) should always come before the UI assembly that uses them.
+- **Identify Blockers & Questions:** While creating the plan, proactively identify any ambiguities, dependencies, or missing information in the PRD.
+- **Formulate Clarifying Questions:** End the planning phase with a clear, numbered list of questions for the user to resolve any identified blockers before execution begins. Do not proceed with assumptions. 

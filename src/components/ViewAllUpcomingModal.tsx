@@ -1,9 +1,7 @@
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Calendar, Video, BookOpen, FileText, Clock } from "lucide-react";
-import { useState } from "react";
-import ViewAllUpcomingModal from "./ViewAllUpcomingModal";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Video, BookOpen, FileText, Clock } from "lucide-react";
 
 interface UpcomingItem {
   id: string;
@@ -14,17 +12,13 @@ interface UpcomingItem {
   actionText: string;
 }
 
-interface WhatsNextCardProps {
+interface ViewAllUpcomingModalProps {
+  isOpen: boolean;
+  onClose: () => void;
   upcomingItems: UpcomingItem[];
 }
 
-const WhatsNextCard = ({ upcomingItems }: WhatsNextCardProps) => {
-  const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
-
-  // Limit displayed items to 5
-  const displayedItems = upcomingItems.slice(0, 5);
-  const hasMoreItems = upcomingItems.length > 5;
-
+const ViewAllUpcomingModal = ({ isOpen, onClose, upcomingItems }: ViewAllUpcomingModalProps) => {
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       weekday: 'short',
@@ -34,18 +28,6 @@ const WhatsNextCard = ({ upcomingItems }: WhatsNextCardProps) => {
       minute: '2-digit',
       hour12: true
     }).format(date);
-  };
-
-  const formatDateRange = () => {
-    const today = new Date();
-    const seventhDay = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
-    
-    const formatOptions: Intl.DateTimeFormatOptions = {
-      month: 'short',
-      day: 'numeric'
-    };
-    
-    return `From ${today.toLocaleDateString('en-US', formatOptions)} to ${seventhDay.toLocaleDateString('en-US', formatOptions)}`;
   };
 
   const getItemIconWithBackground = (type: string) => {
@@ -95,17 +77,14 @@ const WhatsNextCard = ({ upcomingItems }: WhatsNextCardProps) => {
   };
 
   return (
-    <Card className="shadow-4dp">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-xl">What's Next?</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {formatDateRange()}
-        </p>
-      </CardHeader>
-      <CardContent className="pt-0">
-        {upcomingItems.length > 0 ? (
-          <div className="space-y-4">
-            {displayedItems.map((item, index) => (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[85vh]">
+        <DialogHeader>
+          <DialogTitle>All Upcoming Items</DialogTitle>
+        </DialogHeader>
+        <ScrollArea className="h-[60vh]">
+          <div className="space-y-4 p-1">
+            {upcomingItems.map((item, index) => (
               <div key={item.id}>
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 mt-1">
@@ -135,39 +114,16 @@ const WhatsNextCard = ({ upcomingItems }: WhatsNextCardProps) => {
                     </div>
                   </div>
                 </div>
-                {index < displayedItems.length - 1 && (
+                {index < upcomingItems.length - 1 && (
                   <div className="border-t border-border mt-4"></div>
                 )}
               </div>
             ))}
-            {hasMoreItems && (
-              <div className="mt-4 pt-4 border-t border-border">
-                <Button 
-                  variant="link" 
-                  className="w-full text-primary p-0 h-auto"
-                  onClick={() => setIsViewAllModalOpen(true)}
-                >
-                  View All Upcoming Items ({upcomingItems.length})
-                </Button>
-              </div>
-            )}
           </div>
-        ) : (
-          <div className="text-center py-8">
-            <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No upcoming items</p>
-          </div>
-        )}
-      </CardContent>
-      
-      {/* View All Modal */}
-      <ViewAllUpcomingModal
-        isOpen={isViewAllModalOpen}
-        onClose={() => setIsViewAllModalOpen(false)}
-        upcomingItems={upcomingItems}
-      />
-    </Card>
+        </ScrollArea>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default WhatsNextCard;
+export default ViewAllUpcomingModal; 
