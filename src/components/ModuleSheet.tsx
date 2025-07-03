@@ -54,7 +54,7 @@ const ModuleSheet = ({
           Course Modules
         </Button>
       </SheetTrigger>
-      <SheetContent side="bottom" className="h-[80vh] bg-white">
+      <SheetContent side="bottom" className="h-[80vh]">
         <SheetHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
           <div className="text-left">
             <SheetTitle className="text-lg">Course Curriculum</SheetTitle>

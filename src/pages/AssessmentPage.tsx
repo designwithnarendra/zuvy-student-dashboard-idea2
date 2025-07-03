@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useTheme } from "@/lib/ThemeProvider";
 import AssessmentInstructions from "@/components/AssessmentInstructions";
 import AssessmentExitWarningModal from "@/components/AssessmentExitWarningModal";
 import ViolationModal from "@/components/ViolationModal";
@@ -9,6 +10,7 @@ const AssessmentPage = () => {
   const { courseId, moduleId, assessmentId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { lockTheme, unlockTheme } = useTheme();
   const [assessmentData, setAssessmentData] = useState<any>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [violationCount, setViolationCount] = useState(0);
@@ -113,6 +115,9 @@ const AssessmentPage = () => {
   // Fullscreen management and proctoring
   useEffect(() => {
     if (!isViewMode && assessmentData) {
+      // Lock theme during assessment to prevent accidental changes
+      lockTheme();
+      
       // Enter fullscreen when assessment starts (non-view mode)
       const enterFullscreen = async () => {
         try {
@@ -127,6 +132,13 @@ const AssessmentPage = () => {
 
       enterFullscreen();
     }
+
+    // Cleanup function to unlock theme when leaving assessment
+    return () => {
+      if (!isViewMode) {
+        unlockTheme();
+      }
+    };
 
     // Enhanced keyboard event monitoring for violations
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -216,6 +228,9 @@ const AssessmentPage = () => {
     autoSubmitted?: boolean; 
     violations?: number 
   }) => {
+    // Unlock theme when assessment ends
+    unlockTheme();
+    
     // Exit fullscreen before navigating
     if (document.fullscreenElement) {
       document.exitFullscreen().catch(() => {});

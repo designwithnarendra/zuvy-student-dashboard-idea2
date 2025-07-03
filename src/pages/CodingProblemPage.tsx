@@ -4,20 +4,25 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTheme } from "@/lib/ThemeProvider";
 import { mockCourses } from "@/lib/mockData";
 import CodingSubmissionModal from "@/components/CodingSubmissionModal";
 
 const CodingProblemPage = () => {
   const { itemId } = useParams();
   const navigate = useNavigate();
+  const { lockTheme, unlockTheme } = useTheme();
   const [code, setCode] = useState('// Write your solution here\nfunction maxSubarraySum(nums) {\n    // Your code here\n    return 0;\n}\n');
   const [output, setOutput] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
   const [problemData, setProblemData] = useState<any>(null);
 
-  // Load problem data
+  // Load problem data and lock theme
   useEffect(() => {
+    // Lock theme during coding challenge to prevent accidental changes
+    lockTheme();
+    
     // Find the problem in mock data
     for (const course of mockCourses) {
       for (const module of course.modules) {
@@ -34,7 +39,12 @@ const CodingProblemPage = () => {
         }
       }
     }
-  }, [itemId]);
+
+    // Cleanup function to unlock theme when leaving coding challenge
+    return () => {
+      unlockTheme();
+    };
+  }, [itemId, lockTheme, unlockTheme]);
 
   const handleRunCode = () => {
     // Simulate code execution
@@ -62,6 +72,7 @@ const CodingProblemPage = () => {
   };
 
   const handleReturnToCourse = () => {
+    unlockTheme(); // Unlock theme before navigating away
     setShowSubmissionModal(false);
     if (problemData) {
       navigate(`/course/${problemData.courseId}/module/${problemData.moduleId}`);
@@ -71,6 +82,7 @@ const CodingProblemPage = () => {
   };
 
   const handleBack = () => {
+    unlockTheme(); // Unlock theme before navigating away
     if (problemData) {
       navigate(`/course/${problemData.courseId}/module/${problemData.moduleId}`);
     } else {

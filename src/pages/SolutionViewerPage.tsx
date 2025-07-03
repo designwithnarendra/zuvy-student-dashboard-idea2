@@ -4,15 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { X, Check, AlertCircle } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTheme } from "@/lib/ThemeProvider";
 import { mockCourses } from "@/lib/mockData";
 
 const SolutionViewerPage = () => {
   const { itemId } = useParams();
   const navigate = useNavigate();
+  const { lockTheme, unlockTheme } = useTheme();
   const [problemData, setProblemData] = useState<any>(null);
 
-  // Load problem data
+  // Load problem data and lock theme
   useEffect(() => {
+    // Lock theme during solution viewing for consistency
+    lockTheme();
+    
     // Find the problem in mock data
     for (const course of mockCourses) {
       for (const module of course.modules) {
@@ -29,9 +34,15 @@ const SolutionViewerPage = () => {
         }
       }
     }
-  }, [itemId]);
+
+    // Cleanup function to unlock theme when leaving solution viewer
+    return () => {
+      unlockTheme();
+    };
+  }, [itemId, lockTheme, unlockTheme]);
 
   const handleBack = () => {
+    unlockTheme(); // Unlock theme before navigating away
     if (problemData) {
       navigate(`/course/${problemData.courseId}/module/${problemData.moduleId}`);
     } else {

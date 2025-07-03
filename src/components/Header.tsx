@@ -2,20 +2,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Moon, Sun } from "lucide-react";
-import { useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useTheme } from "@/lib/ThemeProvider";
 import { mockCourses } from "@/lib/mockData";
 
 const Header = () => {
-  const [isDark, setIsDark] = useState(false);
+  const { theme, toggleTheme, isThemeLocked } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const { courseId } = useParams();
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-    document.documentElement.classList.toggle('dark');
-  };
 
   const handleLogoClick = () => {
     const enrolledCourses = mockCourses.filter(course => course.status === 'enrolled');
@@ -88,8 +83,10 @@ const Header = () => {
           size="sm"
           onClick={toggleTheme}
           className="w-9 h-9 p-0"
+          disabled={isThemeLocked}
+          title={isThemeLocked ? "Theme is locked during assessment" : "Toggle theme"}
         >
-          {isDark ? (
+          {theme === 'dark' ? (
             <Sun className="h-4 w-4" />
           ) : (
             <Moon className="h-4 w-4" />
