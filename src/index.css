@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -115,86 +114,88 @@
     --sidebar-ring: 224 71% 56%;
   }
 
-  /* Dark Mode Configuration - Maintains the neural theme while being easy on the eyes */
+  /* Dark Mode Configuration - Warm, comfortable dark theme */
   .dark {
-    /* Dark Base Colors - Sophisticated dark surfaces */
-    --background: 222.2 84% 4.9%;     /* Deep charcoal background reduces eye strain */
-    --foreground: 210 20% 98%;        /* Light text for excellent readability */
+    /* Dark Base Colors - Warm charcoal surfaces with neutral undertones */
+    --background: 210 11% 9%;          /* Warm charcoal background eliminates blue tint */
+    --foreground: 210 20% 92%;         /* Softer off-white text reduces eye strain */
     
-    /* Dark Card Colors - Elevated surfaces in dark mode */
-    --card: 224 15% 7%;               /* Slightly lighter than background for subtle elevation */
-    --card-light: 224 15% 6%;         /* Minimal elevation for subtle content grouping */
-    --card-elevated: 224 15% 8%;      /* More pronounced elevation for important cards */
-    --card-foreground: 210 20% 98%;   /* Light text maintains consistency */
+    /* Dark Card Colors - Enhanced elevation with warm undertones */
+    --card: 210 11% 13%;               /* Warm card background for clear elevation */
+    --card-light: 210 11% 11%;         /* Minimal elevation for subtle content grouping */
+    --card-elevated: 210 11% 15%;      /* More pronounced elevation for important cards */
+    --card-foreground: 210 20% 92%;    /* Consistent soft text color */
     
     /* Dark Popover Colors */
-    --popover: 222.2 84% 4.9%;        /* Consistent with other dark surfaces */
-    --popover-foreground: 210 20% 98%; /* Light text for readability */
+    --popover: 210 11% 9%;             /* Consistent with background */
+    --popover-foreground: 210 20% 92%; /* Soft text for readability */
     
-    /* Dark Primary Colors - Adjusted for dark backgrounds with variants */
-    --primary: 224 75% 65%;           /* Slightly lighter refined blue for better visibility on dark backgrounds */
-    --primary-light: 224 71% 20%;     /* Much lighter blue for subtle elements on dark backgrounds */
-    --primary-dark: 224 71% 48%;      /* Darker blue for depth and contrast on dark backgrounds */
-    --primary-foreground: 210 20% 98%; /* Light text maintains accessibility */
+    /* Dark Primary Colors - Adjusted for warm dark backgrounds */
+    --primary: 224 75% 65%;            /* Refined blue maintains visibility */
+    --primary-light: 224 71% 20%;      /* Subtle primary elements */
+    --primary-dark: 224 71% 48%;       /* Darker primary for contrast */
+    --primary-foreground: 210 20% 92%; /* Soft text maintains accessibility */
     
-    /* Dark Secondary Colors - Orange adjusted for dark mode with variants */
-    --secondary: 25 90% 63%;          /* Slightly brighter orange for visibility on dark backgrounds */
-    --secondary-light: 25 85% 20%;    /* Light orange that works well on dark surfaces */
-    --secondary-dark: 25 85% 47%;     /* Darker orange for emphasis on dark backgrounds */
-    --secondary-foreground: 222.2 84% 4.9%; /* Dark text on bright orange backgrounds */
+    /* Dark Secondary Colors - Orange adjusted for warm dark mode */
+    --secondary: 25 90% 63%;           /* Bright orange for visibility */
+    --secondary-light: 25 85% 20%;     /* Subtle orange accents */
+    --secondary-dark: 25 85% 47%;      /* Darker orange for emphasis */
+    --secondary-foreground: 210 11% 9%; /* Dark text on bright orange */
     
-    /* Dark Muted Colors - Subtle contrast in dark mode with variants */
-    --muted: 217.2 32.6% 17.5%;       /* Darker muted background */
-    --muted-light: 217.2 32.6% 22.5%; /* Slightly lighter muted for subtle elevation */
-    --muted-dark: 217.2 32.6% 12.5%;  /* Even darker muted for deeper backgrounds */
-    --muted-foreground: 215 20.2% 65.1%; /* Medium light gray for secondary text */
+    /* Dark Muted Colors - Improved contrast with warm undertones */
+    --muted: 210 11% 21%;              /* Warm muted background for better contrast */
+    --muted-light: 210 11% 25%;        /* Lighter muted for subtle elevation */
+    --muted-dark: 210 11% 17%;         /* Darker muted for depth */
+    --muted-foreground: 210 20% 72%;   /* Softer secondary text for readability */
     
-    /* Dark Accent Colors - Cyan maintains its energy in dark mode with variants */
-    --accent: 198 85% 58%;            /* Slightly brighter cyan for dark mode visibility */
-    --accent-light: 198 80% 20%;      /* Light cyan for subtle accents on dark backgrounds */
-    --accent-dark: 198 80% 42%;       /* Darker cyan for depth and emphasis */
-    --accent-foreground: 222.2 84% 4.9%; /* Dark text on bright accent */
+    /* Dark Accent Colors - Cyan maintains energy in warm dark mode */
+    --accent: 198 85% 58%;             /* Bright cyan for visibility */
+    --accent-light: 198 80% 20%;       /* Subtle cyan accents */
+    --accent-dark: 198 80% 42%;        /* Darker cyan for emphasis */
+    --accent-foreground: 210 11% 9%;   /* Dark text on bright accent */
     
-    /* Dark Destructive Colors - Error feedback that's clear but not harsh with variants */
-    --destructive: 0 62.8% 50%;       /* Adjusted red brightness for dark mode */
-    --destructive-light: 0 62.8% 20%; /* Light red for subtle error indicators */
-    --destructive-dark: 0 62.8% 35%;  /* Dark red for strong error emphasis */
-    --destructive-foreground: 210 20% 98%; /* Light text on error backgrounds */
+    /* Dark Destructive Colors - Error feedback with warm undertones */
+    --destructive: 0 62.8% 55%;        /* Slightly brighter red for visibility */
+    --destructive-light: 0 62.8% 20%;  /* Subtle error indicators */
+    --destructive-dark: 0 62.8% 40%;   /* Dark red for emphasis */
+    --destructive-foreground: 210 20% 92%; /* Soft text on error backgrounds */
     
-    /* Dark Border Colors - Subtle definition in dark mode */
-    --border: 217.2 32.6% 17.5%;      /* Dark borders that provide subtle separation */
-    --input: 217.2 32.6% 17.5%;       /* Input borders match other borders */
-    --ring: 224 75% 65%;              /* Refined primary blue focus ring with increased lightness for dark mode */
+    /* Dark Border Colors - Enhanced visibility with warm undertones */
+    --border: 210 11% 26%;             /* Warm borders for clear separation */
+    --input: 210 11% 26%;              /* Input borders match other borders */
+    --ring: 224 75% 65%;               /* Primary blue focus ring */
 
-    /* Success Colors - Adjusted for dark mode with variants */
-    --success: 160 84.1% 45%;          /* Slightly brighter green for dark mode visibility */
-    --success-light: 160 84.1% 20%;    /* Light green that works on dark backgrounds */
-    --success-dark: 160 84.1% 30%;     /* Darker green for emphasis on dark backgrounds */
-    --success-foreground: 0 0% 98%;    /* Light text maintains readability */
+    /* Success Colors - Adjusted for warm dark mode */
+    --success: 160 84.1% 50%;          /* Brighter green for visibility */
+    --success-light: 160 84.1% 20%;    /* Subtle success indicators */
+    --success-dark: 160 84.1% 35%;     /* Darker green for emphasis */
+    --success-foreground: 210 20% 92%; /* Soft text maintains readability */
     
-    /* Warning Colors - Adjusted for dark mode with variants */
-    --warning: 45.4 93.4% 55%;         /* Brighter amber for dark mode visibility */
-    --warning-light: 45.4 93.4% 20%;   /* Light amber for subtle elements on dark */
-    --warning-dark: 45.4 93.4% 40%;    /* Darker amber for emphasis */
-    --warning-foreground: 26 83.3% 14.1%; /* Dark text for contrast */
+    /* Warning Colors - Adjusted for warm dark mode */
+    --warning: 45.4 93.4% 58%;         /* Brighter amber for visibility */
+    --warning-light: 45.4 93.4% 20%;   /* Subtle warning elements */
+    --warning-dark: 45.4 93.4% 42%;    /* Darker amber for emphasis */
+    --warning-foreground: 210 11% 9%;  /* Dark text for contrast */
     
-    /* Info Colors - Adjusted for dark mode with variants */
-    --info: 198 85% 58%;               /* Brighter cyan for dark mode */
-    --info-light: 198 80% 20%;         /* Light cyan for subtle info elements */
+    /* Info Colors - Adjusted for warm dark mode */
+    --info: 198 85% 58%;               /* Bright cyan for visibility */
+    --info-light: 198 80% 20%;         /* Subtle info elements */
     --info-dark: 198 80% 42%;          /* Darker cyan for emphasis */
-    --info-foreground: 222.2 84% 4.9%; /* Dark text on bright info backgrounds */
+    --info-foreground: 210 11% 9%;     /* Dark text on bright info */
     
-    /* Progress Colors - Adjusted for dark mode */
-    --progress-bg: 224 71% 20%;        /* Darker primary background for progress containers */
-    --progress-fill: 224 75% 65%;      /* Refined primary blue with increased lightness for dark mode */
+    /* Progress Colors - Enhanced for warm dark mode */
+    --progress-bg: 210 11% 21%;        /* Warm progress container background */
+    --progress-fill: 224 75% 65%;      /* Primary blue progress fill */
+    --progress-label: 210 20% 92%;     /* Soft text for progress labels */
+    --progress-label-bg: 210 11% 15%;  /* Warm background for progress labels */
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-background: 210 11% 11%;
+    --sidebar-foreground: 210 20% 92%;
     --sidebar-primary: 224 71% 56%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-primary-foreground: 210 20% 92%;
+    --sidebar-accent: 210 11% 17%;
+    --sidebar-accent-foreground: 210 20% 92%;
+    --sidebar-border: 210 11% 26%;
     --sidebar-ring: 224 75% 65%;
   }
 }
@@ -243,6 +244,8 @@
 
   .progress-bg { background-color: hsl(var(--progress-bg)); }
   .progress-fill { background-color: hsl(var(--progress-fill)); }
+  .progress-label { color: hsl(var(--progress-label)); }
+  .progress-label-bg { background-color: hsl(var(--progress-label-bg)); }
 
   /* Add scrollbar hide utility */
   .scrollbar-hide {

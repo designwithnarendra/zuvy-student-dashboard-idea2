@@ -80,7 +80,7 @@ const CourseInfoBanner = ({ course }: CourseInfoBannerProps) => {
               style={{ width: `${course.progress}%` }}
             >
               <div 
-                className="absolute top-1/2 transform -translate-y-1/2 bg-white px-2 py-0.5 rounded shadow-sm border text-xs font-medium whitespace-nowrap"
+                className="absolute top-1/2 transform -translate-y-1/2 progress-label-bg progress-label px-2 py-0.5 rounded shadow-sm border text-xs font-medium whitespace-nowrap"
                 style={{ 
                   right: course.progress === 100 ? '0' : course.progress === 0 ? 'auto' : '-12px',
                   left: course.progress === 0 ? '0' : 'auto'
