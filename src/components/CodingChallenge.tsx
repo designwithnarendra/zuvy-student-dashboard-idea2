@@ -4,7 +4,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { X, CheckCircle, AlertTriangle } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import CodingChallengeSolutionModal from "./CodingChallengeSolutionModal";
+import CodeDisplayPanel from "./CodeDisplayPanel";
+import TestCaseResultCard from "./TestCaseResultCard";
+import SubmissionStatsCard from "./SubmissionStatsCard";
 
 interface CodingChallengeProps {
   challenge: {
@@ -17,6 +21,7 @@ interface CodingChallengeProps {
   onComplete: () => void;
   timeLeft: string;
   initialCode?: string; // Different starting code for each challenge
+  isViewMode?: boolean; // Added to handle view mode for completed challenges
 }
 
 const CodingChallenge = ({ 
@@ -25,13 +30,16 @@ const CodingChallenge = ({
   onBack, 
   onComplete, 
   timeLeft, 
-  initialCode = '// Write your solution here\n\n' 
+  initialCode = '// Write your solution here\n\n',
+  isViewMode = false
 }: CodingChallengeProps) => {
   const [code, setCode] = useState(initialCode);
   const [output, setOutput] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [language, setLanguage] = useState('javascript');
+  const [isSubmitted, setIsSubmitted] = useState(isViewMode);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSolutionModal, setShowSolutionModal] = useState(false);
+  const [showResultsView, setShowResultsView] = useState(isViewMode);
 
   // Check for existing submission on component mount
   useEffect(() => {
@@ -55,7 +63,6 @@ const CodingChallenge = ({
 
   const handleConfirmSubmit = () => {
     setShowConfirmModal(false);
-    setIsSubmitted(true);
     
     // Store submission in sessionStorage for persistence
     sessionStorage.setItem(`coding-challenge-${challengeIndex}`, JSON.stringify({
@@ -65,13 +72,16 @@ const CodingChallenge = ({
       testResults: { passed: 3, total: 3 } // Mock test results
     }));
     
-    setTimeout(() => {
-      onComplete();
-    }, 1000);
+    // Immediately return to assessment instructions
+    onComplete();
   };
 
   const handleViewSolution = () => {
-    setShowSolutionModal(true);
+    if (isViewMode) {
+      setShowResultsView(true);
+    } else {
+      setShowSolutionModal(true);
+    }
   };
 
   // Different problem descriptions for each challenge
@@ -134,9 +144,147 @@ function twoSum(nums, target) {
 
   const problemDescription = problemDescriptions[getNumericIndex(challengeIndex)] || problemDescriptions[0];
 
+  // Mock test cases for display
+  const testCases = [
+    { 
+      id: '1', 
+      status: 'passed' as 'passed' | 'failed', 
+      input: '[-2, 1, -3, 4, -1, 2, 1, -5, 4]', 
+      expectedOutput: '6', 
+      actualOutput: '6',
+      executionTime: 98,
+      memoryUsed: 7892
+    },
+    { 
+      id: '2', 
+      status: 'passed' as 'passed' | 'failed', 
+      input: '[1]', 
+      expectedOutput: '1', 
+      actualOutput: '1',
+      executionTime: 45,
+      memoryUsed: 6124
+    },
+    { 
+      id: '3', 
+      status: 'passed' as 'passed' | 'failed', 
+      input: '[5, 4, -1, 7, 8]', 
+      expectedOutput: '23', 
+      actualOutput: '23',
+      executionTime: 127,
+      memoryUsed: 8456
+    }
+  ];
+
+  const solutionCode = 
+    getNumericIndex(challengeIndex) === 0 ? 
+    `function maxSubarraySum(nums) {
+  let maxSum = nums[0];
+  let currentSum = nums[0];
+  
+  for (let i = 1; i < nums.length; i++) {
+    currentSum = Math.max(nums[i], currentSum + nums[i]);
+    maxSum = Math.max(maxSum, currentSum);
+  }
+  
+  return maxSum;
+}` : 
+    getNumericIndex(challengeIndex) === 1 ?
+    `function isPalindrome(s) {
+  // Remove non-alphanumeric characters and convert to lowercase
+  s = s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  
+  // Compare the string with its reverse
+  return s === s.split('').reverse().join('');
+}` :
+    `function twoSum(nums, target) {
+  const map = new Map();
+  
+  for (let i = 0; i < nums.length; i++) {
+    const complement = target - nums[i];
+    
+    if (map.has(complement)) {
+      return [map.get(complement), i];
+    }
+    
+    map.set(nums[i], i);
+  }
+  
+  return [];
+}`;
+
+  // If in view mode and showing results, render the results page
+  if (isViewMode && showResultsView) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="flex items-center justify-between p-4 border-b">
+          <Button variant="ghost" size="icon" onClick={onBack}>
+            <X className="w-5 h-5" />
+          </Button>
+          <h1 className="text-xl font-semibold">Coding Challenge Results</h1>
+          <div className="w-10"></div> {/* Spacer for balance */}
+        </header>
+
+        <div className="container mx-auto p-6 max-w-7xl">
+          {/* Challenge Info */}
+          <div className="mb-6">
+            <h2 className="text-2xl font-heading font-bold mb-2">{challenge.title}</h2>
+            <div className="flex gap-2 mb-4">
+              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                challenge.difficulty === 'Easy' ? 'bg-success-light text-success' :
+                challenge.difficulty === 'Medium' ? 'bg-warning-light text-black' :
+                'bg-destructive-light text-destructive'
+              }`}>
+                {challenge.difficulty}
+              </span>
+              <span className="px-2 py-1 rounded text-xs font-medium bg-muted text-muted-foreground">
+                {challenge.marks} marks
+              </span>
+            </div>
+          </div>
+
+          {/* Metrics Cards */}
+          <SubmissionStatsCard 
+            testResults={{ passed: 3, total: 3 }}
+            memoryUsage="48.8 KB"
+            executionTime="0.45ms"
+          />
+
+          {/* Two-Column Layout: Student Code (Left) + Test Results (Right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-300px)]">
+            {/* Student Code - Left Column */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Your Solution</h3>
+              <div className="h-full">
+                <CodeDisplayPanel 
+                  code={solutionCode}
+                  language="javascript"
+                  title="Solution Implementation"
+                />
+              </div>
+            </div>
+
+            {/* Test Results - Right Column */}
+            <div className="space-y-4">
+              <h3 className="text-xl font-semibold">Test Results</h3>
+              <div className="h-[calc(100vh-380px)] overflow-y-auto space-y-4">
+                {testCases.map((testCase, index) => (
+                  <TestCaseResultCard 
+                    key={testCase.id}
+                    testCase={testCase}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <header className="w-full flex items-center justify-between p-4 border-b">
+      <header className="flex items-center justify-between p-4 border-b">
         <Button variant="ghost" size="icon" onClick={onBack}>
           <X className="w-5 h-5" />
         </Button>
@@ -144,20 +292,6 @@ function twoSum(nums, target) {
           {isSubmitted ? 'Submitted' : timeLeft}
         </div>
       </header>
-
-      {isSubmitted && (
-        <div className="bg-success-light border-b border-success p-4">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-success" />
-              <p className="font-semibold text-success">Challenge Submitted Successfully!</p>
-            </div>
-            <Button onClick={handleViewSolution} variant="outline" size="sm" className="text-success border-success">
-              View Solution
-            </Button>
-          </div>
-        </div>
-      )}
 
       <div className="flex h-[calc(100vh-80px)]">
         <div className="w-1/2 p-6 border-r overflow-y-auto">
@@ -187,7 +321,30 @@ function twoSum(nums, target) {
         <div className="w-1/2 flex flex-col">
           <div className="flex-1 p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Code Editor</h2>
+              <div className="flex items-center gap-4">
+                <h2 className="text-lg font-semibold">Code Editor</h2>
+                <Select value={language} onValueChange={setLanguage} disabled={isSubmitted}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="javascript">JavaScript</SelectItem>
+                    <SelectItem value="python">Python</SelectItem>
+                    <SelectItem value="java">Java</SelectItem>
+                    <SelectItem value="cpp">C++</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button variant="secondary" onClick={handleRunCode} disabled={isSubmitted}>
+                  Run Code
+                </Button>
+                {!isSubmitted && (
+                  <Button onClick={handleSubmit}>
+                    Submit
+                  </Button>
+                )}
+              </div>
             </div>
             
             <Textarea
@@ -197,17 +354,6 @@ function twoSum(nums, target) {
               placeholder="Write your code here..."
               disabled={isSubmitted}
             />
-            
-            <div className="flex justify-between mt-4">
-              <Button onClick={handleRunCode} disabled={isSubmitted}>
-                Run Code
-              </Button>
-              {!isSubmitted && (
-                <Button onClick={handleSubmit}>
-                  Submit
-                </Button>
-              )}
-            </div>
           </div>
 
           <div className="h-32 p-6 border-t bg-muted/20">
@@ -248,30 +394,26 @@ function twoSum(nums, target) {
                 </ul>
               </div>
             </div>
+            
+            <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-2">
+              <Button variant="outline" className="sm:w-1/2" onClick={() => setShowConfirmModal(false)}>
+                Cancel
+              </Button>
+              <Button className="sm:w-1/2" onClick={handleConfirmSubmit}>
+                Confirm Submission
+              </Button>
+            </DialogFooter>
           </div>
-          
-          <DialogFooter className="flex gap-3">
-            <Button variant="outline" onClick={() => setShowConfirmModal(false)} className="flex-1">
-              Review Code
-            </Button>
-            <Button onClick={handleConfirmSubmit} className="flex-1">
-              Submit Solution
-            </Button>
-          </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Solution Modal */}
-      {isSubmitted && (
-        <CodingChallengeSolutionModal
-          isOpen={showSolutionModal}
-          onClose={() => setShowSolutionModal(false)}
-          challenge={challenge}
-          challengeIndex={getNumericIndex(challengeIndex)}
-          submittedCode={code}
-          testResults={{ passed: 3, total: 3 }}
-        />
-      )}
+      {/* Solution Modal - only used for non-view mode */}
+      <CodingChallengeSolutionModal
+        isOpen={showSolutionModal}
+        onClose={() => setShowSolutionModal(false)}
+        challenge={challenge}
+        solutionCode={solutionCode}
+      />
     </div>
   );
 };

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { X, CheckCircle } from "lucide-react";
+import { formatDateTime } from "@/lib/utils";
 
 interface OpenEndedQuestionsProps {
   onBack: () => void;
@@ -97,7 +98,7 @@ const OpenEndedQuestions = ({ onBack, onComplete, timeLeft, isViewMode = false, 
                 Your answers have been recorded and will be reviewed by the instructor.
               </p>
               <p className="text-sm text-success">
-                Submitted on: {new Date(JSON.parse(sessionStorage.getItem(`open-ended-${questionsId}`) || '{}').submissionTime || new Date()).toLocaleString()}
+                Submitted on: {formatDateTime(new Date(JSON.parse(sessionStorage.getItem(`open-ended-${questionsId}`) || '{}').submissionTime || new Date()))}
               </p>
             </CardContent>
           </Card>

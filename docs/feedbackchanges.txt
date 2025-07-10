@@ -1,0 +1,149 @@
+
+Overall Changes
+
+- Remove the avatar from the header on the top right. 
+- Replace it with a logout icon. Highlight it in destructive color background on hover and clicking it takes to the login page
+
+Student Dashboard
+- Course image width to be increased to 96px by 96px. Even if the image is rectangle or in other proportion than square, make it fit properly in the frame without getting distorted
+- Increase the description length two lines in full stack web development course and end with “…” to indicate there is more. Actual description will be 5 lines
+- Remove the instructor avatar. Instead, make it “Instructor: {Instructor Name}. This applies to all courses
+Course Dashboard Overall Changes
+- Course content modules or project can be remain locked if the setting for the course is such that modules open only when previous module has been completed. Let simulate this in the Android Development with Kotlin course. Add two modules for it in mock data. Do not add the live classes, assignments, projects and assessments. I want to keep the What’s Next and Attendance cards in empty state. 
+- Make the first module in progress with some learning items. Second module will remain locked with lock icon with Locked text to the top right instead of a CTA
+Course information banner
+- Course image width to be increased to 96px by 96px. Even if the image is rectangle or in other proportion than square, make it fit properly in the frame without getting distorted
+- Increase the description length two lines in full stack web development course and end with “View More” button to indicate there is more. Actual description will be 5 lines and clicking on View More reveals full description
+- Remove the instructor avatar. Instead, make it “Instructor: {Instructor Name}. This applies to all courses
+
+Course content
+- The status chip of completed or current module should not have a hover state
+- Move the project “Not Submitted” or “Submitted” status on the top left like the modules
+
+What’s Next
+- Show only 3 items on the card
+- For more items show them in the modal on clicking “ View All Upcoming Items” button
+- If there are no upcoming items, then show an empty state with an icon and “No Upcoming Items” text
+- Don’t show the “View All Upcoming Items” button if there are only 3 items to show
+- Hide the scroll bar in the modal
+
+Attendance
+- If no classes have happened yet, we need to show an empty state similar to the What’s Next section. It should have an attendance related icon and say “Classes are yet to start”
+- “View Full Attendance” should be visible only when more than 4 classes have happened. Until 3 classes don’t show it
+- Show a recording icon next to the status for a class. This links to the live class learning item on the module content page. Keep the icon in primary color
+- Attendance modal: Change the font for the class name to Manrope in body 18px bold rather than heading font
+- Hide the scroll bar in the modal
+
+
+Course Syllabus
+- Make the course info card same as in the course dashboard page stretching full width of the screen in white background
+- Add a "Back" button to go back to course dashboard above the course image and course name to the top left. Make it a proper button of 48px height even if text button
+- Topic names in modules are in much larger font size. Make them body text size (18px) and in bold
+- Link the learning items with their corresponding page. Clicking any learning will open up the learning item in the module’s content page
+- If a module is locked like in Android Development with Kotlin course, show a lock icon with Locked text on the right of top right of the module or project card. Learning items in this case will not be clickable
+
+Module Content Overall Changes
+- Remove the back and next bottom navigation
+
+Live Class
+- Change background color of Scheduled status to muted light
+- For live and completed status, change the background color to success light and text and border will be in success color
+- Duration is changed to “Your Attendance Duration” which means the time for which the students was in the class. Remove it when class hasn’t happened yet
+- Date and time format for scheduled date should be like DD Month YYYY at HH:MM (AM or PM)
+
+Video
+- Change background color of “Not Watched” status to muted light
+- For “Watched” status, change the background color to success light and text and border will be in success color
+- Watched status is set when the video has been watched at least 70%. For now, it is counted even if fast forwarded
+
+Article
+- Change background color of “To be Read” status to muted light
+- For “Read” status, change the background color to success light and text and border will be in success color
+
+Assignment
+- Error on clicking submit button should be shown just below the text field and not below the submit button
+- Change background color of “Not Submitted” status to muted light
+- For “Submitted” status, change the background color to success light and text and border will be in success color
+
+Quiz
+- Change background color of “Not Submitted” status to muted light
+- For “Submitted” status, change the background color to success light and text and border will be in success color
+- Change the question text to regular font style. Question number can remain in bold
+- Change CTA label to “Submit Quiz”
+- Add a chip status “Correct” or “Incorrect” to the right aligned with the question text depending on the answer
+
+Feedback form
+- Change background color of “Not Submitted” status to muted light
+- For “Submitted” status, change the background color to success light and text and border will be in success color
+- Change the question text to regular font style. Question number can remain in bold
+- Change CTA label to “Submit Feedback”
+- For time question, remove the clock icon on the right side. Bring the outside clock icon on the inside. Hug the field with the content. Whole field is clickable and open the time widget
+
+Coding Problem
+- There is no point system for coding problem. Remove the marks
+- Change the status to not submitted/submitted instead of attempted. Background color of “Not Submitted” status will be muted light
+- For “Submitted” status, change the background color to success light and text and border will be in success color
+- When in submitted state, center align the text to the card which shows, problem submitted and no of test cases and submission time. Put no of test cases passes and submission time in the same line with about 48px gap between them. CTA should be “View Results” instead of “View Solution”
+
+Inside the coding problem - Compiler page
+- Remove the marks from the description as there is no marks for coding problem
+- Remove the coding challenge text on the top right
+- Move the “Run Code” and “Submit” buttons to the top right with 24px gap between them
+- Change the “Run Code” color to secondary
+- Ask for a confirmation to submit the code similar to how it is in assessment for coding challenges
+
+View Results (previously “View solution” for Coding problem)
+- Make it so that some test cases pass and some test cases fail. Let’s do it 3 pass test cases and 3 failed test cases
+- Remove the top card with test case status and try again and return to module buttons
+- Remove the test passed chip component on the top right of the header
+- Remove the problem description
+- Show the student’s code on the left side and the test cases outcomes on the right side
+- Keep the metric cards and student’s submitted code card fixed in place while the test case outcomes can scroll. Show 3 test cases in passed state and 3 test cases in failed state as we have discussed before
+- Passed status should have background in success light color and the text and border in success color
+- Failed status should have background in destructive light color and the text and border in destructive color
+
+Assessments Overall change
+- Change background color of “Not Submitted” status to muted light
+- For “Submitted” status, change the background color to success light and text and border will be in success color
+- Date format anywhere will be DD Month YYYY
+
+DOM Concepts Assessment
+- For card below the description, change the background color to info light and border to info 
+- The main text to h6
+
+Inside assessment instructions page
+- Remove the assessment name from the header center
+- Move the time remaining clock to the right in the header
+- Remove the start date in the strip below the header
+- Add muted light background color to the marks status chip in all the questions 
+- Upon completion of any question in any category, show a “Submitted” status replacing the completed status. View Solution or View Answers CTA is not needed at this point. No need to see the results screen at this point
+- User has to at most complete one question from each category to be able to submit the assessment
+- Make the compiler and quiz interface similar to the respective interface from coding problems and quiz as per changes outlined before for those sections
+- Add a separator after the questions and before the “Submit Assessment” button so it does not look like the CTA for the last question. Also, add a counter for each of the three question categories in the same row which have been submitted before the submission button.
+
+JavaScript Fundamentals Assessment
+- Add border in success color to the card below the description
+- “View Results” should be in solid success color
+- On results view of the assessment instructions page, change “View Solution” CTA to “View Results” CTA. It should the page similar to the coding problem view results page
+- Show the card shown below description on content page for assessment here in the assessment instructions results view just below the proctoring rules section in the same style
+
+Event Handling Assessment
+- Add border in destructive color to the card below the description
+- “View Results” should be in solid destructive color
+- Show the card shown below description on content page for assessment here in the assessment instructions results view just below the proctoring rules section in the same style
+
+DOM Manipulation Final Test
+- For card below the description, change the background color to destructive light and border to destructive 
+- The top line text to h6. Bottom text can be in body text
+
+JavaScript Advanced Concepts
+- Interrupted status: Change background color to warning light and text to regular foreground color
+- For card below the description, change the background color to info light and border to info 
+- The main text to h6
+
+React Advanced Patterns Assessment
+- Start date and end date should also have time
+- For card below the description, change the background color to info light and border to info 
+- The top line text to h6
+- “Scheduled for” should be in body text size
+- Remove the faint rectangle background under the “Starts in 2 days” text. Just the text is fine and it should be in body text size in bold

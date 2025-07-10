@@ -5,7 +5,6 @@ import { mockCourses, Module, TopicItem } from "@/lib/mockData";
 import Header from "@/components/Header";
 import ModuleSidebar from "@/components/ModuleSidebar";
 import ModuleContentRenderer from "@/components/ModuleContentRenderer";
-import ModuleNavigation from "@/components/ModuleNavigation";
 import MobileSidebar from "@/components/MobileSidebar";
 
 // Navigation State Types
@@ -377,7 +376,7 @@ const ModuleContentPage = () => {
     return moduleState.items[itemId] || null;
   };
 
-  // Assessment data mapping with fixed state logic
+  // Assessment data mapping with fixed state logic and specific styling
   const getAssessmentData = (itemId: string) => {
     const sessionItem = getItemWithSessionState(itemId);
     
@@ -386,76 +385,110 @@ const ModuleContentPage = () => {
         id: 'dom-concepts-assessment',
         title: 'DOM Concepts Assessment',
         description: 'This assessment covers DOM manipulation, event handling, and interactive web development concepts. Complete coding problems, MCQ quiz, and open-ended questions.',
-        startDate: new Date(),
-        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        startDate: new Date('2024-11-15T09:00:00'),
+        endDate: new Date('2024-11-22T23:59:00'),
         duration: '2 hours',
         totalMarks: 100,
         passScore: 60,
         state: 'open',
-        attemptStatus: 'Not Attempted'
+        attemptStatus: 'Not Attempted',
+        styling: {
+          backgroundColor: 'bg-info-light',
+          textStyle: 'font-semibold',
+          borderColor: 'border-info',
+          ctaStyle: 'bg-primary text-primary-foreground hover:bg-primary/90'
+        }
       },
       'high-score-assessment': {
         id: 'high-score-assessment',
         title: 'JavaScript Fundamentals Assessment',
         description: 'Comprehensive assessment covering JavaScript basics, data types, functions, and control structures.',
-        startDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        startDate: new Date('2024-11-10T09:00:00'),
+        endDate: new Date('2024-11-15T23:59:00'),
         duration: '90 minutes',
         totalMarks: 100,
         passScore: 60,
         state: 'completed',
         score: 85,
-        attemptStatus: 'Attempted'
+        attemptStatus: 'Attempted',
+        styling: {
+          borderColor: 'border-success',
+          ctaStyle: 'bg-success text-white hover:bg-success/90'
+        }
       },
       'low-score-assessment': {
         id: 'low-score-assessment',
         title: 'Event Handling Assessment',
         description: 'Assessment focusing on event handling, user interactions, and dynamic content updates.',
-        startDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        startDate: new Date('2024-11-12T14:30:00'),
+        endDate: new Date('2024-11-17T23:59:00'),
         duration: '75 minutes',
         totalMarks: 100,
         passScore: 60,
         state: 'completed',
         score: 45,
-        attemptStatus: 'Attempted'
+        attemptStatus: 'Attempted',
+        styling: {
+          borderColor: 'border-destructive',
+          ctaStyle: 'bg-destructive text-white hover:bg-destructive/90'
+        }
       },
       'expired-assessment': {
         id: 'expired-assessment',
         title: 'DOM Manipulation Final Test',
         description: 'Final comprehensive assessment covering all DOM manipulation concepts and techniques.',
-        startDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+        startDate: new Date('2024-11-05T10:00:00'),
+        endDate: new Date('2024-11-12T23:59:00'),
         duration: '3 hours',
-        totalMarks: 150,
+        totalMarks: 100,
         passScore: 60,
         state: 'expired',
-        attemptStatus: 'Not Attempted'
+        attemptStatus: 'Not Attempted',
+        styling: {
+          backgroundColor: 'bg-destructive-light',
+          textStyle: 'text-sm',
+          borderColor: 'border-destructive'
+        }
       },
       'scheduled-assessment': {
         id: 'scheduled-assessment',
         title: 'JavaScript Advanced Concepts',
         description: 'This assessment will demonstrate the re-attempt flow and complete assessment experience.',
-        startDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        startDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 9 * 60 * 60 * 1000),
+        endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000 + 23 * 60 * 60 * 1000),
         duration: '2 hours',
         totalMarks: 100,
         passScore: 60,
-        state: 'interrupted', // Start with interrupted state to show re-attempt flow
-        score: 35, // Failed score to show re-attempt option
-        attemptStatus: 'Interrupted'
+        state: 'interrupted',
+        attemptStatus: 'Interrupted',
+        styling: {
+          backgroundColor: 'bg-warning-light',
+          borderColor: 'border-warning',
+          textColor: 'text-black',
+          ctaStyle: 'bg-warning text-black hover:bg-warning/90'
+        }
       },
       'static-scheduled-assessment': {
         id: 'static-scheduled-assessment',
         title: 'React Advanced Patterns Assessment',
         description: 'Assessment on advanced React patterns, hooks, and performance optimization.',
-        startDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-        endDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+        startDate: new Date('2024-11-18T09:00:00'),
+        endDate: new Date('2024-11-20T23:59:00'),
         duration: '90 minutes',
         totalMarks: 100,
         passScore: 60,
         state: 'scheduled',
-        attemptStatus: 'Not Attempted'
+        attemptStatus: 'Not Attempted',
+        styling: {
+          backgroundColor: 'bg-info-light',
+          borderColor: 'border-info',
+          textStyle: 'font-semibold',
+          textColor: 'text-info',
+          topLineStyle: '', // Remove "Assessment Scheduled" text
+          scheduledForStyle: 'font-semibold text-info',
+          startsInStyle: 'text-base font-bold',
+          removeBackgroundFromTimer: true
+        }
       }
     };
     
@@ -510,11 +543,6 @@ const ModuleContentPage = () => {
     });
     return items;
   };
-
-  const allItems = getAllItems();
-  const currentIndex = allItems.findIndex(({ item }) => item.id === selectedItem);
-  const prevItem = currentIndex > 0 ? allItems[currentIndex - 1] : null;
-  const nextItem = currentIndex < allItems.length - 1 ? allItems[currentIndex + 1] : null;
 
   const handleItemSelect = (itemId: string) => {
     setSelectedItem(itemId);
@@ -630,7 +658,7 @@ const ModuleContentPage = () => {
         )}
 
         <div className={`flex-1 ${!isMobile ? 'ml-80' : ''} flex flex-col`}>
-          <div className="flex-1 overflow-y-auto pb-20">
+          <div className="flex-1 overflow-y-auto">
             <ModuleContentRenderer
               selectedItemData={selectedItemData}
               getAssessmentData={getAssessmentData}
@@ -649,12 +677,6 @@ const ModuleContentPage = () => {
               }}
             />
           </div>
-          
-          <ModuleNavigation
-            prevItem={prevItem}
-            nextItem={nextItem}
-            onItemSelect={handleItemSelect}
-          />
         </div>
       </div>
 
@@ -662,8 +684,6 @@ const ModuleContentPage = () => {
         <MobileSidebar
           isOpen={isSheetOpen}
           onOpenChange={setIsSheetOpen}
-          prevItem={prevItem}
-          nextItem={nextItem}
           onItemSelect={handleItemSelect}
         >
           <ModuleSidebar

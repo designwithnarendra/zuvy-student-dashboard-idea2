@@ -77,6 +77,8 @@ export interface Module {
   id: string;
   name: string;
   topics: Topic[];
+  isLocked?: boolean;
+  lockReason?: string;
 }
 
 export interface Topic {
@@ -109,6 +111,19 @@ export interface TopicItem {
   submissionState?: 'not-started' | 'in-progress' | 'submitted';
   submissionTime?: string;
   submittedCode?: string;
+  // Assessment-specific properties
+  categoriesCompleted?: { mcq: number; openEnded: number; codingProblems: number };
+  totalCategories?: { mcq: number; openEnded: number; codingProblems: number };
+  // Video-specific properties  
+  watchedPercentage?: number;
+  // Live class attendance duration
+  attendanceDuration?: string;
+  // Quiz correctness tracking
+  correctAnswers?: number;
+  totalQuestions?: number;
+  // Coding problem metrics
+  memoryUsage?: string;
+  executionTime?: string;
 }
 
 // Mock Data
@@ -123,7 +138,7 @@ export const mockCourses: Course[] = [
   {
     id: "1",
     name: "Full Stack JavaScript Development",
-    description: "Master modern web development with React, Node.js, and MongoDB",
+    description: "Master modern web development with React, Node.js, and MongoDB. Learn to build complete web applications from frontend to backend, including database design, API development, user authentication, and deployment strategies. Gain hands-on experience with industry-standard tools and frameworks while building real-world projects that demonstrate your full-stack development capabilities.",
     instructor: {
       name: "Dr. Sarah Chen",
       avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b5c5?w=150&h=150&fit=crop&crop=face"
@@ -374,9 +389,10 @@ export const mockCourses: Course[] = [
                 id: "1-1-2",
                 type: 'video',
                 title: "Installing Node.js and npm",
-                status: 'completed',
+                status: 'watched',
                 duration: "15 min",
-                videoUrl: "https://youtu.be/DrAZf4ZHqaM?si=jcWByRHmXDKXwKkb"
+                videoUrl: "https://youtu.be/DrAZf4ZHqaM?si=jcWByRHmXDKXwKkb",
+                watchedPercentage: 85
               },
               {
                 id: "1-1-3",
@@ -429,9 +445,10 @@ export const mockCourses: Course[] = [
                 id: "2-1-3",
                 type: 'video',
                 title: "Visualizing the DOM tree",
-                status: 'not-started',
+                status: 'in-progress',
                 duration: "15 min",
-                videoUrl: "https://youtu.be/DrAZf4ZHqaM?si=jcWByRHmXDKXwKkb"
+                videoUrl: "https://youtu.be/DrAZf4ZHqaM?si=jcWByRHmXDKXwKkb",
+                watchedPercentage: 45
               },
               {
                 id: "2-1-4",
@@ -466,11 +483,13 @@ export const mockCourses: Course[] = [
                 id: "coding-problem-1",
                 type: 'coding-problem',
                 title: 'Array Manipulation Challenge',
-                status: 'not-started',
+                status: 'submitted',
                 description: 'Practice array manipulation techniques with this coding problem.',
                 difficulty: 'Medium',
-                marks: 25,
-                totalTestCases: 5
+                totalTestCases: 6,
+                testCasesPassed: 3,
+                submissionTime: '2024-11-14T15:30:00',
+                submittedCode: 'function arrayManipulation(arr) {\n  return arr.map(x => x * 2).filter(x => x > 10);\n}'
               }
             ]
           },
@@ -487,7 +506,9 @@ export const mockCourses: Course[] = [
                 description: 'This assessment covers DOM manipulation, event handling, and interactive web development concepts. Complete coding problems, MCQ quiz, and open-ended questions.',
                 scheduledDateTime: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1 hour from now
                 endDateTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-                duration: '2 hours'
+                duration: '2 hours',
+                categoriesCompleted: { mcq: 2, openEnded: 1, codingProblems: 0 },
+                totalCategories: { mcq: 5, openEnded: 3, codingProblems: 2 }
               },
               {
                 id: "high-score-assessment",
@@ -495,9 +516,11 @@ export const mockCourses: Course[] = [
                 title: 'JavaScript Fundamentals Assessment',
                 status: 'completed',
                 description: 'Comprehensive assessment covering JavaScript basics, data types, functions, and control structures.',
-                scheduledDateTime: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-                endDateTime: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-                duration: '90 minutes'
+                scheduledDateTime: new Date('2024-11-10T09:00:00'),
+                endDateTime: new Date('2024-11-15T23:59:00'),
+                duration: '90 minutes',
+                categoriesCompleted: { mcq: 8, openEnded: 4, codingProblems: 3 },
+                totalCategories: { mcq: 8, openEnded: 4, codingProblems: 3 }
               },
               {
                 id: "low-score-assessment",
@@ -505,9 +528,11 @@ export const mockCourses: Course[] = [
                 title: 'Event Handling Assessment',
                 status: 'completed',
                 description: 'Assessment focusing on event handling, user interactions, and dynamic content updates.',
-                scheduledDateTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-                endDateTime: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-                duration: '75 minutes'
+                scheduledDateTime: new Date('2024-11-12T14:30:00'),
+                endDateTime: new Date('2024-11-17T23:59:00'),
+                duration: '75 minutes',
+                categoriesCompleted: { mcq: 6, openEnded: 2, codingProblems: 2 },
+                totalCategories: { mcq: 6, openEnded: 2, codingProblems: 2 }
               },
               {
                 id: "expired-assessment",
@@ -515,9 +540,11 @@ export const mockCourses: Course[] = [
                 title: 'DOM Manipulation Final Test',
                 status: 'not-started',
                 description: 'Final comprehensive assessment covering all DOM manipulation concepts and techniques.',
-                scheduledDateTime: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-                endDateTime: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-                duration: '3 hours'
+                scheduledDateTime: new Date('2024-11-05T10:00:00'),
+                endDateTime: new Date('2024-11-12T23:59:00'),
+                duration: '3 hours',
+                categoriesCompleted: { mcq: 0, openEnded: 0, codingProblems: 0 },
+                totalCategories: { mcq: 10, openEnded: 5, codingProblems: 4 }
               },
               {
                 id: "scheduled-assessment",
@@ -525,9 +552,11 @@ export const mockCourses: Course[] = [
                 title: 'JavaScript Advanced Concepts',
                 status: 'not-started',
                 description: 'This assessment will demonstrate the re-attempt flow and complete assessment experience.',
-                scheduledDateTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-                endDateTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-                duration: '2 hours'
+                scheduledDateTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000 + 9 * 60 * 60 * 1000), // 5 days + 9 hours from now (9 AM)
+                endDateTime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000 + 23 * 60 * 60 * 1000 + 59 * 60 * 1000), // 7 days + 23:59 from now
+                duration: '2 hours',
+                categoriesCompleted: { mcq: 0, openEnded: 0, codingProblems: 0 },
+                totalCategories: { mcq: 7, openEnded: 3, codingProblems: 2 }
               },
               {
                 id: "static-scheduled-assessment",
@@ -535,9 +564,11 @@ export const mockCourses: Course[] = [
                 title: 'React Advanced Patterns Assessment',
                 status: 'not-started',
                 description: 'Assessment on advanced React patterns, hooks, and performance optimization.',
-                scheduledDateTime: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-                endDateTime: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-                duration: '90 minutes'
+                scheduledDateTime: new Date('2024-11-18T09:00:00'), // Specific date with time
+                endDateTime: new Date('2024-11-20T23:59:00'), // Specific end date with time
+                duration: '90 minutes',
+                categoriesCompleted: { mcq: 0, openEnded: 0, codingProblems: 0 },
+                totalCategories: { mcq: 5, openEnded: 2, codingProblems: 1 }
               }
             ]
           }
@@ -565,9 +596,10 @@ export const mockCourses: Course[] = [
                 id: "3-1-2",
                 type: 'video',
                 title: "Setting up React Development Environment",
-                status: 'not-started',
+                status: 'in-progress',
                 duration: "20 min",
-                videoUrl: "https://youtu.be/DrAZf4ZHqaM?si=jcWByRHmXDKXwKkb"
+                videoUrl: "https://youtu.be/DrAZf4ZHqaM?si=jcWByRHmXDKXwKkb",
+                watchedPercentage: 35
               },
               {
                 id: "3-1-3",
@@ -603,19 +635,24 @@ export const mockCourses: Course[] = [
                 id: "4-1-2",
                 type: 'video',
                 title: "Custom Hooks Tutorial",
-                status: 'not-started',
+                status: 'watched',
                 duration: "25 min",
-                videoUrl: "https://youtu.be/DrAZf4ZHqaM?si=jcWByRHmXDKXwKkb"
+                videoUrl: "https://youtu.be/DrAZf4ZHqaM?si=jcWByRHmXDKXwKkb",
+                watchedPercentage: 92
               },
               {
                 id: "4-1-3",
                 type: 'coding-problem',
                 title: 'State Management Challenge',
-                status: 'not-started',
+                status: 'submitted',
                 description: 'Build a counter app using React hooks',
                 difficulty: 'Easy',
-                marks: 20,
-                totalTestCases: 3
+                totalTestCases: 6,
+                testCasesPassed: 3,
+                submissionTime: '2024-11-13T10:45:00',
+                submittedCode: 'import React, { useState } from "react";\n\nfunction Counter() {\n  const [count, setCount] = useState(0);\n  return (\n    <div>\n      <p>{count}</p>\n      <button onClick={() => setCount(count + 1)}>+</button>\n    </div>\n  );\n}',
+                memoryUsage: '142.5 KB',
+                executionTime: '0.45ms'
               }
             ]
           }
@@ -669,9 +706,9 @@ export const mockCourses: Course[] = [
     studentsEnrolled: 28,
     upcomingItems: [],
     attendanceStats: {
-      percentage: 88,
-      attended: 15,
-      total: 17,
+      percentage: 0,
+      attended: 0,
+      total: 0,
       recentClasses: []
     },
     currentModule: {
@@ -686,7 +723,85 @@ export const mockCourses: Course[] = [
       isJustStarting: false
     },
     projects: [],
-    modules: []
+    modules: [
+      {
+        id: "1",
+        name: "Kotlin Fundamentals",
+        isLocked: false,
+        topics: [
+          {
+            id: "1-1",
+            name: "Getting Started with Kotlin",
+            description: "Introduction to Kotlin programming language and Android development",
+            items: [
+              {
+                id: "1-1-1",
+                type: 'video',
+                title: "Introduction to Kotlin",
+                status: 'watched',
+                duration: "25 min",
+                description: "Learn the basics of Kotlin programming language",
+                watchedPercentage: 100
+              },
+              {
+                id: "1-1-2",
+                type: 'article',
+                title: "Kotlin vs Java: Key Differences",
+                status: 'completed',
+                description: "Understanding the advantages of Kotlin over Java for Android development"
+              },
+              {
+                id: "1-1-3",
+                type: 'video',
+                title: "Setting up Android Studio",
+                status: 'in-progress',
+                duration: "30 min",
+                description: "Complete guide to setting up your Android development environment",
+                watchedPercentage: 55
+              },
+              {
+                id: "1-1-4",
+                type: 'article',
+                title: "Kotlin Basic Syntax",
+                status: 'not-started',
+                description: "Learn Kotlin syntax, variables, and basic programming constructs"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "2",
+        name: "Android UI Development",
+        isLocked: true,
+        lockReason: "Complete Module 1 to unlock",
+        topics: [
+          {
+            id: "2-1",
+            name: "Layout and Views",
+            description: "Building user interfaces with Android views and layouts",
+            items: [
+              {
+                id: "2-1-1",
+                type: 'video',
+                title: "Introduction to Android Views",
+                status: 'in-progress',
+                duration: "35 min",
+                description: "Understanding Android view system and layout managers",
+                watchedPercentage: 25
+              },
+              {
+                id: "2-1-2",
+                type: 'article',
+                title: "XML Layouts in Android",
+                status: 'not-started',
+                description: "Creating user interfaces using XML layout files"
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     id: "3",

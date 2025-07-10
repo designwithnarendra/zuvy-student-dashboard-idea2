@@ -161,7 +161,7 @@ const CourseDashboard = () => {
             {/* Right Column - What's Next & Attendance */}
             <div className="space-y-8">
               <WhatsNextCard upcomingItems={course.upcomingItems} />
-              <AttendanceCard attendanceStats={course.attendanceStats} />
+                              <AttendanceCard attendanceStats={course.attendanceStats} courseId={courseId!} />
             </div>
           </div>
         </div>

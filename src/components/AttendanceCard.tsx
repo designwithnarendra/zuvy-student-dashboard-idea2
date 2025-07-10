@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { GraduationCap, Video } from "lucide-react";
+import { Link } from "react-router-dom";
+import { getStatusBadgeStyles } from "@/lib/utils";
 
 interface RecentClass {
   id: string;
@@ -21,9 +24,10 @@ interface AttendanceStats {
 
 interface AttendanceCardProps {
   attendanceStats: AttendanceStats;
+  courseId: string;
 }
 
-const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
+const AttendanceCard = ({ attendanceStats, courseId }: AttendanceCardProps) => {
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       weekday: 'short',
@@ -33,6 +37,13 @@ const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
       minute: '2-digit',
       hour12: true
     }).format(date);
+  };
+
+  // Helper function to get live class link based on class name
+  const getLiveClassLink = (className: string) => {
+    // This is a simplified mapping - in a real app, you'd have proper class ID to learning item mapping
+    // For demo purposes, linking to curriculum page where they can find the specific live class
+    return `/course/${courseId}/curriculum`;
   };
 
   const AttendanceModal = ({ classes }: { classes: RecentClass[] }) => (
@@ -49,7 +60,7 @@ const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
             <DialogHeader>
               <DialogTitle className="text-xl">Full Attendance Record</DialogTitle>
             </DialogHeader>
-            <div className="space-y-1 overflow-y-auto max-h-[60vh]">
+            <div className="space-y-1 overflow-y-auto max-h-[60vh] scrollbar-hide">
               {[...classes, 
                 { id: "4", name: "JavaScript Fundamentals", status: 'attended' as const, date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), instructor: "Dr. Sarah Chen" },
                 { id: "5", name: "HTML & CSS Basics", status: 'attended' as const, date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), instructor: "Dr. Sarah Chen" },
@@ -58,7 +69,7 @@ const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
                 <div key={classItem.id}>
                   <div className="flex items-center justify-between py-4">
                     <div className="flex-1">
-                      <h4 className="text-lg font-bold">{classItem.name}</h4>
+                      <h4 className="text-lg font-bold font-sans">{classItem.name}</h4>
                       <p className="text-sm text-muted-foreground">
                         {formatDate(classItem.date)} • {classItem.instructor}
                       </p>
@@ -67,6 +78,13 @@ const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
                       <Badge variant="outline" className={classItem.status === 'attended' ? "text-success border-success" : "text-destructive border-destructive"}>
                         {classItem.status === 'attended' ? 'Present' : 'Absent'}
                       </Badge>
+                      <Link 
+                        to={getLiveClassLink(classItem.name)}
+                        className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-primary-light transition-colors"
+                        title="View Class Recording"
+                      >
+                        <Video className="w-4 h-4 text-primary" />
+                      </Link>
                     </div>
                   </div>
                   {index < array.length - 1 && <div className="border-t border-border"></div>}
@@ -89,7 +107,7 @@ const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
             <SheetHeader className="border-b pb-4">
               <SheetTitle className="text-xl">Full Attendance Record</SheetTitle>
             </SheetHeader>
-            <div className="space-y-1 mt-4 overflow-y-auto flex-1">
+            <div className="space-y-1 mt-4 overflow-y-auto flex-1 scrollbar-hide">
               {[...classes, 
                 { id: "4", name: "JavaScript Fundamentals", status: 'attended' as const, date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), instructor: "Dr. Sarah Chen" },
                 { id: "5", name: "HTML & CSS Basics", status: 'attended' as const, date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), instructor: "Dr. Sarah Chen" },
@@ -98,7 +116,7 @@ const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
                 <div key={classItem.id}>
                   <div className="flex items-center justify-between py-4">
                     <div className="flex-1">
-                      <h4 className="text-lg font-bold">{classItem.name}</h4>
+                      <h4 className="text-lg font-bold font-sans">{classItem.name}</h4>
                       <p className="text-sm text-muted-foreground">
                         {formatDate(classItem.date)} • {classItem.instructor}
                       </p>
@@ -107,6 +125,13 @@ const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
                       <Badge variant="outline" className={classItem.status === 'attended' ? "text-success border-success" : "text-destructive border-destructive"}>
                         {classItem.status === 'attended' ? 'Present' : 'Absent'}
                       </Badge>
+                      <Link 
+                        to={getLiveClassLink(classItem.name)}
+                        className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-primary-light transition-colors"
+                        title="View Class Recording"
+                      >
+                        <Video className="w-4 h-4 text-primary" />
+                      </Link>
                     </div>
                   </div>
                   {index < array.length - 1 && <div className="border-t border-border"></div>}
@@ -136,24 +161,42 @@ const AttendanceCard = ({ attendanceStats }: AttendanceCardProps) => {
 
         <div className="space-y-4 mb-6">
           <h4 className="font-medium text-sm">Recent Classes</h4>
-          {attendanceStats.recentClasses.slice(0, 3).map((classItem) => (
-            <div key={classItem.id} className="flex items-center justify-between">
-              <div className="flex-1">
-                <p className="font-medium text-sm">{classItem.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {formatDate(classItem.date)}
-                </p>
+          {attendanceStats.recentClasses.length > 0 ? (
+            attendanceStats.recentClasses.slice(0, 3).map((classItem) => (
+              <div key={classItem.id} className="flex items-center justify-between">
+                <div className="flex-1">
+                  <p className="font-medium text-sm">{classItem.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatDate(classItem.date)}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className={classItem.status === 'attended' ? "text-success border-success" : "text-destructive border-destructive"}>
+                    {classItem.status === 'attended' ? 'Present' : 'Absent'}
+                  </Badge>
+                  <Link 
+                    to={getLiveClassLink(classItem.name)}
+                    className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-primary-light transition-colors"
+                    title="View Class Recording"
+                  >
+                    <Video className="w-4 h-4 text-primary" />
+                  </Link>
+                </div>
               </div>
-              <Badge variant="outline" className={classItem.status === 'attended' ? "text-success border-success" : "text-destructive border-destructive"}>
-                {classItem.status === 'attended' ? 'Present' : 'Absent'}
-              </Badge>
+            ))
+          ) : (
+            <div className="text-center py-4">
+              <GraduationCap className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-muted-foreground text-sm">No Classes</p>
             </div>
-          ))}
+          )}
         </div>
 
-        <div className="flex justify-center">
-          <AttendanceModal classes={attendanceStats.recentClasses} />
-        </div>
+        {attendanceStats.recentClasses.length > 0 && (
+          <div className="flex justify-center">
+            <AttendanceModal classes={attendanceStats.recentClasses} />
+          </div>
+        )}
       </CardContent>
     </Card>
   );

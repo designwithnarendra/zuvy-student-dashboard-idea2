@@ -1,7 +1,6 @@
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, LogOut } from "lucide-react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useTheme } from "@/lib/ThemeProvider";
 import { mockCourses } from "@/lib/mockData";
@@ -36,6 +35,10 @@ const Header = () => {
     if (courseId) {
       navigate(`/course/${courseId}/syllabus`);
     }
+  };
+
+  const handleLogout = () => {
+    navigate('/');
   };
 
   // Check if we're on a course-related page
@@ -93,10 +96,15 @@ const Header = () => {
           )}
         </Button>
         
-        <Avatar className="h-8 w-8">
-          <AvatarImage src="/placeholder.svg" />
-          <AvatarFallback>JD</AvatarFallback>
-        </Avatar>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLogout}
+          className="w-9 h-9 p-0 hover:bg-destructive-light hover:text-destructive transition-colors"
+          title="Logout"
+        >
+          <LogOut className="h-4 w-4" />
+        </Button>
       </div>
     </header>
   );
