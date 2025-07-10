@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { X, Check, AlertCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@/lib/ThemeProvider";
 import { mockCourses } from "@/lib/mockData";
+import CodeDisplayPanel from "@/components/CodeDisplayPanel";
+import TestCaseResultCard from "@/components/TestCaseResultCard";
+import SubmissionStatsCard from "@/components/SubmissionStatsCard";
 
 const SolutionViewerPage = () => {
   const { itemId } = useParams();
@@ -91,99 +92,142 @@ function maxSubarraySum(nums) {
     return maxSum;
 }`;
 
-  const testCases = [
-    { input: "[-2, 1, -3, 4, -1, 2, 1, -5, 4]", expected: "6", actual: "6", passed: true },
-    { input: "[1]", expected: "1", actual: "1", passed: true },
-    { input: "[5, 4, -1, 7, 8]", expected: "23", actual: "23", passed: true },
-    { input: "[-1]", expected: "-1", actual: "-1", passed: true },
-    { input: "[-2, -1]", expected: "-1", actual: "-1", passed: true }
+  // Mock submission data with realistic metrics
+  const submissionData: {
+    status: 'passed' | 'failed' | 'partial';
+    memoryUsage: { peak: number; unit: string };
+    executionTime: { total: number; unit: string };
+    testResults: { passed: number; total: number };
+    submittedCode: string;
+    language: string;
+    submissionTime: string;
+  } = {
+    status: 'failed',
+    memoryUsage: { peak: 48008, unit: 'bytes' },
+    executionTime: { total: 697, unit: 'ms' },
+    testResults: { passed: 0, total: 6 },
+    submittedCode,
+    language: 'javascript',
+    submissionTime: new Date().toISOString()
+  };
+
+  const testCases: Array<{
+    id: string;
+    status: 'passed' | 'failed';
+    input: string;
+    expectedOutput: string;
+    actualOutput?: string;
+    executionTime?: number;
+    memoryUsed?: number;
+  }> = [
+    { 
+      id: '1', 
+      status: 'passed', 
+      input: '[-2, 1, -3, 4, -1, 2, 1, -5, 4]', 
+      expectedOutput: '6', 
+      actualOutput: '6',
+      executionTime: 98,
+      memoryUsed: 7892
+    },
+    { 
+      id: '2', 
+      status: 'passed', 
+      input: '[1]', 
+      expectedOutput: '1', 
+      actualOutput: '1',
+      executionTime: 45,
+      memoryUsed: 6124
+    },
+    { 
+      id: '3', 
+      status: 'passed', 
+      input: '[5, 4, -1, 7, 8]', 
+      expectedOutput: '23', 
+      actualOutput: '23',
+      executionTime: 127,
+      memoryUsed: 8456
+    },
+    { 
+      id: '4', 
+      status: 'failed', 
+      input: '[-1]', 
+      expectedOutput: '-1', 
+      actualOutput: 'None',
+      executionTime: 42,
+      memoryUsed: 5998
+    },
+    { 
+      id: '5', 
+      status: 'failed', 
+      input: '[-2, -1]', 
+      expectedOutput: '-1', 
+      actualOutput: 'None',
+      executionTime: 58,
+      memoryUsed: 6234
+    },
+    { 
+      id: '6', 
+      status: 'failed', 
+      input: '[10, -5, 3, -8, 12]', 
+      expectedOutput: '17', 
+      actualOutput: 'None',
+      executionTime: 115,
+      memoryUsed: 8024
+    }
   ];
 
-  const passedTests = testCases.filter(test => test.passed).length;
-  const totalTests = testCases.length;
+
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="w-full flex items-center justify-between p-4 border-b">
-        <Button variant="ghost" size="icon" onClick={handleBack}>
-          <X className="w-5 h-5" />
-        </Button>
-        <div className="font-mono text-lg font-semibold">
-          Solution Viewer
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-background border-b">
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={handleBack}>
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-xl font-semibold">Coding Submission Result</h1>
+              <p className="text-sm text-muted-foreground">Detailed analysis of your solution</p>
+            </div>
+          </div>
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-80px)]">
-        {/* Left Side - Problem Brief */}
-        <div className="w-1/2 p-6 border-r overflow-y-auto">
-          <div className="mb-4">
-            <h1 className="text-2xl font-heading font-bold mb-2">{problemData.title}</h1>
-            <div className="flex gap-2 mb-4">
-              <span className={`px-2 py-1 rounded text-xs font-medium ${
-                problemData.difficulty === 'Easy' ? 'bg-success-light text-success' :
-                problemData.difficulty === 'Medium' ? 'bg-warning-light text-black' :
-                'bg-destructive-light text-destructive'
-              }`}>
-                {problemData.difficulty || 'Medium'}
-              </span>
-              <span className="px-2 py-1 rounded text-xs font-medium bg-muted text-muted-foreground">
-                {problemData.marks || 25} marks
-              </span>
+      {/* Main Content */}
+      <div className="container mx-auto p-6 max-w-7xl">
+        {/* Metrics Cards */}
+        <SubmissionStatsCard 
+          testResults={{ passed: problemData.testCasesPassed || 3, total: problemData.totalTestCases || 6 }}
+          memoryUsage={problemData.memoryUsage || "142.5 KB"}
+          executionTime={problemData.executionTime || "0.45ms"}
+        />
+
+        {/* Two-Column Layout: Student Code (Left) + Test Results (Right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[calc(100vh-200px)]">
+          {/* Student Code - Left Column */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold">Your Solution</h3>
+            <div className="h-full">
+              <CodeDisplayPanel 
+                code={submissionData.submittedCode}
+                language={submissionData.language}
+                title="Solution Implementation"
+              />
             </div>
           </div>
-          
-          <Card>
-            <CardContent className="p-4">
-              <pre className="whitespace-pre-wrap text-sm">{problemDescription}</pre>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Right Side - Solution and Test Results */}
-        <div className="w-1/2 flex flex-col">
-          <div className="p-6 border-b">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Your Solution</h2>
-              <Badge variant={passedTests === totalTests ? "default" : "destructive"}>
-                {passedTests === totalTests ? 'All Tests Passed' : `${passedTests}/${totalTests} Tests Passed`}
-              </Badge>
-            </div>
-            
-            <Card>
-              <CardContent className="p-4">
-                <pre className="text-sm font-mono whitespace-pre-wrap">{submittedCode}</pre>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="flex-1 p-6 overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Test Results</h3>
-            <div className="space-y-3">
-              {testCases.map((testCase, index) => (
-                <Card key={index} className={`border ${
-                  testCase.passed ? 'border-success bg-success-light/20' : 'border-destructive bg-destructive-light/20'
-                }`}>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                      {testCase.passed ? (
-                        <Check className="w-4 h-4 text-success" />
-                      ) : (
-                        <AlertCircle className="w-4 h-4 text-destructive" />
-                      )}
-                      Test Case {index + 1}
-                      <Badge variant={testCase.passed ? "default" : "destructive"} className="ml-auto">
-                        {testCase.passed ? 'Passed' : 'Failed'}
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="text-sm space-y-1">
-                      <div><strong>Input:</strong> {testCase.input}</div>
-                      <div><strong>Expected:</strong> {testCase.expected}</div>
-                      <div><strong>Your Output:</strong> {testCase.actual}</div>
-                    </div>
-                  </CardContent>
-                </Card>
+          {/* Test Results - Right Column */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-semibold">Test Results</h3>
+            <div className="h-[calc(100vh-280px)] overflow-y-auto space-y-4">
+              {testCases.slice(0, 6).map((testCase, index) => (
+                <TestCaseResultCard 
+                  key={testCase.id}
+                  testCase={testCase}
+                  index={index}
+                />
               ))}
             </div>
           </div>

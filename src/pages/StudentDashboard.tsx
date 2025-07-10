@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Play, RotateCcw, CheckCircle, Video, FileText, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import { mockStudent, mockCourses, Course } from "@/lib/mockData";
@@ -119,11 +118,11 @@ const StudentDashboard = () => {
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row gap-6">
                   {/* Course Image */}
-                  <div className="flex-shrink-0 md:w-20 md:h-20">
+                  <div className="flex-shrink-0 md:w-24 md:h-24">
                     <img
                       src={course.image}
                       alt={course.name}
-                      className="w-full h-20 md:w-20 md:h-20 rounded-lg object-cover"
+                      className="w-full h-24 md:w-24 md:h-24 rounded-lg object-cover"
                     />
                   </div>
                   
@@ -137,13 +136,9 @@ const StudentDashboard = () => {
                         <p className="text-muted-foreground mb-3 line-clamp-2">
                           {course.description}
                         </p>
-                        <div className="flex items-center gap-2 mb-4">
-                          <Avatar className="w-6 h-6">
-                            <AvatarImage src={course.instructor.avatar} />
-                            <AvatarFallback>{course.instructor.name[0]}</AvatarFallback>
-                          </Avatar>
+                        <div className="mb-4">
                           <span className="text-sm text-muted-foreground">
-                            {course.instructor.name}
+                            Instructor: {course.instructor.name}
                           </span>
                         </div>
 
@@ -213,10 +208,10 @@ const StudentDashboard = () => {
                                 variant="outline" 
                                 className={`text-xs px-2 py-0.5 whitespace-nowrap ${
                                   item.type === 'class' 
-                                    ? 'bg-secondary-light text-foreground border-secondary-light' 
+                                    ? 'bg-secondary-light text-secondary border-secondary' 
                                     : item.type === 'assessment'
-                                    ? 'bg-warning-light text-foreground border-warning-light'
-                                    : 'bg-info-light text-foreground border-info-light'
+                                    ? 'bg-warning-light text-warning border-warning'
+                                    : 'bg-info-light text-info border-info'
                                 }`}
                               >
                                 {item.type === 'class' && 'Live Class'}

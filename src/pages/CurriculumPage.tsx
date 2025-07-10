@@ -19,6 +19,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { mockCourses, Module, Topic, TopicItem } from "@/lib/mockData";
+import { getStatusBadgeStyles } from "@/lib/utils";
 import Header from "@/components/Header";
 import ModuleSheet from "@/components/ModuleSheet";
 
@@ -147,14 +148,14 @@ const CurriculumPage = () => {
     if (type === 'live-class') {
       if (item.scheduledDateTime && new Date() < item.scheduledDateTime) {
         const timeRemaining = getTimeRemaining(item.scheduledDateTime);
-        return <Badge variant="outline" className="text-muted-foreground">{timeRemaining}</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('scheduled')}>{timeRemaining}</Badge>;
       } else if (status === 'completed') {
         return (
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-success" />
-            <Badge variant="outline" className="text-success border-success">Completed</Badge>
+            <Badge variant="outline" className={getStatusBadgeStyles('completed')}>Completed</Badge>
             {item.attendanceStatus && (
-              <Badge variant="outline" className={item.attendanceStatus === 'present' ? "text-success border-success" : "text-destructive border-destructive"}>
+              <Badge variant="outline" className={item.attendanceStatus === 'present' ? getStatusBadgeStyles('completed') : "bg-destructive-light text-destructive border border-destructive"}>
                 {item.attendanceStatus === 'present' ? 'Present' : 'Absent'}
               </Badge>
             )}
@@ -165,37 +166,37 @@ const CurriculumPage = () => {
 
     if (type === 'video') {
       if (status === 'completed') {
-        return <Badge variant="outline" className="text-success border-success">Watched</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('watched')}>Watched</Badge>;
       } else {
-        return <Badge variant="outline" className="text-muted-foreground">Not Watched</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('not watched')}>Not Watched</Badge>;
       }
     }
 
     if (type === 'article') {
       if (status === 'completed') {
-        return <Badge variant="outline" className="text-success border-success">Read</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('read')}>Read</Badge>;
       } else {
-        return <Badge variant="outline" className="text-muted-foreground">Not Started</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('to be read')}>To be Read</Badge>;
       }
     }
 
     if (type === 'feedback') {
       if (status === 'completed') {
-        return <Badge variant="outline" className="text-success border-success">Feedback Shared</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('submitted')}>Feedback Shared</Badge>;
       } else {
-        return <Badge variant="outline" className="text-muted-foreground">Not Started</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('not submitted')}>Not Started</Badge>;
       }
     }
 
     switch (status) {
       case 'completed':
-        return <Badge variant="outline" className="text-success border-success">Completed</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('completed')}>Completed</Badge>;
       case 'in-progress':
-        return <Badge variant="outline" className="text-warning border-warning">In Progress</Badge>;
+        return <Badge variant="outline" className="bg-warning-light text-warning border border-warning">In Progress</Badge>;
       case 'not-started':
-        return <Badge variant="outline" className="text-muted-foreground">Not Started</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('not started')}>Not Started</Badge>;
       default:
-        return <Badge variant="outline" className="text-muted-foreground">Not Started</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('not started')}>Not Started</Badge>;
     }
   };
 
@@ -295,7 +296,7 @@ const CurriculumPage = () => {
     if (isRecording) {
       if (item.status === 'completed') {
         return (
-          <Button size="sm" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground bg-transparent" asChild>
+          <Button size="sm" variant="outline" className="bg-primary-light text-primary border-primary hover:bg-primary hover:text-primary-foreground" asChild>
             <Link to={`/content/${item.type}/${item.id}`}>
               Watch Recording
             </Link>
@@ -312,7 +313,7 @@ const CurriculumPage = () => {
 
     if (isVideo) {
       return (
-        <Button size="sm" variant="outline" className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground bg-transparent" asChild>
+        <Button size="sm" variant="outline" className="bg-primary-light text-primary border-primary hover:bg-primary hover:text-primary-foreground" asChild>
           <Link to={`/content/${item.type}/${item.id}`}>
             {item.status === 'completed' ? 'Watch Again' : 'Watch Video'}
           </Link>
@@ -322,7 +323,7 @@ const CurriculumPage = () => {
 
     if (isArticle) {
       return (
-        <Button size="sm" variant="outline" className="border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground bg-transparent" asChild>
+        <Button size="sm" variant="outline" className="bg-accent-light text-accent border-accent hover:bg-accent hover:text-accent-foreground" asChild>
           <Link to={`/content/${item.type}/${item.id}`}>
             {item.status === 'completed' ? 'Read Again' : 'Read Article'}
           </Link>
@@ -332,7 +333,7 @@ const CurriculumPage = () => {
 
     if (isAssignment) {
       return (
-        <Button size="sm">
+        <Button size="sm" className="bg-secondary-light text-secondary border-secondary hover:bg-secondary hover:text-secondary-foreground" variant="outline">
           {item.status === 'completed' ? 'View Submission' : 'Start Assignment'}
         </Button>
       );
@@ -346,7 +347,7 @@ const CurriculumPage = () => {
       }
       
       return (
-        <Button size="sm">
+        <Button size="sm" className="bg-accent-light text-accent border-accent hover:bg-accent hover:text-accent-foreground" variant="outline">
           {item.status === 'completed' ? 'View Results' : 'Start Assessment'}
         </Button>
       );
@@ -360,7 +361,7 @@ const CurriculumPage = () => {
       }
       
       return (
-        <Button size="sm">
+        <Button size="sm" className="bg-info-light text-info border-info hover:bg-info hover:text-info-foreground" variant="outline">
           {item.status === 'completed' ? 'View Feedback' : 'Share Feedback'}
         </Button>
       );

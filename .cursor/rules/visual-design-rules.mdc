@@ -1,7 +1,5 @@
 ---
-description: Whenever the the brainstorming or analysis is for visual design and aesthetics
-globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 Visual Design Rules
 

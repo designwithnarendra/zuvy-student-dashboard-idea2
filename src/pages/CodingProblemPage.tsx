@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { X } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTheme } from "@/lib/ThemeProvider";
@@ -16,6 +18,7 @@ const CodingProblemPage = () => {
   const [output, setOutput] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showSubmissionModal, setShowSubmissionModal] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [problemData, setProblemData] = useState<any>(null);
 
   // Load problem data and lock theme
@@ -52,6 +55,11 @@ const CodingProblemPage = () => {
   };
 
   const handleSubmit = () => {
+    setShowConfirmDialog(true);
+  };
+
+  const handleConfirmSubmit = () => {
+    setShowConfirmDialog(false);
     setIsSubmitted(true);
     setShowSubmissionModal(true);
     
@@ -126,12 +134,74 @@ function maxSubarraySum(nums) {
         <Button variant="ghost" size="icon" onClick={handleBack}>
           <X className="w-5 h-5" />
         </Button>
-        <div className="font-mono text-lg font-semibold">
-          Coding Challenge
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={handleRunCode} disabled={isSubmitted}>
+            Run Code
+          </Button>
+          <Button 
+            onClick={handleSubmit}
+            disabled={isSubmitted}
+          >
+            {isSubmitted ? 'Submitted ✓' : 'Submit'}
+          </Button>
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-80px)]">
+      {/* Mobile Layout with Tabs */}
+      <div className="block lg:hidden h-[calc(100vh-80px)]">
+        <Tabs defaultValue="description" className="flex flex-col h-full">
+          <TabsList className="grid w-full grid-cols-2 mx-4 mt-4">
+            <TabsTrigger value="description">Problem</TabsTrigger>
+            <TabsTrigger value="code">Code & Output</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="description" className="flex-1 p-4 overflow-y-auto">
+            <div className="mb-4">
+              <h1 className="text-xl font-heading font-bold mb-2">{problemData.title}</h1>
+              <div className="flex gap-2 mb-4">
+                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                  problemData.difficulty === 'Easy' ? 'bg-success-light text-success' :
+                  problemData.difficulty === 'Medium' ? 'bg-warning-light text-black' :
+                  'bg-destructive-light text-destructive'
+                }`}>
+                  {problemData.difficulty || 'Medium'}
+                </span>
+              </div>
+            </div>
+            
+            <Card>
+              <CardContent className="p-4">
+                <pre className="whitespace-pre-wrap text-sm leading-relaxed">{problemDescription}</pre>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="code" className="flex-1 flex flex-col">
+            <div className="flex-1 p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-semibold">Code Editor</h2>
+              </div>
+              
+              <Textarea
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                className="h-48 font-mono text-sm"
+                placeholder="Write your code here..."
+              />
+            </div>
+
+            <div className="h-32 p-4 border-t bg-muted/20">
+              <h3 className="text-sm font-semibold mb-2">Output</h3>
+              <pre className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {output || 'Click "Run Code" to see output...'}
+              </pre>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex h-[calc(100vh-80px)]">
         <div className="w-1/2 p-6 border-r overflow-y-auto">
           <div className="mb-4">
             <h1 className="text-2xl font-heading font-bold mb-2">{problemData.title}</h1>
@@ -142,9 +212,6 @@ function maxSubarraySum(nums) {
                 'bg-destructive-light text-destructive'
               }`}>
                 {problemData.difficulty || 'Medium'}
-              </span>
-              <span className="px-2 py-1 rounded text-xs font-medium bg-muted text-muted-foreground">
-                {problemData.marks || 25} marks
               </span>
             </div>
           </div>
@@ -168,18 +235,6 @@ function maxSubarraySum(nums) {
               className="h-64 font-mono text-sm"
               placeholder="Write your code here..."
             />
-            
-            <div className="flex justify-between mt-4">
-              <Button onClick={handleRunCode} disabled={isSubmitted}>
-                Run Code
-              </Button>
-              <Button 
-                onClick={handleSubmit}
-                disabled={isSubmitted}
-              >
-                {isSubmitted ? 'Submitted ✓' : 'Submit'}
-              </Button>
-            </div>
           </div>
 
           <div className="h-32 p-6 border-t bg-muted/20">
@@ -198,6 +253,23 @@ function maxSubarraySum(nums) {
         problemTitle={problemData.title}
         score="5/5 test cases passed"
       />
+
+      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Submit Solution</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to submit your solution? Once submitted, you cannot make changes to your code.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmSubmit}>
+              Submit
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

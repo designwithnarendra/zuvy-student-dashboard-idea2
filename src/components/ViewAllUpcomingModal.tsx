@@ -2,6 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Video, BookOpen, FileText, Clock } from "lucide-react";
+import { formatDateTime } from "@/lib/utils";
 
 interface UpcomingItem {
   id: string;
@@ -19,17 +20,6 @@ interface ViewAllUpcomingModalProps {
 }
 
 const ViewAllUpcomingModal = ({ isOpen, onClose, upcomingItems }: ViewAllUpcomingModalProps) => {
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    }).format(date);
-  };
-
   const getItemIconWithBackground = (type: string) => {
     switch (type) {
       case 'class':
@@ -82,7 +72,7 @@ const ViewAllUpcomingModal = ({ isOpen, onClose, upcomingItems }: ViewAllUpcomin
         <DialogHeader>
           <DialogTitle>All Upcoming Items</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="h-[60vh]">
+        <ScrollArea className="h-[60vh] scrollbar-hide">
           <div className="space-y-4 p-1">
             {upcomingItems.map((item, index) => (
               <div key={item.id}>
@@ -96,9 +86,9 @@ const ViewAllUpcomingModal = ({ isOpen, onClose, upcomingItems }: ViewAllUpcomin
                     </div>
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-sm font-medium">
-                        {item.type === 'class' && `Scheduled on ${formatDate(item.dateTime)}`}
-                        {item.type === 'assessment' && `Starts on ${formatDate(item.dateTime)}`}
-                        {item.type === 'assignment' && `Due on ${formatDate(item.dateTime)}`}
+                        {item.type === 'class' && `Scheduled on ${formatDateTime(item.dateTime)}`}
+                        {item.type === 'assessment' && `Starts on ${formatDateTime(item.dateTime)}`}
+                        {item.type === 'assignment' && `Due on ${formatDateTime(item.dateTime)}`}
                       </p>
                     </div>
                     {/* CTA - Bottom right */}

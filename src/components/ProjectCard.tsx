@@ -17,12 +17,18 @@ const ProjectCard = ({ project, isCurrentFocus = false }: ProjectCardProps) => {
       <CardContent className="p-6">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
           <div className="flex-1">
+            <Badge 
+              className={`mb-2 pointer-events-none ${
+                project.status === 'submitted' 
+                  ? 'bg-success-light text-success border-success/20' 
+                  : 'bg-muted-light text-muted-foreground border-muted-foreground/20'
+              }`}
+            >
+              {project.status === 'submitted' ? 'Submitted' : 'Not Submitted'}
+            </Badge>
             <h3 className="text-xl font-heading font-semibold mb-2">Project: {project.title}</h3>
             <p className="text-muted-foreground mb-3 line-clamp-2 text-sm">{project.description}</p>
             <p className="text-sm text-muted-foreground mb-2">Due: {project.dueDate}</p>
-            <Badge variant={project.status === 'submitted' ? 'default' : 'outline'}>
-              {project.status === 'submitted' ? 'Submitted' : 'Not Submitted'}
-            </Badge>
           </div>
           <div className="flex-shrink-0">
             <Button variant="link" asChild>

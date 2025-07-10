@@ -1,5 +1,6 @@
 
 import { Badge } from "@/components/ui/badge";
+import { getStatusBadgeStyles, formatDate } from "@/lib/utils";
 
 interface AssessmentHeaderProps {
   title: string;
@@ -23,11 +24,11 @@ const AssessmentHeader = ({
   const getAttemptStatusBadge = () => {
     switch (attemptStatus) {
       case 'Attempted':
-        return <Badge variant="outline" className="text-success border-success">Attempted</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('completed')}>Attempted</Badge>;
       case 'Interrupted':
-        return <Badge variant="outline" className="text-warning border-warning">Interrupted</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('interrupted')}>Interrupted</Badge>;
       default:
-        return <Badge variant="outline" className="text-muted-foreground">Not Attempted</Badge>;
+        return <Badge variant="outline" className={getStatusBadgeStyles('not attempted')}>Not Attempted</Badge>;
     }
   };
 
@@ -41,11 +42,11 @@ const AssessmentHeader = ({
       <div className="grid grid-cols-4 gap-4">
         <div>
           <p className="text-sm text-muted-foreground">Start Date</p>
-          <p className="font-medium">{startDate.toLocaleDateString()}</p>
+          <p className="font-medium">{formatDate(startDate)}</p>
         </div>
         <div>
           <p className="text-sm text-muted-foreground">End Date</p>
-          <p className="font-medium">{endDate.toLocaleDateString()}</p>
+          <p className="font-medium">{formatDate(endDate)}</p>
         </div>
         <div>
           <p className="text-sm text-muted-foreground">Duration</p>

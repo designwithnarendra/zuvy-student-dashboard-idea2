@@ -1,6 +1,7 @@
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { BookOpen, Clock, Users } from "lucide-react";
 import { Course } from "@/lib/mockData";
 
@@ -9,6 +10,18 @@ interface CourseInfoBannerProps {
 }
 
 const CourseInfoBanner = ({ course }: CourseInfoBannerProps) => {
+  const [showFullDescription, setShowFullDescription] = useState(false);
+
+  // Helper function to truncate description to approximately 2 lines
+  const getTruncatedDescription = (text: string) => {
+    const words = text.split(' ');
+    if (words.length <= 25) return text; // Roughly 2 lines worth of words
+    return words.slice(0, 25).join(' ') + '...';
+  };
+
+  const displayDescription = showFullDescription ? course.description : getTruncatedDescription(course.description);
+  const needsViewMore = course.description.split(' ').length > 25;
+
   return (
     <div className="w-full rounded-b-lg shadow-8dp bg-gradient-to-br from-primary/8 via-background to-accent/8 border-b border-border/50">
       <div className="max-w-7xl mx-auto p-6 md:p-8">
@@ -18,20 +31,25 @@ const CourseInfoBanner = ({ course }: CourseInfoBannerProps) => {
             <img
               src={course.image}
               alt={course.name}
-              className="w-32 h-32 rounded-lg object-cover"
+              className="w-24 h-24 rounded-lg object-cover"
             />
           </div>
           <div className="flex-1">
             <div className="flex justify-between items-start mb-4">
               <div className="flex-1">
                 <h1 className="text-2xl md:text-3xl font-heading font-bold mb-2">{course.name}</h1>
-                <p className="text-base md:text-lg text-muted-foreground mb-4">{course.description}</p>
-                <div className="flex items-center gap-2 mb-4">
-                  <Avatar className="w-8 h-8">
-                    <AvatarImage src={course.instructor.avatar} />
-                    <AvatarFallback>{course.instructor.name[0]}</AvatarFallback>
-                  </Avatar>
-                  <span className="font-medium">{course.instructor.name}</span>
+                <p className="text-base md:text-lg text-muted-foreground mb-4">{displayDescription}</p>
+                {needsViewMore && (
+                  <Button
+                    variant="link"
+                    onClick={() => setShowFullDescription(!showFullDescription)}
+                    className="p-0 h-auto text-primary mb-4"
+                  >
+                    {showFullDescription ? 'View Less' : 'View More'}
+                  </Button>
+                )}
+                <div className="mb-4">
+                  <span className="font-medium">Instructor: {course.instructor.name}</span>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -54,13 +72,18 @@ const CourseInfoBanner = ({ course }: CourseInfoBannerProps) => {
             className="w-full h-40 rounded-lg object-cover mb-4"
           />
           <h1 className="text-2xl font-heading font-bold mb-2">{course.name}</h1>
-          <p className="text-base text-muted-foreground mb-4">{course.description}</p>
-          <div className="flex items-center gap-2 mb-4">
-            <Avatar className="w-8 h-8">
-              <AvatarImage src={course.instructor.avatar} />
-              <AvatarFallback>{course.instructor.name[0]}</AvatarFallback>
-            </Avatar>
-            <span className="font-medium">{course.instructor.name}</span>
+          <p className="text-base text-muted-foreground mb-4">{displayDescription}</p>
+          {needsViewMore && (
+            <Button
+              variant="link"
+              onClick={() => setShowFullDescription(!showFullDescription)}
+              className="p-0 h-auto text-primary mb-4"
+            >
+              {showFullDescription ? 'View Less' : 'View More'}
+            </Button>
+          )}
+          <div className="mb-4">
+            <span className="font-medium">Instructor: {course.instructor.name}</span>
           </div>
           <div className="flex items-center gap-2 mb-4">
             <p className="text-sm font-bold text-muted-foreground">In Collaboration With</p>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,17 +9,17 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { 
   X, 
-  Calendar, 
-  Clock, 
   FileText, 
   ExternalLink,
   Download,
   ChevronDown,
   ChevronUp,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  ArrowLeft
 } from "lucide-react";
 import { mockCourses } from "@/lib/mockData";
+import { formatDate, formatDateTime } from "@/lib/utils";
 
 interface ProjectState {
   submissionLink: string;
@@ -70,16 +70,6 @@ const ProjectPage = () => {
       </div>
     );
   }
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
 
   const isDescriptionLong = project.description.split('\n').length > 15 || project.description.length > 800;
   const displayDescription = showFullDescription || !isDescriptionLong 
@@ -147,14 +137,15 @@ const ProjectPage = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b border-border">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center">
             <Button 
               variant="ghost" 
-              size="icon"
+              className="p-0 h-auto text-primary hover:text-primary hover:underline"
               onClick={() => navigate(`/course/${courseId}`)}
             >
-              <X className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              <span>Back to Course Dashboard</span>
             </Button>
           </div>
         </div>
@@ -170,28 +161,19 @@ const ProjectPage = () => {
           {/* Due Date and Time/Submission Info */}
           <div className="space-y-12">
             <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-2">
-                <Calendar className="w-5 h-5 text-muted-foreground" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Due Date</p>
-                  <p className="font-medium">{formatDate(project.dueDate)}</p>
-                </div>
+              <div>
+                <p className="text-sm text-muted-foreground">Due Date</p>
+                <p className="font-medium">{formatDate(project.dueDate)}</p>
               </div>
               {!projectState.isSubmitted ? (
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Time Remaining</p>
-                    <p className="font-medium text-success">5 days remaining</p>
-                  </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Time Remaining</p>
+                  <p className="font-medium text-success">5 days remaining</p>
                 </div>
               ) : (
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-success" />
-                  <div>
-                    <p className="text-sm text-muted-foreground">Submitted on</p>
-                    <p className="font-medium">{projectState.submittedAt?.toLocaleDateString()}</p>
-                  </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Submitted on</p>
+                  <p className="font-medium">{projectState.submittedAt ? formatDate(projectState.submittedAt) : ""}</p>
                 </div>
               )}
             </div>
@@ -235,9 +217,9 @@ const ProjectPage = () => {
                   <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg">
                     <div className="flex items-center space-x-3">
                       <FileText className="w-5 h-5 text-muted-foreground" />
-                      <span className="font-medium">{attachment}</span>
+                      <span className="text-base">{attachment}</span>
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button variant="link" className="text-primary p-0 h-auto">
                       <Download className="w-4 h-4 mr-2" />
                       Download
                     </Button>
@@ -284,33 +266,39 @@ const ProjectPage = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <Alert className="bg-success-light border-success">
-                    <CheckCircle className="h-4 w-4 text-success" />
-                    <AlertDescription className="text-success">
-                      Your project has been submitted successfully!
-                    </AlertDescription>
-                  </Alert>
-                  
-                  <div className="space-y-2">
-                    <Label>Your Submission</Label>
-                    <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg">
-                      <ExternalLink className="w-4 h-4 text-muted-foreground" />
-                      <a
-                        href={projectState.submissionLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline font-medium flex-1"
-                      >
-                        {projectState.submissionLink}
-                      </a>
-                    </div>
-                  </div>
+                  <Card className="bg-success-light border-success shadow-md">
+                    <CardContent className="p-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <CheckCircle className="h-5 w-5 text-success" />
+                        <h3 className="text-lg font-semibold text-success">
+                          Project Submitted Successfully!
+                        </h3>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div>
+                          <Label className="text-base">Your Submission</Label>
+                          <div className="flex items-center space-x-2 p-3 bg-muted rounded-lg mt-2">
+                            <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                            <a
+                              href={projectState.submissionLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline font-medium flex-1"
+                            >
+                              {projectState.submissionLink}
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 text-center">
                     <p className="text-sm text-muted-foreground">
                       Need to make changes? You can resubmit your project before the deadline.
                     </p>
-                    <Button variant="outline" onClick={handleResubmit}>
+                    <Button variant="outline" onClick={handleResubmit} className="border-primary text-primary hover:bg-primary/10">
                       Resubmit Project
                     </Button>
                   </div>

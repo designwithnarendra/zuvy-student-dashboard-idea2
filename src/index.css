@@ -80,6 +80,8 @@
     /* Learning Progress Colors - For progress bars and completion indicators */
     --progress-bg: 224 71% 95%;        /* Light primary background for progress containers */
     --progress-fill: 224 71% 56%;      /* Refined primary blue for progress fill */
+    --progress-label: 215.4 16.3% 46.9%; /* Medium gray text for progress labels */
+    --progress-label-bg: 0 0% 100%;    /* Pure white background for progress labels */
     
     /* Interactive States - Hover and active states that enhance the neural theme */
     --hover-overlay: 224 71% 56% / 0.1;    /* 10% refined primary overlay for hover states */
@@ -227,6 +229,9 @@
   .text-secondary-dark { color: hsl(var(--secondary-dark)); }
   .text-accent-light { color: hsl(var(--accent-light)); }
   .text-accent-dark { color: hsl(var(--accent-dark)); }
+
+  /* Typography utilities */
+  /* Removed text-h6 class as we'll use the existing h6 element styling */
 
   .shadow-2dp { box-shadow: var(--shadow-2dp); }
   .shadow-4dp { box-shadow: var(--shadow-4dp); }

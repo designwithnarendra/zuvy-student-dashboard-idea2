@@ -1,7 +1,5 @@
 ---
-description: Whenever user is brainstorming and planning ideas and solutions, asking to analyze in order to create a PRD or similar document
-globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 Strategic Design Rules
 

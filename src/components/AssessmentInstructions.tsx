@@ -115,12 +115,14 @@ const AssessmentInstructions = ({
 
     const handleFullscreenChange = () => {
       if (!document.fullscreenElement && currentView !== 'instructions' && !isViewMode) {
+        // Prevent exiting fullscreen
+        document.documentElement.requestFullscreen().catch(() => {});
         handleViolation('fullscreen-exit');
       }
     };
 
     const handleCopyPaste = (e: ClipboardEvent) => {
-      if ((e.type === 'copy' || e.type === 'paste') && currentView !== 'instructions' && !isViewMode) {
+      if (currentView !== 'instructions' && !isViewMode) {
         e.preventDefault();
         handleViolation('copy-paste');
       }
@@ -132,20 +134,36 @@ const AssessmentInstructions = ({
         e.preventDefault();
         handleViolation('copy-paste');
       }
+      
+      // Detect ESC key in assessment mode
+      if (e.key === 'Escape' && currentView !== 'instructions' && !isViewMode) {
+        e.preventDefault();
+        handleViolation('fullscreen-exit');
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    };
+
+    const handleContextMenu = (e: MouseEvent) => {
+      if (currentView !== 'instructions' && !isViewMode) {
+        e.preventDefault();
+        handleViolation('copy-paste');
+      }
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     document.addEventListener('paste', handleCopyPaste);
     document.addEventListener('copy', handleCopyPaste);
+    document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('paste', handleCopyPaste);
       document.removeEventListener('copy', handleCopyPaste);
+      document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
     };
-      }, [currentView, isViewMode]);
+  }, [currentView, isViewMode]);
 
   const handleViolation = (type: ViolationType['type']) => {
     const existingViolation = violations.find(v => v.type === type);
@@ -162,11 +180,11 @@ const AssessmentInstructions = ({
     setViolations(updatedViolations);
     
     const totalViolations = updatedViolations.reduce((sum, v) => sum + v.count, 0);
-    const currentTypeViolation = updatedViolations.find(v => v.type === type);
     
     if (totalViolations >= 3) {
       handleAutoSubmit();
     } else {
+      const currentTypeViolation = updatedViolations.find(v => v.type === type);
       setCurrentViolation(currentTypeViolation!);
       setShowViolationModal(true);
     }
@@ -239,7 +257,7 @@ const AssessmentInstructions = ({
   const getDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy': return 'bg-success-light text-success';
-      case 'Medium': return 'bg-warning-light text-black';
+      case 'Medium': return 'bg-info-light text-info';
       case 'Hard': return 'bg-destructive-light text-destructive';
       default: return 'bg-muted text-muted-foreground';
     }
@@ -263,6 +281,7 @@ const AssessmentInstructions = ({
           selectedChallengeIndex === 1 ? '// Write your solution here\nfunction isPalindrome(s) {\n    // Your code here\n    return false;\n}\n' :
           '// Write your solution here\nfunction twoSum(nums, target) {\n    // Your code here\n    return [];\n}\n'
         }
+        isViewMode={isViewMode && completedSections.coding}
       />
     );
   }
@@ -317,23 +336,14 @@ const AssessmentInstructions = ({
             <X className="w-5 h-5" />
           </Button>
           
-          <div className="flex items-center gap-6">
-            {!isViewMode && (
-              <div className="text-center">
-                <div className="text-sm text-muted-foreground">Time Remaining</div>
-                <div className="font-mono text-lg font-semibold">{formatTime(timeLeft)}</div>
-              </div>
-            )}
-            
-            <div className="text-center">
-              <div className="text-sm text-muted-foreground">
-                {isViewMode ? 'Viewing Results' : 'Assessment'}
-              </div>
-              <div className="font-semibold">{assessmentTitle}</div>
-            </div>
-          </div>
-          
           <div className="w-10"> {/* Spacer for balance */}</div>
+          
+          {!isViewMode && (
+            <div className="text-center">
+              <div className="text-sm text-muted-foreground">Time Remaining</div>
+              <div className="font-mono text-lg font-semibold">{formatTime(timeLeft)}</div>
+            </div>
+          )}
         </div>
         
         {/* Assessment Details Bar */}
@@ -351,12 +361,6 @@ const AssessmentInstructions = ({
               <span className="text-muted-foreground">Pass Score:</span>
               <span className="ml-1 font-medium">60</span>
             </div>
-            {!isViewMode && (
-              <div className="text-center">
-                <span className="text-muted-foreground">Start:</span>
-                <span className="ml-1 font-medium">{new Date().toLocaleDateString()}</span>
-              </div>
-            )}
           </div>
         </div>
       </header>
@@ -381,7 +385,9 @@ const AssessmentInstructions = ({
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-2xl font-heading font-bold">Coding Challenges</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-heading font-bold">Coding Challenges</h2>
+            </div>
             {codingChallenges.map((challenge, index) => (
               <Card key={index}>
                 <CardContent className="p-6">
@@ -391,7 +397,7 @@ const AssessmentInstructions = ({
                       <Badge className={getDifficultyColor(challenge.difficulty)}>
                         {challenge.difficulty}
                       </Badge>
-                      <Badge variant="outline">{challenge.marks} marks</Badge>
+                      <Badge className="bg-muted-light text-muted-foreground">{challenge.marks} marks</Badge>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
@@ -399,20 +405,23 @@ const AssessmentInstructions = ({
                       {completedSections.coding && (
                         <div className="flex items-center space-x-1 text-success">
                           <CheckCircle className="w-4 h-4" />
-                          <span className="text-sm font-medium">Completed</span>
+                          <span className="text-sm font-medium">Submitted</span>
                         </div>
                       )}
                     </div>
-                    <Button 
-                      variant="link" 
-                      className="text-primary p-0 h-auto"
-                      onClick={() => {
-                        setSelectedChallengeIndex(index);
-                        setCurrentView('coding');
-                      }}
-                    >
-                      {completedSections.coding ? 'View Solution' : 'Solve Challenge'}
-                    </Button>
+                    {/* Only show button in view mode or when not completed */}
+                    {(!completedSections.coding || isViewMode) && (
+                      <Button 
+                        variant="link" 
+                        className="text-primary p-0 h-auto"
+                        onClick={() => {
+                          setSelectedChallengeIndex(index);
+                          setCurrentView('coding');
+                        }}
+                      >
+                        {completedSections.coding ? 'View Results' : 'Solve Challenge'}
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -420,7 +429,9 @@ const AssessmentInstructions = ({
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-2xl font-heading font-bold">MCQ Quizzes</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-heading font-bold">MCQ Quizzes</h2>
+            </div>
             {mcqQuizzes.map((quiz, index) => (
               <Card key={index}>
                 <CardContent className="p-6">
@@ -430,7 +441,7 @@ const AssessmentInstructions = ({
                       <Badge className={getDifficultyColor(quiz.difficulty)}>
                         {quiz.difficulty}
                       </Badge>
-                      <Badge variant="outline">{quiz.marks} marks</Badge>
+                      <Badge className="bg-muted-light text-muted-foreground">{quiz.marks} marks</Badge>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
@@ -438,20 +449,23 @@ const AssessmentInstructions = ({
                       {completedSections.mcq && (
                         <div className="flex items-center space-x-1 text-success">
                           <CheckCircle className="w-4 h-4" />
-                          <span className="text-sm font-medium">Completed</span>
+                          <span className="text-sm font-medium">Submitted</span>
                         </div>
                       )}
                     </div>
-                    <Button 
-                      variant="link" 
-                      className="text-primary p-0 h-auto"
-                      onClick={() => {
-                        setSelectedQuizIndex(index);
-                        setCurrentView('mcq');
-                      }}
-                    >
-                      {completedSections.mcq ? 'View Answers' : 'Attempt Quiz'}
-                    </Button>
+                    {/* Only show button in view mode or when not completed */}
+                    {(!completedSections.mcq || isViewMode) && (
+                      <Button 
+                        variant="link" 
+                        className="text-primary p-0 h-auto"
+                        onClick={() => {
+                          setSelectedQuizIndex(index);
+                          setCurrentView('mcq');
+                        }}
+                      >
+                        {completedSections.mcq ? 'View Results' : 'Attempt Quiz'}
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -459,7 +473,9 @@ const AssessmentInstructions = ({
           </div>
 
           <div className="space-y-6">
-            <h2 className="text-2xl font-heading font-bold">Open Ended Questions</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-heading font-bold">Open Ended Questions</h2>
+            </div>
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -471,31 +487,52 @@ const AssessmentInstructions = ({
                     {completedSections.openended && (
                       <div className="flex items-center space-x-1 text-success">
                         <CheckCircle className="w-4 h-4" />
-                        <span className="text-sm font-medium">Completed</span>
+                        <span className="text-sm font-medium">Submitted</span>
                       </div>
                     )}
                   </div>
-                  <Button 
-                    variant="link" 
-                    className="text-primary p-0 h-auto"
-                    onClick={() => setCurrentView('openended')}
-                  >
-                    {completedSections.openended ? 'View Answers' : 'Attempt Questions'}
-                  </Button>
+                  {/* Only show button in view mode or when not completed */}
+                  {(!completedSections.openended || isViewMode) && (
+                    <Button 
+                      variant="link" 
+                      className="text-primary p-0 h-auto"
+                      onClick={() => setCurrentView('openended')}
+                    >
+                      {completedSections.openended ? 'View Results' : 'Attempt Questions'}
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
 
           {!isViewMode && (
-            <div className="flex justify-center pt-8">
-              <Button 
-                size="lg" 
-                disabled={!canSubmitAssessment}
-                onClick={handleSubmitAssessment}
-              >
-                Submit Assessment
-              </Button>
+            <div className="pt-8 border-t">
+              <p className="text-lg font-semibold mb-4">
+                You can submit assessment after attempting at least 1 question. Please be sure to check your attempted questions.
+              </p>
+              
+              <div className="flex flex-wrap gap-6 mb-8">
+                <div className="text-sm">
+                  <span className="font-medium">Coding Challenges:</span> {completedSections.coding ? '1' : '0'}/1
+                </div>
+                <div className="text-sm">
+                  <span className="font-medium">MCQ Quizzes:</span> {completedSections.mcq ? '2' : '0'}/2
+                </div>
+                <div className="text-sm">
+                  <span className="font-medium">Open Ended Questions:</span> {completedSections.openended ? '2' : '0'}/2
+                </div>
+              </div>
+              
+              <div className="flex justify-center">
+                <Button 
+                  size="lg" 
+                  disabled={!canSubmitAssessment}
+                  onClick={handleSubmitAssessment}
+                >
+                  Submit Assessment
+                </Button>
+              </div>
             </div>
           )}
         </div>

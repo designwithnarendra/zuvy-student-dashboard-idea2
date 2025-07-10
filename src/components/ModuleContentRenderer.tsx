@@ -11,6 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Play, Check, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { TopicItem } from "@/lib/mockData";
+import { getStatusBadgeStyles, formatDate, formatDateTime } from "@/lib/utils";
 import AssessmentView from "./AssessmentView";
 import CodingProblemPage from "./CodingProblemPage";
 
@@ -155,7 +156,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
       <div className="max-w-4xl mx-auto p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
-          <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
+          <Badge variant="outline" className={getStatusBadgeStyles(item.status === 'completed' ? 'completed' : 'not completed')}>
             {item.status === 'completed' ? 'Completed' : 'Not Completed'}
           </Badge>
         </div>
@@ -171,9 +172,20 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
         <div className="space-y-8">
           {questions.map((q, index) => (
             <div key={q.id} className="space-y-4">
-              <h3 className="text-lg font-semibold">
-                {index + 1}. {q.question}
-              </h3>
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-normal">
+                  {index + 1}. {q.question}
+                </h3>
+                {isCompleted && (
+                  <Badge variant="outline" className={
+                    currentAnswers[q.id] && parseInt(currentAnswers[q.id]) === q.correct 
+                      ? getStatusBadgeStyles('completed')
+                      : "bg-destructive-light text-destructive border border-destructive"
+                  }>
+                    {currentAnswers[q.id] && parseInt(currentAnswers[q.id]) === q.correct ? 'Correct' : 'Incorrect'}
+                  </Badge>
+                )}
+              </div>
               <RadioGroup
                 value={currentAnswers[q.id] || ''}
                 onValueChange={(value) => handleAnswerChange(q.id, value)}
@@ -220,7 +232,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
               onClick={handleQuizSubmit}
               disabled={!allAnswered}
             >
-              Submit
+              Submit Quiz
             </Button>
           </div>
         )}
@@ -254,7 +266,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
       <div className="max-w-4xl mx-auto p-8">
         <div className="flex justify-between items-center mb-2">
           <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
-          <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
+          <Badge variant="outline" className={getStatusBadgeStyles(item.status === 'completed' ? 'completed' : 'not completed')}>
             {item.status === 'completed' ? 'Completed' : 'Not Completed'}
           </Badge>
         </div>
@@ -268,7 +280,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
         <div className="space-y-8">
           {/* MCQ Question */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">1. How would you rate the overall quality of this module?</h3>
+            <h3 className="text-lg font-normal">1. How would you rate the overall quality of this module?</h3>
             <RadioGroup
               value={currentAnswers.mcq as string || ''}
               onValueChange={(value) => updateAnswer('mcq', value)}
@@ -286,7 +298,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
 
           {/* Checkbox Question */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">2. Which topics were most helpful? (Select all that apply)</h3>
+            <h3 className="text-lg font-normal">2. Which topics were most helpful? (Select all that apply)</h3>
             {['DOM Manipulation', 'Event Handling', 'Interactive Elements', 'Performance Optimization'].map((option, index) => (
               <div key={index} className="flex items-center space-x-2">
                 <Checkbox 
@@ -309,7 +321,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
 
           {/* Long Text Question */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">3. What suggestions do you have for improving this module?</h3>
+            <h3 className="text-lg font-normal">3. What suggestions do you have for improving this module?</h3>
             <Textarea
               value={currentAnswers.text as string || ''}
               onChange={(e) => updateAnswer('text', e.target.value)}
@@ -321,12 +333,12 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
 
           {/* Date Question */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">4. When did you start this module?</h3>
+            <h3 className="text-lg font-normal">4. When did you start this module?</h3>
             <Popover>
               <PopoverTrigger asChild>
                 <Button variant="outline" disabled={isCompleted}>
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {currentAnswers.date ? new Date(currentAnswers.date as string).toLocaleDateString() : "Select date"}
+                  {currentAnswers.date ? formatDate(new Date(currentAnswers.date as string)) : "Select date"}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
@@ -341,15 +353,15 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
 
           {/* Time Question */}
           <div className="space-y-4">
-            <h3 className="text-lg font-semibold">5. What time of day do you prefer studying?</h3>
-            <div className="flex items-center space-x-2">
-              <Clock className="h-4 w-4" />
+            <h3 className="text-lg font-normal">5. What time of day do you prefer studying?</h3>
+            <div className="relative w-40">
+              <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="time"
                 value={currentAnswers.time as string || ''}
                 onChange={(e) => updateAnswer('time', e.target.value)}
                 disabled={isCompleted}
-                className="w-40"
+                className="w-40 pl-10"
               />
             </div>
           </div>
@@ -361,7 +373,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
               onClick={handleFeedbackSubmit}
               disabled={!currentAnswers.mcq || !currentAnswers.text || !currentAnswers.date || !currentAnswers.time || !Array.isArray(currentAnswers.checkbox) || !currentAnswers.checkbox.length}
             >
-              Submit
+              Submit Feedback
             </Button>
           </div>
         )}
@@ -393,11 +405,15 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
     const getStatusBadge = () => {
       switch (submissionState) {
         case 'submitted':
-          return <Badge variant="outline" className="text-success border-success">Submitted</Badge>;
+          return (
+            <div className="text-center">
+              <Badge variant="outline" className={getStatusBadgeStyles('submitted')}>Submitted</Badge>
+            </div>
+          );
         case 'in-progress':
-          return <Badge variant="outline" className="text-warning border-warning">In Progress</Badge>;
+          return <Badge variant="outline" className="bg-warning-light text-warning border border-warning">In Progress</Badge>;
         default:
-          return <Badge variant="outline" className="text-muted-foreground">Not Attempted</Badge>;
+          return <Badge variant="outline" className={getStatusBadgeStyles('not submitted')}>Not Submitted</Badge>;
       }
     };
 
@@ -425,14 +441,10 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
           {getStatusBadge()}
         </div>
         
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 gap-4 mb-6">
           <div>
             <p className="text-sm text-muted-foreground">Difficulty</p>
             <p className="font-medium">{item.difficulty || 'Medium'}</p>
-          </div>
-          <div>
-            <p className="text-sm text-muted-foreground">Marks</p>
-            <p className="font-medium">{item.marks || 25} points</p>
           </div>
         </div>
         
@@ -446,18 +458,18 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
             </div>
             <p className="text-sm text-success">
               Test Cases: {submissionInfo.testCasesPassed}/{submissionInfo.totalTestCases} passed
+              {submissionInfo.submissionTime && (
+                <span className="ml-4">
+                  • Submitted on: {formatDateTime(new Date(submissionInfo.submissionTime))}
+                </span>
+              )}
             </p>
-            {submissionInfo.submissionTime && (
-              <p className="text-sm text-success">
-                Submitted on: {new Date(submissionInfo.submissionTime).toLocaleString()}
-              </p>
-            )}
           </div>
         )}
         
         <div className="text-center">
           <Button onClick={isSubmitted ? handleViewSolution : handleStartPractice}>
-            {isSubmitted ? 'View Solution' : 'Start Practice'}
+            {isSubmitted ? 'View Results' : 'Start Practice'}
           </Button>
         </div>
       </div>
@@ -485,7 +497,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <p className="text-sm text-muted-foreground">Scheduled Date & Time</p>
-              <p className="font-medium">{item.scheduledDateTime?.toLocaleString()}</p>
+              <p className="font-medium">{formatDateTime(item.scheduledDateTime)}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Duration</p>
@@ -511,7 +523,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
         <div className="max-w-4xl mx-auto p-8">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
-            <Badge variant="outline" className="text-success border-success">
+            <Badge variant="outline" className={getStatusBadgeStyles('live')}>
               Live Now
             </Badge>
           </div>
@@ -519,7 +531,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
           <div className="grid grid-cols-2 gap-4 mb-6">
             <div>
               <p className="text-sm text-muted-foreground">Scheduled Date & Time</p>
-              <p className="font-medium">{item.scheduledDateTime?.toLocaleString()}</p>
+              <p className="font-medium">{formatDateTime(item.scheduledDateTime)}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Duration</p>
@@ -543,7 +555,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
         <div className="max-w-4xl mx-auto p-8">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
-            <Badge variant="outline" className="text-success border-success">
+            <Badge variant="outline" className={getStatusBadgeStyles('completed')}>
               Completed
             </Badge>
           </div>
@@ -551,15 +563,15 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
           <div className="grid grid-cols-3 gap-4 mb-6">
             <div>
               <p className="text-sm text-muted-foreground">Date & Time</p>
-              <p className="font-medium">{item.scheduledDateTime?.toLocaleString()}</p>
+              <p className="font-medium">{item.scheduledDateTime ? formatDateTime(item.scheduledDateTime) : 'TBD'}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Duration</p>
               <p className="font-medium">{item.duration || '45 mins'}</p>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground">Attendance</p>
-              <p className="font-medium text-success">Present</p>
+              <p className="text-sm text-muted-foreground">Your Attendance Duration</p>
+              <p className="font-medium text-success">{item.duration || '45 mins'}</p>
             </div>
           </div>
           <p className="text-success mb-6 flex items-center gap-2">
@@ -586,6 +598,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
   if (item.type === 'video') {
     const videoId = item.videoUrl ? item.videoUrl.split('v=')[1] || item.videoUrl.split('/').pop()?.split('?')[0] : 'DrAZf4ZHqaM';
     const watchedPercentage = (item as ModuleItemState).watchedPercentage || 0;
+    const isWatched = watchedPercentage >= 70; // 70% threshold for watched status
     
     const handleVideoEnd = () => {
       sessionStateHandlers.handleVideoWatch(item.id, 100);
@@ -595,8 +608,8 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
       <div className="max-w-4xl mx-auto p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
-          <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
-            {item.status === 'completed' ? 'Watched' : 'Not Watched'}
+          <Badge variant="outline" className={getStatusBadgeStyles(isWatched ? 'watched' : 'not watched')}>
+            {isWatched ? 'Watched' : 'Not Watched'}
           </Badge>
         </div>
         <p className="text-muted-foreground mb-6">Duration: {item.duration || '20 mins'}</p>
@@ -645,7 +658,7 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
       <div className="max-w-4xl mx-auto p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-heading font-bold">{item.title}</h1>
-          <Badge variant="outline" className={item.status === 'completed' ? "text-success border-success" : "text-muted-foreground"}>
+          <Badge variant="outline" className={getStatusBadgeStyles(item.status === 'completed' ? 'read' : 'to be read')}>
             {item.status === 'completed' ? 'Read' : 'To be Read'}
           </Badge>
         </div>
@@ -722,12 +735,12 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
       <div className="max-w-4xl mx-auto p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-heading font-bold text-left">{item.title}</h1>
-          <Badge variant="outline" className={isSubmitted ? "text-success border-success" : "text-muted-foreground"}>
+          <Badge variant="outline" className={getStatusBadgeStyles(isSubmitted ? 'submitted' : 'not submitted')}>
             {isSubmitted ? 'Submitted' : 'Not Submitted'}
           </Badge>
         </div>
         <p className="text-muted-foreground mb-6 text-left">
-          Due: {item.dueDate ? item.dueDate.toLocaleDateString() : 'December 15, 2024'}
+          Due: {item.dueDate ? formatDate(item.dueDate) : 'December 15, 2024'}
         </p>
         <p className="text-muted-foreground mb-8 text-left">
           {item.description || 
@@ -745,15 +758,15 @@ const ModuleContentRenderer = ({ selectedItemData, getAssessmentData, sessionSta
                   onChange={(e) => handleSubmissionChange(e.target.value)}
                   disabled={isDueDatePassed}
                 />
+                {errorMessage && (
+                  <p className="text-sm text-destructive">{errorMessage}</p>
+                )}
                 {!isDueDatePassed && (
                   <Button 
                     onClick={handleSubmit}
                   >
                     Submit Assignment
                   </Button>
-                )}
-                {errorMessage && (
-                  <p className="text-sm text-destructive">{errorMessage}</p>
                 )}
               </>
             ) : (

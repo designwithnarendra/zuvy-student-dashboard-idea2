@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Video, BookOpen, FileText, Clock } from "lucide-react";
 import { useState } from "react";
 import ViewAllUpcomingModal from "./ViewAllUpcomingModal";
+import { formatDate, formatDateTime } from "@/lib/utils";
 
 interface UpcomingItem {
   id: string;
@@ -21,31 +22,15 @@ interface WhatsNextCardProps {
 const WhatsNextCard = ({ upcomingItems }: WhatsNextCardProps) => {
   const [isViewAllModalOpen, setIsViewAllModalOpen] = useState(false);
 
-  // Limit displayed items to 5
-  const displayedItems = upcomingItems.slice(0, 5);
-  const hasMoreItems = upcomingItems.length > 5;
-
-  const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('en-US', {
-      weekday: 'short',
-      month: 'short',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    }).format(date);
-  };
+  // Limit displayed items to 4
+  const displayedItems = upcomingItems.slice(0, 4);
+  const hasMoreItems = upcomingItems.length > 4;
 
   const formatDateRange = () => {
     const today = new Date();
     const seventhDay = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
     
-    const formatOptions: Intl.DateTimeFormatOptions = {
-      month: 'short',
-      day: 'numeric'
-    };
-    
-    return `From ${today.toLocaleDateString('en-US', formatOptions)} to ${seventhDay.toLocaleDateString('en-US', formatOptions)}`;
+    return `From ${formatDate(today).split(' ').slice(0, 2).join(' ')} to ${formatDate(seventhDay).split(' ').slice(0, 2).join(' ')}`;
   };
 
   const getItemIconWithBackground = (type: string) => {
@@ -117,9 +102,9 @@ const WhatsNextCard = ({ upcomingItems }: WhatsNextCardProps) => {
                     </div>
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-sm font-medium">
-                        {item.type === 'class' && `Scheduled on ${formatDate(item.dateTime)}`}
-                        {item.type === 'assessment' && `Starts on ${formatDate(item.dateTime)}`}
-                        {item.type === 'assignment' && `Due on ${formatDate(item.dateTime)}`}
+                        {item.type === 'class' && `Scheduled on ${formatDateTime(item.dateTime)}`}
+                        {item.type === 'assessment' && `Starts on ${formatDateTime(item.dateTime)}`}
+                        {item.type === 'assignment' && `Due on ${formatDateTime(item.dateTime)}`}
                       </p>
                     </div>
                     {/* CTA - Bottom right */}
@@ -155,7 +140,7 @@ const WhatsNextCard = ({ upcomingItems }: WhatsNextCardProps) => {
         ) : (
           <div className="text-center py-8">
             <Calendar className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-            <p className="text-muted-foreground">No upcoming items</p>
+            <p className="text-muted-foreground">Nothing Scheduled</p>
           </div>
         )}
       </CardContent>

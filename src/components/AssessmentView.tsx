@@ -16,6 +16,17 @@ interface AssessmentData {
   state: 'scheduled' | 'open' | 'interrupted' | 'reAttemptRequested' | 'completed' | 'expired';
   score?: number;
   attemptStatus: 'Not Attempted' | 'Attempted' | 'Interrupted';
+  styling?: {
+    backgroundColor?: string;
+    borderColor?: string;
+    textColor?: string;
+    textStyle?: string;
+    ctaStyle?: string;
+    topLineStyle?: string;
+    scheduledForStyle?: string;
+    startsInStyle?: string;
+    removeBackgroundFromTimer?: boolean;
+  };
 }
 
 interface AssessmentViewProps {
@@ -141,6 +152,7 @@ const AssessmentView = ({ assessment, onReAttemptRequest }: AssessmentViewProps)
           passScore={assessment.passScore}
           onReAttemptRequest={handleReAttemptRequest}
           onBeginAssessment={handleBeginAssessment}
+          styling={assessment.styling}
           onViewResults={() => {
             // Navigate to view results mode in separate page
             window.location.href = `/assessment/${assessment.id}?view=results`;

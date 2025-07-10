@@ -4,6 +4,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { X, CheckCircle } from "lucide-react";
+import { formatDateTime } from "@/lib/utils";
 
 interface MCQQuizProps {
   quiz: {
@@ -132,7 +133,7 @@ const MCQQuiz = ({ quiz, onBack, onComplete, timeLeft, isViewMode = false, quizI
                 Your Score: {score.correct}/{score.total} ({Math.round((score.correct / score.total) * 100)}%)
               </p>
               <p className="text-sm text-success">
-                Submitted on: {new Date(JSON.parse(sessionStorage.getItem(`mcq-quiz-${quizId}`) || '{}').submissionTime || new Date()).toLocaleString()}
+                Submitted on: {formatDateTime(new Date(JSON.parse(sessionStorage.getItem(`mcq-quiz-${quizId}`) || '{}').submissionTime || new Date()))}
               </p>
             </CardContent>
           </Card>

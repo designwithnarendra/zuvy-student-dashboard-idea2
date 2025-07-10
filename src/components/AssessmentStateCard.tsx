@@ -12,6 +12,7 @@ import {
   Eye,
   X
 } from "lucide-react";
+import { formatDate, formatDateTime } from "@/lib/utils";
 
 interface AssessmentStateCardProps {
   state: 'scheduled' | 'open' | 'interrupted' | 'reAttemptRequested' | 'completed' | 'expired';
@@ -24,6 +25,17 @@ interface AssessmentStateCardProps {
   onReAttemptRequest?: () => void;
   onBeginAssessment?: () => void;
   onViewResults?: () => void;
+  styling?: {
+    backgroundColor?: string;
+    borderColor?: string;
+    textColor?: string;
+    textStyle?: string;
+    ctaStyle?: string;
+    topLineStyle?: string;
+    scheduledForStyle?: string;
+    startsInStyle?: string;
+    removeBackgroundFromTimer?: boolean;
+  };
 }
 
 const AssessmentStateCard = ({ 
@@ -36,7 +48,8 @@ const AssessmentStateCard = ({
   passScore,
   onReAttemptRequest,
   onBeginAssessment,
-  onViewResults
+  onViewResults,
+  styling
 }: AssessmentStateCardProps) => {
 
   const formatCountdown = (seconds: number) => {
@@ -68,27 +81,20 @@ const AssessmentStateCard = ({
   // Static scheduled state for React Advanced Patterns Assessment
   if (assessmentId === 'static-scheduled-assessment') {
     return (
-      <Card>
+      <Card className={styling?.backgroundColor || "bg-info-light"} style={{borderColor: styling?.borderColor ? `var(--${styling.borderColor.split('-')[1]})` : undefined}}>
         <CardContent className="p-6">
           <div className="text-center space-y-4">
-            <div className="flex items-center justify-center space-x-2">
-              <Calendar className="w-5 h-5 text-muted-foreground" />
-              <span className="text-lg font-semibold">Assessment Scheduled</span>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Scheduled for: {endDate.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}
-            </div>
-            <div className="p-4 bg-muted rounded-lg">
-              <div className="text-2xl font-mono font-bold text-primary">
-                {getTimeUntilStart()}
+            {styling?.topLineStyle && (
+              <div className="flex items-center justify-center space-x-2">
+                <Calendar className="w-5 h-5 text-info" />
+                <span className={styling?.topLineStyle || "text-base font-semibold"}>Assessment Scheduled</span>
               </div>
+            )}
+            <p className={`text-lg ${styling?.scheduledForStyle || "text-base font-normal"}`}>
+              Assessment Scheduled for: {formatDateTime(endDate)}
+            </p>
+            <div className={styling?.startsInStyle || "text-base font-bold text-primary"}>
+              {getTimeUntilStart()}
             </div>
           </div>
         </CardContent>
@@ -99,17 +105,17 @@ const AssessmentStateCard = ({
   switch (state) {
     case 'scheduled':
       return (
-        <Card>
+        <Card className={styling?.backgroundColor || "bg-muted-light"} style={{borderColor: styling?.borderColor ? `var(--${styling.borderColor.split('-')[1]})` : undefined}}>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              <Calendar className="w-5 h-5 text-muted-foreground" />
-              <span>Assessment Scheduled</span>
+              <Calendar className={`w-5 h-5 ${styling?.textColor || "text-muted-foreground"}`} />
+              <span className={styling?.textColor || ""}>Assessment Scheduled</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {countdown !== undefined && (
-              <div className="text-center p-4 bg-muted rounded-lg">
-                <div className="text-2xl font-mono font-bold text-primary">
+              <div className={`text-center ${!styling?.removeBackgroundFromTimer ? "p-4 bg-muted rounded-lg" : ""}`}>
+                <div className={`text-2xl font-bold ${styling?.textColor || "text-primary"}`}>
                   {formatCountdown(countdown)}
                 </div>
                 <p className="text-sm text-muted-foreground">
@@ -123,13 +129,13 @@ const AssessmentStateCard = ({
 
     case 'open':
       return (
-        <Card>
+        <Card className={styling?.backgroundColor || "bg-info-light"} style={{borderColor: styling?.borderColor ? `var(--${styling.borderColor.split('-')[1]})` : undefined}}>
           <CardContent className="p-6">
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
-                <span className="text-lg font-semibold">Assessment is open. Please attempt it before end date</span>
+                <p className={`text-lg ${styling?.textColor || "text-info"} ${styling?.textStyle || ""}`}>Assessment is open. Please attempt it before end date</p>
               </div>
-              <Button onClick={onBeginAssessment} size="lg">
+              <Button className={styling?.ctaStyle || "bg-info text-info-foreground hover:bg-info/90"} onClick={onBeginAssessment} size="lg">
                 Begin Assessment
               </Button>
             </div>
@@ -139,14 +145,14 @@ const AssessmentStateCard = ({
 
     case 'interrupted':
       return (
-        <Card>
+        <Card className={styling?.backgroundColor || "bg-warning-light"} style={{borderColor: styling?.borderColor ? `var(--${styling.borderColor.split('-')[1]})` : undefined}}>
           <CardContent className="p-6">
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
-                <AlertTriangle className="w-5 h-5 text-warning" />
-                <span className="text-lg font-semibold">Assessment interrupted due to technical issues</span>
+                <AlertTriangle className={`w-5 h-5 ${styling?.textColor || "text-warning"}`} />
+                <p className={`text-lg ${styling?.textColor || "text-warning"}`}>Assessment interrupted due to technical issues</p>
               </div>
-              <Button onClick={onReAttemptRequest}>
+              <Button variant="outline" className={styling?.ctaStyle || "bg-warning-light text-warning border-warning hover:bg-warning hover:text-warning-foreground"} onClick={onReAttemptRequest}>
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Request Re-attempt
               </Button>
@@ -180,33 +186,32 @@ const AssessmentStateCard = ({
 
     case 'completed':
       return (
-        <Card>
+        <Card className={isPassed ? "bg-success-light border-success" : "bg-destructive-light border-destructive"}>
           <CardContent className="p-6">
             <div className="text-center space-y-4">
-              <div className="flex items-center justify-center space-x-2">
-                {isPassed ? (
-                  <>
+              <div className="flex flex-col items-center justify-center">
+                <div className="flex items-center space-x-2">
+                  {isPassed ? (
                     <CheckCircle className="w-5 h-5 text-success" />
-                    <span className="text-lg font-semibold">You passed this assessment successfully</span>
-                  </>
-                ) : (
-                  <>
+                  ) : (
                     <X className="w-5 h-5 text-destructive" />
-                    <span className="text-lg font-semibold">You have failed due to low score</span>
-                  </>
-                )}
+                  )}
+                  <p className={isPassed ? "text-lg text-success font-semibold" : "text-lg text-destructive font-semibold"}>
+                    {isPassed 
+                      ? "You passed this assessment successfully" 
+                      : "You have failed due to low score"}
+                  </p>
+                </div>
+                <p className="font-bold mt-2">
+                  Your Score: {score}
+                </p>
               </div>
-              <div className="space-y-2">
-                <div className="text-xl font-bold">Your Score: {score}</div>
-                {!isPassed && (
-                  <div className="text-sm text-muted-foreground">
-                    Passing Score: {passScore}
-                  </div>
-                )}
-                <Button onClick={onViewResults}>
-                  View Results
-                </Button>
-              </div>
+              <Button 
+                className={isPassed ? "bg-success text-white hover:bg-success/90" : "bg-destructive text-white hover:bg-destructive/90"}
+                onClick={onViewResults}
+              >
+                View Results
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -214,15 +219,15 @@ const AssessmentStateCard = ({
 
     case 'expired':
       return (
-        <Card>
+        <Card className="bg-destructive-light border-destructive">
           <CardContent className="p-6">
             <div className="text-center space-y-4">
               <div className="flex items-center justify-center space-x-2">
                 <XCircle className="w-5 h-5 text-destructive" />
-                <span className="text-lg font-semibold">Assessment expired and cannot be submitted</span>
+                <p className="text-lg font-semibold text-destructive">Assessment expired and cannot be submitted</p>
               </div>
-              <div className="text-sm text-muted-foreground">
-                End Date: {endDate.toLocaleDateString()}
+              <div className="text-sm text-destructive/80">
+                End Date: {formatDate(endDate)}
               </div>
             </div>
           </CardContent>
